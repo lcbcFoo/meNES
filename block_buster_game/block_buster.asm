@@ -16,6 +16,34 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
    ;MyVariable0 .dsb 1
    ;MyVariable1 .dsb 3
 
+    slider_position .dsb 100
+
+    ; 0 -> don't move
+    ; 1 -> move left
+    ; 2 -> move right
+    move_slider .dsb 0
+
+    ball_position_x .dsb 100
+    ball_position_y .dsb 50
+    ball_speed_x .dsb 3
+    ball_speed_y .dsb 3
+
+    score .dsb 0
+    lives .dsb 3
+
+    ; Each bit corresponds to one brick. If the bit is set the corresponding
+    ; brick is in the screen
+    ; least significant bit corresponds to brick 0
+    bricks0 .dsb 255
+    bricks1 .dsb 255
+    bricks2 .dsb 255
+    bricks3 .dsb 255
+    bricks4 .dsb 255
+    bricks5 .dsb 255
+    bricks6 .dsb 255
+    bricks7 .dsb 255
+    
+
    .ende
 
    ;NOTE: you can also split the variable declarations into individual pages, like this:
@@ -25,6 +53,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    ;.enum $0200
    ;.ende
+
 
 ;----------------------------------------------------------------
 ; iNES header
