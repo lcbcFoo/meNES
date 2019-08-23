@@ -5,56 +5,54 @@
 PRG_COUNT = 1 ;1 = 16KB, 2 = 32KB
 MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
-; bar horizontal size
-BAR_SIZE = 20
 
-;   Refer to this for the following constants
+;   Refer to this for the bar related constants
 ;
-;       -------------------------------------         bar_surface
+; DOWN                                          UP
+;
+;      position_y
+;       -------------------------------------     bar_surface (relative to 0)
 ;      |     bar                             |
 ;      |                                     |
-;~~~~~~ ------------------------------------- ~~~~~~  lava_surface
+;~~~~~~ ------------------------------------- ~~~~~~  LEFT_LIMIT/RIGHT_LIMIT
 ;
-;===================================================  end of screen (0)
+;===================================================  end of screen (0 or 256)
 
-; bar surface level (where the ball is supposed to hit)
-BAR_SURFACE = 20
-; Lava y level. If the ball goes under this point -> game over
-LAVA_SURFACE = 11
+; bar verical size
+BAR_SIZE = 20
+
+; left bar surface (relative to 0)
+LEFT_BAR_SURFACE = 20
+
+; right bar surface (relative to 0)
+RIGHT_BAR_SURFACE = 236
+
+; How many pixels bar move if button is pressed
+BAR_SPEED = 1
 
 LEFT_LIMIT = 10
 RIGHT_LIMIT = 246
-UP_LIMIT = 180
+UP_LIMIT = 50
+DOWN_LIMIT = 200
 
-; Default values
+BALL_DIAMETER = 8
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Default values for variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 BALL_X = 10
 BALL_Y = 10
 BALL_VX = 1
 BALL_VY = 1
 
-BAR_X = 100
-MOVE_BAR_SELECT = 0
+BAR_LEFT_Y = 100
+BAR_RIGHT_Y = 100
+MOVE_BAR_DIRECTION = 0
 
-SCORE = 0
-RECORD = 0
-LIVES = 3
-
-HITS_LAVA = 0
-HITS_BAR = 0
-
-BRICKS_HEIGHT = 10
-BRICKS_WIDTH = 30
-
-FIRST_BRICK_Y = 120
-
-BRICKS0 = 10
-BRICKS1 = 11
-BRICKS2 = 12
-BRICKS3 = 13
-BRICKS4 = 14
-BRICKS5 = 15
-BRICKS6 = 16
-BRICKS7 = 17
+SCORE_LEFT = 0
+SCORE_RIGHT = 0
+GOAL_FLAG = 0
 
 ;----------------------------------------------------------------
 ; variables
@@ -64,37 +62,24 @@ BRICKS7 = 17
 
    ;NOTE: declare variables using the.dsb and DSW directives, like this:
 
-   ;MyVariable0 .dsb 1
-   ;MyVariable1 .dsb 3
-
-    ; bar X position
-    bar_x .dsb 1
+    ; bar left Y position
+    bar_left_y .dsb 1
+    ; bar right Y position
+    bar_right_y .dsb 1
 
     ; 0 -> don't move
-    ; 1 -> move left
-    ; 2 -> move right
-    move_bar_select .dsb 1
+    ; 1 -> move up
+    ; 2 -> move down
+    move_bar_direction .dsb 1
 
     ball_x .dsb 1
     ball_y .dsb 1
     ball_vx .dsb 1
     ball_vy .dsb 1
 
-    score .dsb 1
-    record .dsb 1
-    lives .dsb 1
-
-    ; Flag used by check_hits_lava. If set to one -> ball hits lava
-    hits_lava .dsb 1
-
-    ; Flag used by check_hits_bar. If set to one -> ball hits bar
-    hits_bar .dsb 1
-
-    ; Each bit corresponds to one brick. If the bit is set the corresponding
-    ; brick is in the screen
-    ; least significant bit corresponds to brick 0
-    bricks .dsb 8
-    
+    score_left .dsb 1
+    score_right .dsb 1
+    goal_flag .dsb 1
 
    .ende
 
@@ -135,50 +120,21 @@ Reset:
     LDA     #BALL_VY
     STA     ball_vy
 
-    LDA     #BAR_X
-    STA     bar_x
-    LDA     #MOVE_BAR_SELECT
-    STA     move_bar_select
+    LDA     #BAR_LEFT_Y
+    STA     bar_left_y
+    LDA     #BAR_RIGHT_Y
+    STA     bar_right_y
+    LDA     #MOVE_BAR_DIRECTION
+    STA     move_bar_direction
 
-    LDA     #SCORE
-    STA     score
-    LDA     #RECORD
-    STA     record
-    LDA     #LIVES
-    STA     lives
+    LDA     #SCORE_LEFT
+    STA     score_left
+    LDA     #SCORE_RIGHT
+    STA     score_right
+    LDA     #GOAL_FLAG
+    STA     goal_flag
 
-    LDA     #HITS_LAVA
-    STA     hits_lava
-    LDA     #HITS_BAR
-    STA     hits_bar
-
-    LDX     #1
-    LDA     #BRICKS0
-    STA     bricks,X
-    INX
-    LDA     #BRICKS1
-    STA     bricks,X
-    INX
-    LDA     #BRICKS2
-    STA     bricks,X
-    INX
-    LDA     #BRICKS3
-    STA     bricks,X
-    INX
-    LDA     #BRICKS4
-    STA     bricks,X
-    INX
-    LDA     #BRICKS5
-    STA     bricks,X
-    INX
-    LDA     #BRICKS6
-    STA     bricks,X
-    INX
-    LDA     #BRICKS7
-    STA     bricks,X
-    
-    
-    JMP check_hits_lava
+    JMP     main_loop
 
 NMI:
 
@@ -201,107 +157,143 @@ IRQ:
 
 ; Register Y -> 1 if value in A register is negative, else to Y -> 0
 is_negative:
-	CMP #$7F
-	BPL IS_NEGATIVE_NEG_LABEL
-	LDY #0
+	CMP     #$7F
+	BPL     IS_NEGATIVE_NEG_LABEL
+	LDY     #0
 	RTS
 IS_NEGATIVE_NEG_LABEL:
-	LDY #1
+	LDY     #1
 	RTS
 ; end is_negative
 
 
 ; Invert value in A register. Equivalent to A = -A
 invert:
-	EOR #$FF
+	EOR     #$FF
 	CLC
-	ADC #1
+	ADC     #1
 	RTS
 ;end invert
 
 
 ; Set A to the module of the value in A. A = |A|
 module:
-	PHA
-	JSR is_negative
-	BNE MODULE_NEG_LABEL
-	PLA
+	JSR     is_negative
+    CPY     #0
+	BNE     MODULE_NEG_LABEL
 	RTS
 MODULE_NEG_LABEL:
-	PLA
-	JSR invert
+	JSR     invert
 	RTS
 ;end module
 
-
+.org   $C200
+main_loop:
+    JSR     check_hits_something
+    JSR     players_move
+    JSR     move_ball
+    JSR     main_loop
+; end main_loop
 
 ; Change location of the ball based on horizontal and vertical speed.
 move_ball:
-    CLC                             ; clean carry
     LDA     ball_x                  ; load ball x into A
+    CLC                             ; clean carry
     ADC     ball_vx                 ; sum it with ball_vx
     STA     ball_x                  ; save ball_x to variable
-    CLC
     LDA     ball_y                  ; load ball y into A
+    CLC
     ADC     ball_vy                 ; sum it with ball_vy
     STA     ball_y                  ; save ball_y to variable
     RTS
 ; end mode_ball
 
 
-; Change position of the bar depending on user input.
-move_bar:
-
-; end move_bar
-
-
-reflect_y:
-    LDA     ball_vy                 ; load ball vy into A
-    SEC     
-    SBC     ball_vy                 ; subtract it 2 times, the result will be
-    SEC
-    SBC     ball_vy                 ; -ball_vy
+players_move:
+    ; TODO: implement bar movement, depends on input
     RTS
+;end players_move
+
+
+change_ball_vy:
+    LDA     ball_vy                 ; load ball vy into A
+    JSR     invert                  ; invert ball_vy
+    RTS
+;end ball_vy
+
+change_ball_vx:
+    LDA     ball_vx                 ; load ball vx into A
+    JSR     invert                  ; invert ball_vx
+    RTS
+;end ball_vx
 
 
 ; Checks if the ball hits the bar.
 check_hits_something:
-    LDA     ball_y                  ; load ball y into A
-    CMP     #BAR_SURFACE            ; compare with bar surface level
-    BMI     hits_bar_label1         ; if result < 0 (is at same level or under
-                                    ; bar_surface) goto hits_bar_label1
-    CMP     #UP_LIMIT               ; compare with up limit
-    BPL     
+    JSR     check_hits_walls        ; check if ball hit up or down walls
+    JSR     check_goal              ; check if a goal happened
+    JSR     check_hit_bars          ; check if hit bars (this order is not
+                                    ; intuitive but may make sense in math)
+    JSR     check_hit_mid_bar       ; check if ball hit middle bar
     RTS                         
+;end check_hits_something
 
 
-hits_bar_label1:
-    JSR     check_hits_lava         ; check if ball hit lava
-
-    ; TODO
-
-;end check_hits_bar
-
-
-; Checks if the ball hits one of the bricks.
-check_hits_brick:
-
-;end check_hits_brick
-
-
-; Checks if the ball hits the lava.
-check_hits_lava:
-    LDA     ball_y                  ; load ball y into A
-    CMP     #LAVA_SURFACE           ; compare with lava level
-    BMI     hits_lava_check_label   ; if result is < 0 goto check_label
-    RTS                             ; else just return)
-hits_lava_check_label:
-    JMP     game_over
-
-
-; Checks if the call hits the walls.
+; Checks if the ball hits the walls.
 check_hits_walls:
-    LDA     ball_y                  
+    LDA     ball_y                  ; load ball_y into A               
+    CMP     #DOWN_LIMIT             ; compare with DOWN_LIMIT
+    BCC     CHECK_HIT_END           ; branch IF ball_y < DOWN_LIMIT 
+    CMP     #UP_LIMIT               ; compare ball_y with UP_LIMIT
+    BPL     CHECK_HIT_END           ; branch IF ball_y > UP_LIMIT
+                                    ; ELSE (DOWN <= ball || ball <= UP)
+    LDA     ball_vy                 ; load ball_vy into A
+    JSR     invert                  ; invert ball_vy
+    STA     ball_vy                 ; save ball_vy
+CHECK_HIT_END:
+    RTS
+
+; end check_hits_walls
+
+; Checks if a goal was scored
+check_goal:
+    LDA     ball_x                  ; load ball_x into A
+    CMP     #LEFT_LIMIT             ; compare with left of screen
+    BCS     CHECK_GOAL_RIGHT        ; if ball_x > LEFT_LIMIT -> not goal     
+                                    ; ELSE
+    INC     score_right             ; increment score right
+    LDA     #1       
+    STA     goal_flag               ; store 1 in goal_flag
+    JMP     wait
+CHECK_GOAL_RIGHT:
+    CLC
+    ADC     #BALL_DIAMETER          ; add ball diameter to check on right side
+    CMP     #RIGHT_LIMIT            ; compare ball_x with RIGHT_LIMIT
+    BCC     CHECK_GOAL_END          ; if ball_x < RIGHT_LIMIT -> not goal
+                                    ; ELSE
+    INC     score_left              ; increment score left
+    LDA     #2       
+    STA     goal_flag               ; store 2 in goal_flag
+    RTS
+CHECK_GOAL_END:
+    LDA     #0       
+    STA     goal_flag               ; store 0 in goal_flag
+    RTS
+; end check_goal
+
+
+check_hit_bars:
+    ; TODO: implement
+    RTS
+
+check_hit_mid_bar:
+    ; TODO: implement
+    RTS
+;end check_hit_mid_bar
+
+
+wait:
+    JMP     wait
 
 ; end foooooo
 ;-----------------------------------------------------------------------------
