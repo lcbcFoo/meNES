@@ -1,6 +1,12 @@
 # Block Buster - The Game
 General notes
 
+## Group:
+- Lucas Castro - RA: 172678
+- Ignacio Espinoso - RA: 169767
+- Laura Politi - RA: 171803
+- Daniel Helu - RA: 166215
+
 ## Screen Overview
 - Screen size: 256x224.
 - Score and life count on top of the screen.
