@@ -136,6 +136,136 @@ Reset:
     LDA     #GOAL_FLAG
     STA     goal_flag
 
+
+; BACKGROUND -- STILL WORKING ON IT, PLEASE DONT TOUCH :)----------------------
+
+LoadPalettes:
+    LDA $2002             ; read PPU status to reset the high/low latch
+    LDA #$3F
+    STA $2006             ; write the high byte of $3F00 address
+    LDA #$00
+    STA $2006             ; write the low byte of $3F00 address
+    LDX #$00              ; start out at 0
+LoadPalettesLoop:
+    LDA palette, x        ; load data from address (palette + the value in x)
+                            ; 1st time through loop it will load palette+0
+                            ; 2nd time through loop it will load palette+1
+                            ; 3rd time through loop it will load palette+2
+                            ; etc
+    STA $2007             ; write to PPU
+    INX                   ; X = X + 1
+    CPX #$20              ; Compare X to hex $10, decimal 16 - copying 16 bytes = 4 sprites
+    BNE LoadPalettesLoop  ; Branch to LoadPalettesLoop if compare was Not Equal to zero
+                          ; if compare was equal to 32, keep going down
+
+
+LoadSprites:
+    LDX #$00              ; start at 0
+LoadSpritesLoop:
+    LDA sprites, x        ; load data from address (sprites +  x)
+    STA $0200, x          ; store into RAM address ($0200 + x)
+    INX                   ; X = X + 1
+    CPX #$10              ; Compare X to hex $10, decimal 16
+    BNE LoadSpritesLoop   ; Branch to LoadSpritesLoop if compare was Not Equal to zero
+                          ; if compare was equal to 16, keep going down
+
+
+LoadBackground:
+    LDA $2002             ; read PPU status to reset the high/low latch
+    LDA #$20
+    STA $2006             ; write the high byte of $2000 address
+    LDA #$00
+    STA $2006             ; write the low byte of $2000 address
+
+
+    LDY #$00              ; Upper wall
+ExternalLoop1:
+    LDX #$00
+LoadBackgroundLoop1:
+    LDA background_hwall, x
+    STA $2007
+    INX
+    CPX #$20
+    BNE LoadBackgroundLoop1
+    INY
+    CPY #$2
+    BNE ExternalLoop1
+
+    LDX #$00              ; Header
+LoadBackgroundLoop2:
+    LDA background_header, x
+    STA $2007
+    INX
+    CPX #$40
+    BNE LoadBackgroundLoop2
+
+    LDY #$00              ; Game wall
+ExternalLoop6:
+    LDX #$00
+LoadBackgroundLoop6:
+    LDA background_vwall, x
+    STA $2007
+    INX
+    CPX #$20
+    BNE LoadBackgroundLoop6
+    INY
+    CPY #$3
+    BNE ExternalLoop6
+
+    LDX #$00              ; Dividing wall
+LoadBackgroundLoop3:
+    LDA background_hwall, x
+    STA $2007
+    INX
+    CPX #$20
+    BNE LoadBackgroundLoop3
+
+    LDY #$00              ; Game wall
+ExternalLoop4:
+    LDX #$00
+LoadBackgroundLoop4:
+    LDA background_lava, x
+    STA $2007
+    INX
+    CPX #$20
+    BNE LoadBackgroundLoop4
+    INY
+    CPY #$12
+    BNE ExternalLoop4
+
+    LDX #$00              ; Lower wall
+LoadBackgroundLoop5:
+    LDA background_hwall, x
+    STA $2007
+    INX
+    CPX #$20
+    BNE LoadBackgroundLoop5
+
+
+LoadAttribute:
+    LDA $2002             ; read PPU status to reset the high/low latch
+    LDA #$23
+    STA $2006             ; write the high byte of $23C0 address
+    LDA #$C0
+    STA $2006             ; write the low byte of $23C0 address
+    LDX #$00              ; start out at 0
+LoadAttributeLoop:
+    LDA attribute, x      ; load data from address (attribute + the value in x)
+    STA $2007             ; write to PPU
+    INX                   ; X = X + 1
+    CPX #$08              ; Compare X to hex $08, decimal 8 - copying 8 bytes
+    BNE LoadAttributeLoop  ; Branch to LoadAttributeLoop if compare was Not Equal to zero
+                          ; if compare was equal to 128, keep going down
+
+
+    LDA #%10010000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
+    STA $2000
+
+    LDA #%00011110   ; enable sprites, enable background, no clipping on left side
+    STA $2001
+
+; END OF BACKGROUND -----------------------------------------------------------
+
     JMP     main_loop
 
 NMI:
@@ -222,7 +352,7 @@ END_MOVE_BALL_X:
     SBC     #BALL_DIAMETER          ; subtract diameter after tests
     STA     ball_x
 
-MOVE_BALL_Y:                                    
+MOVE_BALL_Y:
     LDA     ball_y                  ; load ball y into A
     CLC
     ADC     ball_vy                 ; sum it with ball_vy
@@ -239,7 +369,7 @@ MOVE_CHECK_DOWN:
     CMP     #DOWN_LIMIT
     BCC     END_MOVE_BALL_Y         ; if ball_y < DOWN_LIMIT
                                     ; ELSE limit ball_y and change ball_vy
-    JSR     change_ball_vy          ; invert ball_vy                 
+    JSR     change_ball_vy          ; invert ball_vy
     LDA     #DOWN_LIMIT             ; ball_y = DOWN_LIMIT (subtract 8 below)
 
 END_MOVE_BALL_Y:
@@ -287,7 +417,7 @@ check_hits_something:
 check_hits_walls:
     LDA     ball_y                  ; load ball_y into A
     CMP     #DOWN_LIMIT             ; compare with DOWN_LIMIT
-    BCS     HIT_WALL                ; branch IF ball_y >= DOWN_LIMIT 
+    BCS     HIT_WALL                ; branch IF ball_y >= DOWN_LIMIT
     CMP     #UP_LIMIT               ; compare ball_y with UP_LIMIT
     BEQ     HIT_WALL
     BCS     CHECK_HIT_END           ; branch IF ball_y > UP_LIMIT
@@ -473,6 +603,50 @@ RTS
 infinite_loop:
     jmp infinite_loop
 
+
+; BACKGROUND SETUP ------------------------------------------------------------
+    .org $E000
+palette:
+    .db $22,$29,$1A,$0F,  $22,$36,$17,$0F,  $22,$30,$21,$0F,  $22,$27,$17,$0F   ;;background palette
+    .db $22,$1C,$15,$14,  $22,$02,$38,$3C,  $22,$1C,$15,$14,  $22,$02,$38,$3C   ;;sprite palette
+
+sprites:
+       ;vert tile attr horiz
+    .db $80, $32, $00, $80   ;sprite 0
+    .db $80, $33, $00, $88   ;sprite 1
+    .db $88, $34, $00, $80   ;sprite 2
+    .db $88, $35, $00, $88   ;sprite 3
+
+
+background_hwall:
+    .db $47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47  ;;row 1
+    .db $47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47  ;;all sky
+
+background_header:
+    .db $47,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
+    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$47  ;;all sky
+
+    .db $47,$24,$24,$55,$55,$55,$55,$55,$55,$24,$55,$24,$24,$24,$24,$24  ;;row 1
+    .db $24,$24,$24,$24,$24,$55,$55,$55,$55,$55,$55,$24,$55,$24,$24,$47  ;;all sky
+
+background_vwall:
+    .db $47,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
+    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$47  ;;all sky
+
+background_lava:
+    .db $30,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
+    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$30  ;;all sky
+
+
+attribute:
+    .db %00000000, %00000000, %00000000, %00000000, %00000000, %00000000, %00000000, %00000000
+
+
+    .db $24,$24,$24,$24, $24,$24,$24,$24 ,$47,$47,$47,$47, $47,$47,$24,$24 ,$24,$24,$24,$24 ,$24,$24,$24,$24, $24,$24,$24,$24, $55,$56,$24,$24  ;;brick bottoms
+
+; END BACKGROUND SETUP --------------------------------------------------------
+
+
 ;----------------------------------------------------------------
 ; interrupt vect.dsb
 ;----------------------------------------------------------------
@@ -487,4 +661,5 @@ infinite_loop:
 ; CHR-ROM bank
 ;----------------------------------------------------------------
 
-   .incbin "tiles.chr"
+    .incbin "mario.chr"   ; just for initial testing - to be removed
+   ;.incbin "tiles.chr"
