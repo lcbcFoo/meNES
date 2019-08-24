@@ -41,10 +41,10 @@ BALL_DIAMETER = 8
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Default values for variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-BALL_X = 10
-BALL_Y = 10
-BALL_VX = 1
-BALL_VY = 1
+BALL_X = 11
+BALL_Y = 198
+BALL_VX = $FF
+BALL_VY = 4
 
 BAR_LEFT_Y = 100
 BAR_RIGHT_Y = 100
@@ -74,7 +74,7 @@ GOAL_FLAG = 0
 
     ball_x .dsb 1
     ball_y .dsb 1
-    ball_vx .dsb 1
+    ball_vx .dsb 2
     ball_vy .dsb 1
 
     score_left .dsb 1
@@ -196,15 +196,56 @@ main_loop:
 ; end main_loop
 
 ; Change location of the ball based on horizontal and vertical speed.
+.org $C300
 move_ball:
     LDA     ball_x                  ; load ball x into A
     CLC                             ; clean carry
     ADC     ball_vx                 ; sum it with ball_vx
+    CMP     #LEFT_LIMIT             ; check horizontal limits
+    BCS     MOVE_CHECK_RIGHT        ; if ball_x >= LEFT_LIMIT
+                                    ; ELSE limit ball_x
+    LDA     #LEFT_LIMIT             ; ball_x = LEFT_LIMIT
     STA     ball_x                  ; save ball_x to variable
+    JMP     MOVE_BALL_Y             ; no need to test RIGHT
+
+MOVE_CHECK_RIGHT:
+    CLC
+    ADC     #BALL_DIAMETER          ; add ball diameter to compare RIGHT
+    CMP     #RIGHT_LIMIT
+    BCC     END_MOVE_BALL_X         ; if ball_x < RIGHT_LIMIT
+                                    ; ELSE limit ball_x
+    LDA     #RIGHT_LIMIT            ; ball_x = RIGHT_LIMIT (subtract 8 below)
+END_MOVE_BALL_X:
+    SEC
+    SBC     #BALL_DIAMETER          ; subtract diameter after tests
+    STA     ball_x
+
+MOVE_BALL_Y:                                    
     LDA     ball_y                  ; load ball y into A
     CLC
     ADC     ball_vy                 ; sum it with ball_vy
+    CMP     #UP_LIMIT               ; check vertical limits
+    BCS     MOVE_CHECK_DOWN         ; if ball_y >= UP_LIMIT
+                                    ; ELSE limit ball_y
+    LDA     #UP_LIMIT               ; ball_y = UP_LIMIT
     STA     ball_y                  ; save ball_y to variable
+    JMP     END_MOVE_BALL           ; no need to test DOWN
+
+MOVE_CHECK_DOWN:
+    CLC
+    ADC     #BALL_DIAMETER          ; add ball diameter to compare DOWN
+    CMP     #DOWN_LIMIT
+    BCC     END_MOVE_BALL_Y         ; if ball_y < DOWN_LIMIT
+                                    ; ELSE limit ball_y and change ball_vy
+    JSR     change_ball_vy          ; invert ball_vy                 
+    LDA     #DOWN_LIMIT             ; ball_y = DOWN_LIMIT (subtract 8 below)
+
+END_MOVE_BALL_Y:
+    SEC
+    SBC     #BALL_DIAMETER          ; subtract diameter after tests
+    STA     ball_y
+
+END_MOVE_BALL:
     RTS
 ; end mode_ball
 
@@ -218,6 +259,7 @@ players_move:
 change_ball_vy:
     LDA     ball_vy                 ; load ball vy into A
     JSR     invert                  ; invert ball_vy
+    STA     ball_vy
     RTS
 ;end ball_vy
 
@@ -243,10 +285,12 @@ check_hits_something:
 check_hits_walls:
     LDA     ball_y                  ; load ball_y into A               
     CMP     #DOWN_LIMIT             ; compare with DOWN_LIMIT
-    BCC     CHECK_HIT_END           ; branch IF ball_y < DOWN_LIMIT 
+    BCS     HIT_WALL                ; branch IF ball_y >= DOWN_LIMIT 
     CMP     #UP_LIMIT               ; compare ball_y with UP_LIMIT
-    BPL     CHECK_HIT_END           ; branch IF ball_y > UP_LIMIT
+    BEQ     HIT_WALL
+    BCS     CHECK_HIT_END           ; branch IF ball_y > UP_LIMIT
                                     ; ELSE (DOWN <= ball || ball <= UP)
+HIT_WALL:
     LDA     ball_vy                 ; load ball_vy into A
     JSR     invert                  ; invert ball_vy
     STA     ball_vy                 ; save ball_vy
@@ -259,12 +303,15 @@ CHECK_HIT_END:
 check_goal:
     LDA     ball_x                  ; load ball_x into A
     CMP     #LEFT_LIMIT             ; compare with left of screen
-    BCS     CHECK_GOAL_RIGHT        ; if ball_x > LEFT_LIMIT -> not goal     
+    BEQ     RIGHT_GOAL
+    BCS     CHECK_GOAL_RIGHT        ; if ball_x > LEFT_LIMIT -> not goal
                                     ; ELSE
+RIGHT_GOAL:
     INC     score_right             ; increment score right
     LDA     #1       
     STA     goal_flag               ; store 1 in goal_flag
-    JMP     wait
+    ;JMP     wait
+    RTS
 CHECK_GOAL_RIGHT:
     CLC
     ADC     #BALL_DIAMETER          ; add ball diameter to check on right side
@@ -274,6 +321,7 @@ CHECK_GOAL_RIGHT:
     INC     score_left              ; increment score left
     LDA     #2       
     STA     goal_flag               ; store 2 in goal_flag
+    ;JMP     wait
     RTS
 CHECK_GOAL_END:
     LDA     #0       
