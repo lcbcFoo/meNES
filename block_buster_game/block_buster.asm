@@ -18,7 +18,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ;
 ;===================================================  end of screen (0 or 256)
 
-; bar verical size
+; bar vertical size
 BAR_SIZE = 20
 
 ; left bar surface (relative to 0)
@@ -70,7 +70,8 @@ GOAL_FLAG = 0
     ; 0 -> don't move
     ; 1 -> move up
     ; 2 -> move down
-    move_bar_direction .dsb 1
+    move_p1_bar_direction .dsb 1
+    move_p2_bar_direction .dsb 1
 
     ball_x .dsb 1
     ball_y .dsb 1
@@ -112,7 +113,7 @@ Reset:
 
     ; Initialize variables with default value
     LDA     #BALL_X
-    STA     ball_x     
+    STA     ball_x
     LDA     #BALL_Y
     STA     ball_y
     LDA     #BALL_VX
@@ -125,7 +126,8 @@ Reset:
     LDA     #BAR_RIGHT_Y
     STA     bar_right_y
     LDA     #MOVE_BAR_DIRECTION
-    STA     move_bar_direction
+    STA     move_p1_bar_direction
+    STA     move_p2_bar_direction
 
     LDA     #SCORE_LEFT
     STA     score_left
@@ -139,7 +141,7 @@ Reset:
 NMI:
 
     ;NOTE: NMI code goes here
-    
+
     JMP NMI
 
 IRQ:
@@ -277,13 +279,13 @@ check_hits_something:
     JSR     check_hit_bars          ; check if hit bars (this order is not
                                     ; intuitive but may make sense in math)
     JSR     check_hit_mid_bar       ; check if ball hit middle bar
-    RTS                         
+    RTS
 ;end check_hits_something
 
 
 ; Checks if the ball hits the walls.
 check_hits_walls:
-    LDA     ball_y                  ; load ball_y into A               
+    LDA     ball_y                  ; load ball_y into A
     CMP     #DOWN_LIMIT             ; compare with DOWN_LIMIT
     BCS     HIT_WALL                ; branch IF ball_y >= DOWN_LIMIT 
     CMP     #UP_LIMIT               ; compare ball_y with UP_LIMIT
@@ -308,7 +310,7 @@ check_goal:
                                     ; ELSE
 RIGHT_GOAL:
     INC     score_right             ; increment score right
-    LDA     #1       
+    LDA     #1
     STA     goal_flag               ; store 1 in goal_flag
     ;JMP     wait
     RTS
@@ -319,12 +321,11 @@ CHECK_GOAL_RIGHT:
     BCC     CHECK_GOAL_END          ; if ball_x < RIGHT_LIMIT -> not goal
                                     ; ELSE
     INC     score_left              ; increment score left
-    LDA     #2       
+    LDA     #2
     STA     goal_flag               ; store 2 in goal_flag
-    ;JMP     wait
     RTS
 CHECK_GOAL_END:
-    LDA     #0       
+    LDA     #0
     STA     goal_flag               ; store 0 in goal_flag
     RTS
 ; end check_goal
@@ -383,9 +384,91 @@ print_lava:
 ; Prints the border on screen.
 print_border:
 
-; Reads the user input.
-read_user_input:
+; Reads the p1 input.
+read_p1_input:
+; LatchController P1
+    LDA #$01
+    STA $4016
+    LDA #$00
+    STA $4016
 
+; Set P1 bar to not move (Could not validate. Possible issue)
+    LDA #$00
+    STA move_p1_bar_direction
+
+; Ignore A, B, Select and Start buttons
+    LDA $4016
+    LDA $4016
+    LDA $4016
+    LDA $4016
+
+; Read Player 1 Up Button
+READ_UP_P1:
+    LDA $4016
+    AND #%00000001
+    BEQ READ_UP_END_P1
+
+; Set p1 direction up
+    LDA #$01
+    STA move_p1_bar_direction
+READ_UP_END_P1:
+
+; Read Player 1 Down Button
+READ_DOWN_P1:
+    LDA $4016
+    AND #%00000001
+    BEQ READ_DOWN_END_P1
+
+; Set p1 direction down
+    LDA #$02
+    STA move_p1_bar_direction
+READ_DOWN_END_P1:
+
+RTS
+;end read_p1_input
+
+; Reads the p2 input.
+read_p2_input:
+; LatchController P2
+    LDA #$01
+    STA $4017
+    LDA #$00
+    STA $4017
+
+; Set P2 bar to not move (Could not validate. Possible issue)
+    LDA #$00
+    STA move_p2_bar_direction
+
+; Ignore A, B, Select and Start buttons
+    LDA $4017
+    LDA $4017
+    LDA $4017
+    LDA $4017
+
+; Read Player 2 Up Button
+READ_UP_P2:
+    LDA $4017
+    AND #%00000001
+    BEQ READ_UP_END_P2
+
+; Set p2 direction up
+    LDA #$01
+    STA move_p2_bar_direction
+READ_UP_END_P2:
+
+; Read Player 2 Down Button
+READ_DOWN_P2:
+    LDA $4017
+    AND #%00000001
+    BEQ READ_DOWN_END_P2
+
+; Set p2 direction down
+    LDA #$02
+    STA move_p2_bar_direction
+READ_DOWN_END_P2:
+
+RTS
+;end read_p2_input
 
 infinite_loop:
     jmp infinite_loop
