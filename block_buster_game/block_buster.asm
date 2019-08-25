@@ -103,6 +103,7 @@ GOAL_FLAG = 0
    .db $00|MIRRORING ;mapper 0 and mirroring
    .dsb 9, $00 ;clear the remaining bytes
 
+
 ;----------------------------------------------------------------
 ; program bank(s)
 ;----------------------------------------------------------------
@@ -165,7 +166,7 @@ LoadSpritesLoop:
     LDA sprites, x        ; load data from address (sprites +  x)
     STA $0200, x          ; store into RAM address ($0200 + x)
     INX                   ; X = X + 1
-    CPX #$10              ; Compare X to hex $10, decimal 16
+    CPX #$14              ; Compare X to hex $10, decimal 16
     BNE LoadSpritesLoop   ; Branch to LoadSpritesLoop if compare was Not Equal to zero
                           ; if compare was equal to 16, keep going down
 
@@ -178,8 +179,7 @@ LoadBackground:
     STA $2006             ; write the low byte of $2000 address
 
 
-    LDY #$00              ; Upper wall
-ExternalLoop1:
+
     LDX #$00
 LoadBackgroundLoop1:
     LDA background_hwall, x
@@ -187,9 +187,7 @@ LoadBackgroundLoop1:
     INX
     CPX #$20
     BNE LoadBackgroundLoop1
-    INY
-    CPY #$2
-    BNE ExternalLoop1
+
 
     LDX #$00              ; Header
 LoadBackgroundLoop2:
@@ -199,7 +197,7 @@ LoadBackgroundLoop2:
     CPX #$40
     BNE LoadBackgroundLoop2
 
-    LDY #$00              ; Game wall
+    LDY #$00              ; score area
 ExternalLoop6:
     LDX #$00
 LoadBackgroundLoop6:
@@ -209,7 +207,7 @@ LoadBackgroundLoop6:
     CPX #$20
     BNE LoadBackgroundLoop6
     INY
-    CPY #$3
+    CPY #$4
     BNE ExternalLoop6
 
     LDX #$00              ; Dividing wall
@@ -227,10 +225,10 @@ LoadBackgroundLoop4:
     LDA background_lava, x
     STA $2007
     INX
-    CPX #$20
+    CPX #$40
     BNE LoadBackgroundLoop4
     INY
-    CPY #$12
+    CPY #$09
     BNE ExternalLoop4
 
     LDX #$00              ; Lower wall
@@ -248,17 +246,18 @@ LoadAttribute:
     STA $2006             ; write the high byte of $23C0 address
     LDA #$C0
     STA $2006             ; write the low byte of $23C0 address
+
     LDX #$00              ; start out at 0
 LoadAttributeLoop:
     LDA attribute, x      ; load data from address (attribute + the value in x)
     STA $2007             ; write to PPU
     INX                   ; X = X + 1
-    CPX #$08              ; Compare X to hex $08, decimal 8 - copying 8 bytes
+    CPX #$10              ; Compare X to hex $08, decimal 8 - copying 8 bytes
     BNE LoadAttributeLoop  ; Branch to LoadAttributeLoop if compare was Not Equal to zero
                           ; if compare was equal to 128, keep going down
 
 
-    LDA #%10010000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
+    LDA #%10000000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
     STA $2000
 
     LDA #%00011110   ; enable sprites, enable background, no clipping on left side
@@ -272,7 +271,12 @@ NMI:
 
     ;NOTE: NMI code goes here
 
-    JMP NMI
+    LDA #$00
+    STA $2003       ; set the low byte (00) of the RAM address
+    LDA #$02
+    STA $4014       ; set the high byte (02) of the RAM address, start the transfer
+
+    RTI             ; return from interrupt
 
 IRQ:
     JMP Reset
@@ -609,42 +613,48 @@ infinite_loop:
 ; BACKGROUND SETUP ------------------------------------------------------------
     .org $E000
 palette:
-    .db $22,$29,$1A,$0F,  $22,$36,$17,$0F,  $22,$30,$21,$0F,  $22,$27,$17,$0F   ;;background palette
-    .db $22,$1C,$15,$14,  $22,$02,$38,$3C,  $22,$1C,$15,$14,  $22,$02,$38,$3C   ;;sprite palette
+    ;   lava              wall               letters
+    .db $0F,$16,$28,$22,  $14,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;background palette
+    .db $0F,$16,$28,$22,  $14,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;background palette
 
 sprites:
        ;vert tile attr horiz
-    .db $80, $32, $00, $80   ;sprite 0
-    .db $80, $33, $00, $88   ;sprite 1
-    .db $88, $34, $00, $80   ;sprite 2
-    .db $88, $35, $00, $88   ;sprite 3
+    .db $90, $17, $00, $80   ;sprite 0
+    .db $90, $18, $00, $0A   ;sprite 1
+    .db $90, $18, $00, $F0   ;sprite 2
+    .db $30, $19, $00, $30   ;sprite 3
+    .db $30, $19, $00, $D0   ;sprite 3
 
 
 background_hwall:
-    .db $47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47  ;;row 1
-    .db $47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47,$47  ;;all sky
+    .db $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13  ;;row 1
+    .db $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13  ;;all sky
 
 background_header:
-    .db $47,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$47  ;;all sky
+    .db $14,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
+    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$14  ;;all sky
 
-    .db $47,$24,$24,$55,$55,$55,$55,$55,$55,$24,$55,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$55,$55,$55,$55,$55,$55,$24,$55,$24,$24,$47  ;;all sky
+    .db $14,$24,$24,$16,$16,$16,$16,$16,$16,$24,$16,$24,$24,$24,$24,$24  ;;row 1
+    .db $24,$24,$24,$24,$24,$16,$16,$16,$16,$16,$16,$24,$16,$24,$24,$14  ;;all sky
 
 background_vwall:
-    .db $47,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$47  ;;all sky
+
+    .db $14,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
+    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$14  ;;all sky
 
 background_lava:
-    .db $30,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$30  ;;all sky
+    .db $10,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
+    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$20  ;;all sky
+
+    .db $11,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
+    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$21  ;;all sky
 
 
 attribute:
-    .db %00000000, %00000000, %00000000, %00000000, %00000000, %00000000, %00000000, %00000000
+    .db %10010101, %10100101, %10100101, %10100101, %10100101, %10100101, %10100101, %01100101
+    .db %01010101, %01010101, %01010101, %01010101, %01010101, %01010101, %01010101, %01010101
 
-
-    .db $24,$24,$24,$24, $24,$24,$24,$24 ,$47,$47,$47,$47, $47,$47,$24,$24 ,$24,$24,$24,$24 ,$24,$24,$24,$24, $24,$24,$24,$24, $55,$56,$24,$24  ;;brick bottoms
+    ;.db $0F,$0F,$0F,$0F, $24,$24,$24,$24 ,$24,$24,$24,$24, $24,$24,$24,$24 ,$24,$24,$24,$24 ,$24,$24,$24,$24, $24,$24,$24,$24, $24,$24,$24,$24  ;;brick bottoms
 
 ; END BACKGROUND SETUP --------------------------------------------------------
 
@@ -663,5 +673,4 @@ attribute:
 ; CHR-ROM bank
 ;----------------------------------------------------------------
 
-    .incbin "mario.chr"   ; just for initial testing - to be removed
-   ;.incbin "tiles.chr"
+   .incbin "sprites.chr"
