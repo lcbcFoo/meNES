@@ -404,7 +404,9 @@ change_ball_vx:
 
 ; Checks if the ball hits the bar.
 check_hits_something:
-    JSR     check_hits_walls        ; check if ball hit up or down walls
+    ; this is now done in move_ball so to not allow ball to pass walls
+    ;JSR     check_hits_walls        ; check if ball hit up or down walls
+
     JSR     check_goal              ; check if a goal happened
     JSR     check_hit_bars          ; check if hit bars (this order is not
                                     ; intuitive but may make sense in math)
