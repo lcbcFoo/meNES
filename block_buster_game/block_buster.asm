@@ -36,15 +36,15 @@ UP_LIMIT = 50
 DOWN_LIMIT = 200
 
 BALL_DIAMETER = 8
-
+SCORE_LIMIT = 10
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Default values for variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 BALL_X = 11
-BALL_Y = 198
-BALL_VX = $FF
-BALL_VY = 4
+BALL_Y = 80
+BALL_VX = 1
+BALL_VY = 1
 
 BAR_LEFT_Y = 100
 BAR_RIGHT_Y = 100
@@ -258,6 +258,8 @@ NMI:
     LDA #$02
     STA $4014       ; set the high byte (02) of the RAM address, start the transfer
 
+    JSR UpdateSprites ; Update sprites on screen
+
     RTI             ; return from interrupt
 
 IRQ:
@@ -465,6 +467,9 @@ CHECK_GOAL_RIGHT:
     BCC     CHECK_GOAL_END          ; if ball_x < RIGHT_LIMIT -> not goal
                                     ; ELSE
     INC     score_left              ; increment score left
+    ;LDA     score_left             ; TODO: set max number for score
+    ;CMP     #SCORE_LIMIT
+    ;BEQ     reset_score_left
     LDA     #2
     STA     goal_flag               ; store 2 in goal_flag
     JMP     goal_scored
@@ -474,6 +479,14 @@ CHECK_GOAL_END:
     STA     goal_flag               ; store 0 in goal_flag
     RTS
 ; end check_goal
+
+reset_score_left:
+    STA     score_left
+    RTS
+
+reset_score_right:
+    STA     score_right
+    RTS
 
 
 ;       BALL HITS BAR LOGIC
@@ -578,13 +591,6 @@ goal_scored:
 ; end foooooo
 ;-----------------------------------------------------------------------------
 
-; Updates the life count on screen.
-update_life_count:
-
-
-; Updates the score on screen.
-update_score:
-
 ; Makes sound when ball hits a brick.
 makes_sound_brick:
 
@@ -594,26 +600,12 @@ makes_sound_lava:
 ; Makes sound when the game ends.
 makes_sound_game_over:
 
-; Starts phase again, keeping the score. In other words, resets the bricks.
-next_phase:
-
 ; Prints start message and waits for user input to start game.
 game_start:
 
 ; Prints message at end of game and waits for user input to restart game.
 game_over:
 
-; Prints the bricks on screen.
-print_bricks:
-
-; Prints the ball on screen.
-print_ball:
-
-; Prints lava on screen.
-print_lava:
-
-; Prints the border on screen.
-print_border:
 
 ; Reads the p1 input.
 read_p1_input:
@@ -701,55 +693,78 @@ READ_DOWN_END_P2:
 RTS
 ;end read_p2_input
 
+UpdateSprites:      ; Changes sprites on screen. Ball moves, score is updated.
+  LDA ball_y        ; Update ball's position (x,y).
+  STA $0200
+  LDA ball_x
+  STA $0203
+
+  LDA score_left    ; Writes player 1's score on screen.
+  ADC #$1A          ; Sprite with number zero.
+  STA $020D
+
+  LDA score_right   ; Writes player 2's score on screen.
+  ADC #$1A          ; Sprite with number zero.
+  STA $0211
+
+  ; TODO: update paddle sprites
+
+  RTS
+
 infinite_loop:
     jmp infinite_loop
 
 
 ; BACKGROUND SETUP ------------------------------------------------------------
+; Mapping reference guide:
+; P .. R-> 23 .. 28
+; Sky -> 2C
+; Numbers Mapping:
+; 0,6 -> 19 .. 1F
+; 7,8,9 -> 29, 2A, 2B
+
     .org $E000
 palette:
     ;   lava              wall               letters
     .db $0F,$16,$28,$22,  $14,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;background palette
-    .db $0F,$16,$28,$22,  $14,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;background palette
+    .db $0F,$16,$28,$22,  $14,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;sprites palette
 
 sprites:
        ;vert tile attr horiz
-    .db $90, $17, $00, $80   ;sprite 0
-    .db $90, $18, $00, $0A   ;sprite 1
-    .db $90, $18, $00, $F0   ;sprite 2
-    .db $30, $19, $00, $30   ;sprite 3
-    .db $30, $19, $00, $D0   ;sprite 3
+    .db $90, $17, $00, $80   ;bola
+    .db $90, $18, $00, $0A   ;paddle 1
+    .db $90, $18, $00, $F0   ;paddle 2
+scores:
+    .db $30, $1A, $00, $30   ;sprite 3
+    .db $30, $1A, $00, $D0   ;sprite 3
 
 
-background_hwall:
-    .db $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13  ;;row 1
-    .db $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13  ;;all sky
+background_hwall:          ; Horizontal wall row
+    .db $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13
+    .db $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13
 
-background_header:
-    .db $14,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$14  ;;all sky
+background_header:        ; Writes "player 1" and "player 2" on header
+    .db $14,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C
+    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$14
 
-    .db $14,$24,$24,$16,$16,$16,$16,$16,$16,$24,$16,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$16,$16,$16,$16,$16,$16,$24,$16,$24,$24,$14  ;;all sky
+    .db $14,$2C,$2C,$23,$24,$25,$26,$27,$28,$2C,$1A,$2C,$2C,$2C,$2C,$2C
+    .db $2C,$2C,$2C,$2C,$2C,$23,$24,$25,$26,$27,$28,$2C,$1B,$2C,$2C,$14
 
-background_vwall:
+background_vwall:         ; Background with simple wall on the sides
 
-    .db $14,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$14  ;;all sky
+    .db $14,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C
+    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$14
 
-background_lava:
-    .db $10,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$20  ;;all sky
+background_lava:          ; Background with lava on the sides (2 types of lava)
+    .db $10,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C
+    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$20
 
-    .db $11,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$21  ;;all sky
-
+    .db $11,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C
+    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$21
 
 attribute:
     .db %10010101, %10100101, %10100101, %10100101, %10100101, %10100101, %10100101, %01100101
     .db %01010101, %01010101, %01010101, %01010101, %01010101, %01010101, %01010101, %01010101
-
-    ;.db $0F,$0F,$0F,$0F, $24,$24,$24,$24 ,$24,$24,$24,$24, $24,$24,$24,$24 ,$24,$24,$24,$24 ,$24,$24,$24,$24, $24,$24,$24,$24, $24,$24,$24,$24  ;;brick bottoms
 
 ; END BACKGROUND SETUP --------------------------------------------------------
 
