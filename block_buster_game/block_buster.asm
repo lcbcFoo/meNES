@@ -113,30 +113,12 @@ GOAL_FLAG = 0
 Reset:
 
     ; Initialize variables with default value
-    LDA     #BALL_X
-    STA     ball_x
-    LDA     #BALL_Y
-    STA     ball_y
-    LDA     #BALL_VX
-    STA     ball_vx
-    LDA     #BALL_VY
-    STA     ball_vy
-
-    LDA     #BAR_LEFT_Y
-    STA     bar_left_y
-    LDA     #BAR_RIGHT_Y
-    STA     bar_right_y
-    LDA     #MOVE_BAR_DIRECTION
-    STA     move_p1_bar_direction
-    STA     move_p2_bar_direction
 
     LDA     #SCORE_LEFT
     STA     score_left
     LDA     #SCORE_RIGHT
     STA     score_right
-    LDA     #GOAL_FLAG
-    STA     goal_flag
-
+    JSR     setup_game
 
 ; BACKGROUND -- STILL WORKING ON IT, PLEASE DONT TOUCH :)----------------------
 
@@ -323,6 +305,33 @@ MODULE_NEG_LABEL:
 	RTS
 ;end module
 
+
+setup_game:
+
+    ; Initialize variables with default value
+    LDA     #BALL_X
+    STA     ball_x
+    LDA     #BALL_Y
+    STA     ball_y
+    LDA     #BALL_VX
+    STA     ball_vx
+    LDA     #BALL_VY
+    STA     ball_vy
+
+    LDA     #BAR_LEFT_Y
+    STA     bar_left_y
+    LDA     #BAR_RIGHT_Y
+    STA     bar_right_y
+    LDA     #MOVE_BAR_DIRECTION
+    STA     move_p1_bar_direction
+    STA     move_p2_bar_direction
+
+    LDA     #GOAL_FLAG
+    STA     goal_flag
+    RTS
+; end setup_game
+
+
 .org   $C200
 main_loop:
     JSR     check_hits_something
@@ -448,8 +457,7 @@ RIGHT_GOAL:
     INC     score_right             ; increment score right
     LDA     #1
     STA     goal_flag               ; store 1 in goal_flag
-    ;JMP     wait
-    RTS
+    JMP     goal_scored
 CHECK_GOAL_RIGHT:
     CLC
     ADC     #BALL_DIAMETER          ; add ball diameter to check on right side
@@ -459,7 +467,8 @@ CHECK_GOAL_RIGHT:
     INC     score_left              ; increment score left
     LDA     #2
     STA     goal_flag               ; store 2 in goal_flag
-    RTS
+    JMP     goal_scored
+    
 CHECK_GOAL_END:
     LDA     #0
     STA     goal_flag               ; store 0 in goal_flag
@@ -467,9 +476,90 @@ CHECK_GOAL_END:
 ; end check_goal
 
 
-check_hit_bars:
-    ; TODO: implement
+;       BALL HITS BAR LOGIC
+;
+; At this point we now that LEFT_LIMIT < ball_x < RIGHT_LIMIT because we
+; passed check_goal and no one scored. We need only to check if:
+;   
+;
+;       ball_x <= left_bar_surface 
+;   AND
+;       left_bar_y - bar_size_y <= ball_y <= left_bar_y + 8
+; OR
+;       ball_x >= right_bar_surface 
+;   AND
+;       right_bar_y - bar_size_y <= ball_y <= right_bar_y + 8
+
+; check if ball_y fits in left/right bar vertical limits
+; expects in register A the bar_y which is being tested
+; returns A = 1 if hit bar, A = 0 otherwise
+test_bar_y_limits:
+    CLC
+    SBC     #BAR_SIZE               ; subtract BAR_SIZE
+    CMP     ball_y
+    BCC     TEST_VERT_BAR_FALSE     ; bar_y-bar_size < ball_y -> ball is over
+    
+    CLC
+    ADC     #BAR_SIZE               ; sum BAR_SIZE
+    CLC
+    ADC     #BALL_DIAMETER          ; sum BALL_DIAMETER
+    CMP     ball_y
+    BEQ     TEST_VERT_BAR_TRUE
+    BCS     TEST_VERT_BAR_FALSE     ; bar_y + 8 > ball_y -> ball is under
+
+TEST_VERT_BAR_TRUE
+    LDA     #1
     RTS
+
+TEST_VERT_BAR_FALSE:
+    LDA     #0
+    RTS
+
+
+check_hit_bars:
+    LDA     ball_x                  ; load ball x into A
+    CMP     #LEFT_BAR_SURFACE
+    BEQ     TEST_LEFT_BAR_Y         ; test vertical pos if ball_x <= left_bar_x
+    BCS     TEST_RIGHT_BAR
+TEST_LEFT_BAR_Y:
+    LDA     left_bar_y              ; load left_bar_y into A and test Y limits
+    JSR     test_bar_y_limits
+    CMP     #0
+    BEQ     NO_HIT                  ; no need to test right bar at this point
+    LDA     #0                      ; load 0 to A and call ball_hit_bar
+    JSR     ball_hit_bar                 
+    RTS
+
+TEST_RIGHT_BAR:
+    LDA     ball_x                  ; load ball_x into A
+    CMP     #RIGHT_BAR_SURFACE
+    BCC     NO_HIT                  ; if ball_x < right_bar_surface -> no hit
+
+    LDA     right_bar_y             ; load right_bar_y into A and test Y limits
+    JSR     test_bar_y_limits
+    CMP     #0
+    BEQ     NO_HIT
+    LDA     #1                      ; load 1 to A and call ball_hit_bar
+    JSR     ball_hit_bar                 
+    RTS
+
+NO_HIT:
+    RTS
+; end check_hit_bars
+
+
+; do something when ball hits bar. Expects in A: 0 if hit left bar, 1 if right
+ball_hit_bar:
+    ; TODO: implement
+    ; For now, invert both ball_vx and ball_vy
+    LDA     ball_vy
+    JSR     invert
+    STA     ball_vy
+    LDA     ball_vx
+    JSR     invert
+    STA     ball_vx
+    RTS
+
 
 check_hit_mid_bar:
     ; TODO: implement
@@ -479,6 +569,11 @@ check_hit_mid_bar:
 
 wait:
     JMP     wait
+
+goal_scored:
+    JSR     setup_game
+    ; TODO: setup screen and start match
+    JMP     main_loop
 
 ; end foooooo
 ;-----------------------------------------------------------------------------
