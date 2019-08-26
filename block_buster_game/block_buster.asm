@@ -446,6 +446,7 @@ RIGHT_GOAL:
     INC     score_right             ; increment score right
     LDA     #1
     STA     goal_flag               ; store 1 in goal_flag
+    BCC     update_score_right
     ;JMP     wait
     RTS
 CHECK_GOAL_RIGHT:
@@ -486,7 +487,15 @@ update_life_count:
 
 
 ; Updates the score on screen.
-update_score:
+update_score_left:
+    LDA score_left
+    RTS
+update_score_right:
+    ;LDA #$score_right                   ; Load current score
+    ;LDX scores                         ; Load scores sprites
+                                        ; Get score byte using bit mask
+                                        ; Update score byte
+    RTS
 
 ; Makes sound when ball hits a brick.
 makes_sound_brick:
@@ -609,6 +618,13 @@ infinite_loop:
 
 
 ; BACKGROUND SETUP ------------------------------------------------------------
+; Mapping reference guide:
+; P .. R-> 23 .. 28
+; Sky -> 2C
+; Numbers Mapping:
+; 0,6 -> 19 .. 1F
+; 7,8,9 -> 29, 2A, 2B
+
     .org $E000
 palette:
     ;   lava              wall               letters
@@ -620,8 +636,9 @@ sprites:
     .db $90, $17, $00, $80   ;sprite 0
     .db $90, $18, $00, $0A   ;sprite 1
     .db $90, $18, $00, $F0   ;sprite 2
-    .db $30, $19, $00, $30   ;sprite 3
-    .db $30, $19, $00, $D0   ;sprite 3
+scores:
+    .db $30, $1A, $00, $30   ;sprite 3
+    .db $30, $1A, $00, $D0   ;sprite 3
 
 
 background_hwall:
@@ -629,24 +646,23 @@ background_hwall:
     .db $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13  ;;all sky
 
 background_header:
-    .db $14,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$14  ;;all sky
+    .db $14,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C  ;;row 1
+    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$14  ;;all sky
 
-    .db $14,$24,$24,$16,$16,$16,$16,$16,$16,$24,$16,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$16,$16,$16,$16,$16,$16,$24,$16,$24,$24,$14  ;;all sky
+    .db $14,$2C,$2C,$23,$24,$25,$26,$27,$28,$2C,$1A,$2C,$2C,$2C,$2C,$2C  ;;row 1
+    .db $2C,$2C,$2C,$2C,$2C,$23,$24,$25,$26,$27,$28,$2C,$1B,$2C,$2C,$14  ;;all sky
 
 background_vwall:
 
-    .db $14,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$14  ;;all sky
+    .db $14,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C  ;;row 1
+    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$14  ;;all sky
 
 background_lava:
-    .db $10,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$20  ;;all sky
+    .db $10,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C  ;;row 1
+    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$20  ;;all sky
 
-    .db $11,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24  ;;row 1
-    .db $24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$24,$21  ;;all sky
-
+    .db $11,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C  ;;row 1
+    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$21  ;;all sky
 
 attribute:
     .db %10010101, %10100101, %10100101, %10100101, %10100101, %10100101, %10100101, %01100101
