@@ -32,22 +32,21 @@ BAR_SPEED = 1
 
 LEFT_LIMIT = 10
 RIGHT_LIMIT = 246
-UP_LIMIT = 50
-DOWN_LIMIT = 200
+UP_LIMIT = 76
+DOWN_LIMIT = 223
 
 BALL_DIAMETER = 8
-SCORE_LIMIT = 10
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Default values for variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-BALL_X = 11
+BALL_X = 235
 BALL_Y = 80
 BALL_VX = 1
 BALL_VY = 1
 
-BAR_LEFT_Y = 100
-BAR_RIGHT_Y = 100
+BAR_LEFT_Y = 90
+BAR_RIGHT_Y = 95
 MOVE_BAR_DIRECTION = 0
 
 SCORE_LEFT = 0
@@ -81,6 +80,8 @@ GOAL_FLAG = 0
     score_left .dsb 1
     score_right .dsb 1
     goal_flag .dsb 1
+
+    sleeping .dsb 1
 
    .ende
 
@@ -252,6 +253,14 @@ LoadAttributeLoop:
 NMI:
 
     ;NOTE: NMI code goes here
+    SEI
+
+    PHA         ; back up registers (important)
+    TXA
+    PHA
+    TYA
+    PHA
+
 
     LDA #$00
     STA $2003       ; set the low byte (00) of the RAM address
@@ -260,10 +269,21 @@ NMI:
 
     JSR UpdateSprites ; Update sprites on screen
 
-    RTI             ; return from interrupt
+    LDA     #0
+    STA     sleeping
+
+    PLA            ; restore regs and exit
+    TAY
+    PLA
+    TAX
+    PLA
+    CLI
+    RTI
+
 
 IRQ:
-    JMP Reset
+    ;JMP Reset
+    RTI
    ;NOTE: IRQ code goes here
 
 
@@ -339,7 +359,9 @@ main_loop:
     JSR     check_hits_something
     JSR     players_move
     JSR     move_ball
-    JSR     main_loop
+    ;JSR     main_loop
+    JSR     wait
+    JMP     main_loop
 ; end main_loop
 
 ; Change location of the ball based on horizontal and vertical speed.
@@ -353,6 +375,7 @@ move_ball:
                                     ; ELSE limit ball_x
     LDA     #LEFT_LIMIT             ; ball_x = LEFT_LIMIT
     STA     ball_x                  ; save ball_x to variable
+    JSR     right_scored            ; touch left limit -> right scored
     JMP     MOVE_BALL_Y             ; no need to test RIGHT
 
 MOVE_CHECK_RIGHT:
@@ -361,6 +384,7 @@ MOVE_CHECK_RIGHT:
     CMP     #RIGHT_LIMIT
     BCC     END_MOVE_BALL_X         ; if ball_x < RIGHT_LIMIT
                                     ; ELSE limit ball_x
+    JSR     left_scored             ; touch right -> left scored
     LDA     #RIGHT_LIMIT            ; ball_x = RIGHT_LIMIT (subtract 8 below)
 END_MOVE_BALL_X:
     SEC
@@ -372,10 +396,13 @@ MOVE_BALL_Y:
     CLC
     ADC     ball_vy                 ; sum it with ball_vy
     CMP     #UP_LIMIT               ; check vertical limits
-    BCS     MOVE_CHECK_DOWN         ; if ball_y >= UP_LIMIT
-                                    ; ELSE limit ball_y
+    BEQ     MOVE_BALL_L1
+    BCS     MOVE_CHECK_DOWN         ; if ball_y > UP_LIMIT
+
+MOVE_BALL_L1:                       ; ELSE limit ball_y
     LDA     #UP_LIMIT               ; ball_y = UP_LIMIT
     STA     ball_y                  ; save ball_y to variable
+    JSR     change_ball_vy
     JMP     END_MOVE_BALL           ; no need to test DOWN
 
 MOVE_CHECK_DOWN:
@@ -420,9 +447,6 @@ change_ball_vx:
 ; Checks if the ball hits the bar.
 check_hits_something:
     ; this is now done in move_ball so to not allow ball to pass walls
-    ;JSR     check_hits_walls        ; check if ball hit up or down walls
-
-    JSR     check_goal              ; check if a goal happened
     JSR     check_hit_bars          ; check if hit bars (this order is not
                                     ; intuitive but may make sense in math)
     JSR     check_hit_mid_bar       ; check if ball hit middle bar
@@ -449,40 +473,33 @@ CHECK_HIT_END:
 ; end check_hits_walls
 
 ; Checks if a goal was scored
-check_goal:
-    LDA     ball_x                  ; load ball_x into A
-    CMP     #LEFT_LIMIT             ; compare with left of screen
-    BEQ     RIGHT_GOAL
-    BCS     CHECK_GOAL_RIGHT        ; if ball_x > LEFT_LIMIT -> not goal
-                                    ; ELSE
-RIGHT_GOAL:
+right_scored:
     INC     score_right             ; increment score right
+    LDA     score_right             ; limit scores to 9
+    CMP     #10
+    BNE     R_SCORED_L1
+    LDA     #0
+    STA     score_right
+    STA     score_left
+R_SCORED_L1:    
     LDA     #1
     STA     goal_flag               ; store 1 in goal_flag
-    JMP     goal_scored
-CHECK_GOAL_RIGHT:
-    CLC
-    ADC     #BALL_DIAMETER          ; add ball diameter to check on right side
-    CMP     #RIGHT_LIMIT            ; compare ball_x with RIGHT_LIMIT
-    BCC     CHECK_GOAL_END          ; if ball_x < RIGHT_LIMIT -> not goal
-                                    ; ELSE
+    RTS
+; end right_scored
+
+left_scored:
     INC     score_left              ; increment score left
-    ;LDA     score_left             ; TODO: set max number for score
-    ;CMP     #SCORE_LIMIT
-    ;BEQ     reset_score_left
+    LDA     score_left              ; limit scores to 9
+    CMP     #10
+    BNE     L_SCORED_L1
+    LDA     #0
+    STA     score_right
+    STA     score_left
+L_SCORED_L1:
     LDA     #2
     STA     goal_flag               ; store 2 in goal_flag
-    JMP     goal_scored
-    
-CHECK_GOAL_END:
-    LDA     #0
-    STA     goal_flag               ; store 0 in goal_flag
     RTS
-; end check_goal
-
-reset_score_left:
-    STA     score_left
-    RTS
+; end left_scored
 
 reset_score_right:
     STA     score_right
@@ -507,20 +524,20 @@ reset_score_right:
 ; expects in register A the bar_y which is being tested
 ; returns A = 1 if hit bar, A = 0 otherwise
 test_bar_y_limits:
-    CLC
+    SEC
     SBC     #BAR_SIZE               ; subtract BAR_SIZE
     CMP     ball_y
-    BCC     TEST_VERT_BAR_FALSE     ; bar_y-bar_size < ball_y -> ball is over
-    
+    BEQ     Y_LIM_L1 
+    BCS     TEST_VERT_BAR_FALSE     ; bar_y-bar_size > ball_y -> ball is over
+
+Y_LIM_L1:
     CLC
     ADC     #BAR_SIZE               ; sum BAR_SIZE
     CLC
     ADC     #BALL_DIAMETER          ; sum BALL_DIAMETER
     CMP     ball_y
-    BEQ     TEST_VERT_BAR_TRUE
-    BCS     TEST_VERT_BAR_FALSE     ; bar_y + 8 > ball_y -> ball is under
+    BCC     TEST_VERT_BAR_FALSE     ; bar_y + 8 < ball_y -> ball is under
 
-TEST_VERT_BAR_TRUE
     LDA     #1
     RTS
 
@@ -528,14 +545,14 @@ TEST_VERT_BAR_FALSE:
     LDA     #0
     RTS
 
-
+.org    $C400
 check_hit_bars:
     LDA     ball_x                  ; load ball x into A
     CMP     #LEFT_BAR_SURFACE
     BEQ     TEST_LEFT_BAR_Y         ; test vertical pos if ball_x <= left_bar_x
     BCS     TEST_RIGHT_BAR
 TEST_LEFT_BAR_Y:
-    LDA     left_bar_y              ; load left_bar_y into A and test Y limits
+    LDA     bar_left_y              ; load left_bar_y into A and test Y limits
     JSR     test_bar_y_limits
     CMP     #0
     BEQ     NO_HIT                  ; no need to test right bar at this point
@@ -548,7 +565,7 @@ TEST_RIGHT_BAR:
     CMP     #RIGHT_BAR_SURFACE
     BCC     NO_HIT                  ; if ball_x < right_bar_surface -> no hit
 
-    LDA     right_bar_y             ; load right_bar_y into A and test Y limits
+    LDA     bar_right_y             ; load right_bar_y into A and test Y limits
     JSR     test_bar_y_limits
     CMP     #0
     BEQ     NO_HIT
@@ -563,7 +580,6 @@ NO_HIT:
 
 ; do something when ball hits bar. Expects in A: 0 if hit left bar, 1 if right
 ball_hit_bar:
-    ; TODO: implement
     ; For now, invert both ball_vx and ball_vy
     LDA     ball_vy
     JSR     invert
@@ -571,6 +587,7 @@ ball_hit_bar:
     LDA     ball_vx
     JSR     invert
     STA     ball_vx
+
     RTS
 
 
@@ -581,12 +598,18 @@ check_hit_mid_bar:
 
 
 wait:
-    JMP     wait
+    INC     sleeping
+SLEEP:
+    LDA     sleeping
+    BNE     SLEEP
+    RTS
+; end wait
 
 goal_scored:
     JSR     setup_game
     ; TODO: setup screen and start match
-    JMP     main_loop
+    ;JMP     wait
+    RTS
 
 ; end foooooo
 ;-----------------------------------------------------------------------------
