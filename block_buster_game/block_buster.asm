@@ -45,7 +45,7 @@ BALL_Y = 80
 BALL_VX = 1
 BALL_VY = 1
 
-BAR_LEFT_Y = 90
+BAR_LEFT_Y = 140
 BAR_RIGHT_Y = 95
 MOVE_BAR_DIRECTION = 0
 
@@ -121,39 +121,38 @@ Reset:
     STA     score_right
     JSR     setup_game
 
-; BACKGROUND -- STILL WORKING ON IT, PLEASE DONT TOUCH :)----------------------
 
+; ------------------------- BACKGROUND ----------------------------------------
+
+; -------------- LOAD PALETTES --------------------------------------
 LoadPalettes:
     LDA $2002             ; read PPU status to reset the high/low latch
     LDA #$3F
     STA $2006             ; write the high byte of $3F00 address
     LDA #$00
     STA $2006             ; write the low byte of $3F00 address
-    LDX #$00              ; start out at 0
+
+    LDX #$00              ; use x as "iterator" - start at 0
 LoadPalettesLoop:
-    LDA palette, x        ; load data from address (palette + the value in x)
-                            ; 1st time through loop it will load palette+0
-                            ; 2nd time through loop it will load palette+1
-                            ; 3rd time through loop it will load palette+2
-                            ; etc
+    LDA palette, x        ; load from (palette + the value in x)
     STA $2007             ; write to PPU
-    INX                   ; X = X + 1
-    CPX #$20              ; Compare X to hex $10, decimal 16 - copying 16 bytes = 4 sprites
-    BNE LoadPalettesLoop  ; Branch to LoadPalettesLoop if compare was Not Equal to zero
-                          ; if compare was equal to 32, keep going down
+    INX                   ; increment "iterator"
+    CPX #$20              ; Compare X to hex $20, loading 32 colors = 2 palettes
+    BNE LoadPalettesLoop
+;---------------------------------------------------------------------
 
-
+; ----------- LOAD SPRITES -------------------------------------------
 LoadSprites:
     LDX #$00              ; start at 0
 LoadSpritesLoop:
-    LDA sprites, x        ; load data from address (sprites +  x)
+    LDA sprites, x        ; load from (sprites +  x)
     STA $0200, x          ; store into RAM address ($0200 + x)
-    INX                   ; X = X + 1
-    CPX #$14              ; Compare X to hex $10, decimal 16
-    BNE LoadSpritesLoop   ; Branch to LoadSpritesLoop if compare was Not Equal to zero
-                          ; if compare was equal to 16, keep going down
+    INX
+    CPX #$14              ; loads 5 sprites
+    BNE LoadSpritesLoop
+;----------------------------------------------------------------------
 
-
+; ------------ LOAD BACKGROUND ----------------------------------------
 LoadBackground:
     LDA $2002             ; read PPU status to reset the high/low latch
     LDA #$20
@@ -161,68 +160,72 @@ LoadBackground:
     LDA #$00
     STA $2006             ; write the low byte of $2000 address
 
-
-
+; ------- TOP WALL -------
     LDX #$00
-LoadBackgroundLoop1:
+LoopBGTopWall:            ; Loads wall on top of the screen
     LDA background_hwall, x
     STA $2007
     INX
-    CPX #$20
-    BNE LoadBackgroundLoop1
+    CPX #$20              ; 1 row
+    BNE LoopBGTopWall
 
-
-    LDX #$00              ; Header
-LoadBackgroundLoop2:
+; -------- HEADER --------
+    LDX #$00              ; Loads header on screen ("player 1" and "player 2")
+LoopBGHeader:
     LDA background_header, x
     STA $2007
     INX
-    CPX #$40
-    BNE LoadBackgroundLoop2
+    CPX #$40              ; 2 rows
+    BNE LoopBGHeader
 
-    LDY #$00              ; score area
-ExternalLoop6:
+; ----- SCORE AREA -------
+    LDY #$00              ; Loads score area on screen (where score sprites will go)
+OutsideLoopBGScoreArea:   ; Used two loops because register x isn't big enough.
     LDX #$00
-LoadBackgroundLoop6:
+LoadBGScoreArea:
     LDA background_vwall, x
     STA $2007
     INX
-    CPX #$20
-    BNE LoadBackgroundLoop6
+    CPX #$20              ; 1 row
+    BNE LoadBGScoreArea
     INY
-    CPY #$4
-    BNE ExternalLoop6
+    CPY #$4               ; 4 times
+    BNE OutsideLoopBGScoreArea
 
-    LDX #$00              ; Dividing wall
-LoadBackgroundLoop3:
+; ----- DIVISION WALL ----
+    LDX #$00              ; Loads a line of horizontal wall on screen.
+LoopBGDivision:
     LDA background_hwall, x
     STA $2007
     INX
-    CPX #$20
-    BNE LoadBackgroundLoop3
+    CPX #$20              ; 1 row
+    BNE LoopBGDivision
 
-    LDY #$00              ; Game wall
-ExternalLoop4:
+; ----- GAME/LAVA ---------
+    LDY #$00              ; Loads game background with lava on the sides.
+OutsideLoopBGLava:        ; Uses two loops because x isn't big enough.
     LDX #$00
-LoadBackgroundLoop4:
+LoadBGLava:
     LDA background_lava, x
     STA $2007
     INX
-    CPX #$40
-    BNE LoadBackgroundLoop4
+    CPX #$40              ; 2 rows
+    BNE LoadBGLava
     INY
-    CPY #$09
-    BNE ExternalLoop4
+    CPY #$09              ; 9 times (9x2 = 18 rows)
+    BNE OutsideLoopBGLava
 
-    LDX #$00              ; Lower wall
-LoadBackgroundLoop5:
+; ----- BOTTOM WALL -------
+    LDX #$00              ; Loads bottom wall on screen
+LoopBGBottomWall:
     LDA background_hwall, x
     STA $2007
     INX
-    CPX #$20
-    BNE LoadBackgroundLoop5
+    CPX #$20              ; 1 row
+    BNE LoopBGBottomWall
+;------------------------------------------------------------------------
 
-
+; -------------- LOAD ATTRIBUTES ----------------------------------------
 LoadAttribute:
     LDA $2002             ; read PPU status to reset the high/low latch
     LDA #$23
@@ -230,23 +233,22 @@ LoadAttribute:
     LDA #$C0
     STA $2006             ; write the low byte of $23C0 address
 
-    LDX #$00              ; start out at 0
+    LDX #$00
 LoadAttributeLoop:
-    LDA attribute, x      ; load data from address (attribute + the value in x)
+    LDA attribute, x      ; load from (attribute + the value in x)
     STA $2007             ; write to PPU
-    INX                   ; X = X + 1
-    CPX #$10              ; Compare X to hex $08, decimal 8 - copying 8 bytes
-    BNE LoadAttributeLoop  ; Branch to LoadAttributeLoop if compare was Not Equal to zero
-                          ; if compare was equal to 128, keep going down
+    INX
+    CPX #$10              ; Compare X to hex $10 - two lines of attributes (16 bytes)
+    BNE LoadAttributeLoop
+;----------------------------------------------------------------------------
 
-
-    LDA #%10000000   ; enable NMI, sprites from Pattern Table 0, background from Pattern Table 1
+    LDA #%10000000   ; enable NMI, both sprites and background from Pattern Table 0.
     STA $2000
-
     LDA #%00011110   ; enable sprites, enable background, no clipping on left side
     STA $2001
 
-; END OF BACKGROUND -----------------------------------------------------------
+; ------- END OF BACKGROUND --------------------------------------------------
+;-----------------------------------------------------------------------------
 
     JMP     main_loop
 
@@ -282,9 +284,7 @@ NMI:
 
 
 IRQ:
-    ;JMP Reset
     RTI
-   ;NOTE: IRQ code goes here
 
 
 
@@ -359,7 +359,6 @@ main_loop:
     JSR     check_hits_something
     JSR     players_move
     JSR     move_ball
-    ;JSR     main_loop
     JSR     wait
     JMP     main_loop
 ; end main_loop
@@ -610,7 +609,6 @@ goal_scored:
     ; TODO: setup screen and start match
     ;JMP     wait
     RTS
-
 ; end foooooo
 ;-----------------------------------------------------------------------------
 
@@ -748,9 +746,10 @@ infinite_loop:
 
     .org $E000
 palette:
-    ;   lava              wall               letters
+    ;   lava              wall              letters           unused
     .db $0F,$16,$28,$22,  $14,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;background palette
-    .db $0F,$16,$28,$22,  $14,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;sprites palette
+    ;   ball              unused            unused            unused
+    .db $0F,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;sprites palette
 
 sprites:
        ;vert tile attr horiz
@@ -758,8 +757,8 @@ sprites:
     .db $90, $18, $00, $0A   ;paddle 1
     .db $90, $18, $00, $F0   ;paddle 2
 scores:
-    .db $30, $1A, $00, $30   ;sprite 3
-    .db $30, $1A, $00, $D0   ;sprite 3
+    .db $30, $1A, $00, $30   ;score player 1
+    .db $30, $1A, $00, $D0   ;score player 2
 
 
 background_hwall:          ; Horizontal wall row
