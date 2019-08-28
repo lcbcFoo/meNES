@@ -721,11 +721,11 @@ UpdateSprites:      ; Changes sprites on screen. Ball moves, score is updated.
   STA $0203
 
   LDA score_left    ; Writes player 1's score on screen.
-  ADC #$1A          ; Sprite with number zero.
+  ADC #$23          ; Sprite with number zero.
   STA $020D
 
   LDA score_right   ; Writes player 2's score on screen.
-  ADC #$1A          ; Sprite with number zero.
+  ADC #$23          ; Sprite with number zero.
   STA $0211
 
   ; TODO: update paddle sprites
@@ -738,11 +738,11 @@ infinite_loop:
 
 ; BACKGROUND SETUP ------------------------------------------------------------
 ; Mapping reference guide:
-; P .. R-> 23 .. 28
-; Sky -> 2C
+; P .. R-> 19 .. 1E
+; Sky -> 40
 ; Numbers Mapping:
-; 0,6 -> 19 .. 1F
-; 7,8,9 -> 29, 2A, 2B
+; 0 .. 9 -> 23 -> 2C
+; Wins! -> 30,..,34
 
     .org $E000
 palette:
@@ -757,8 +757,8 @@ sprites:
     .db $90, $18, $00, $0A   ;paddle 1
     .db $90, $18, $00, $F0   ;paddle 2
 scores:
-    .db $30, $1A, $00, $30   ;score player 1
-    .db $30, $1A, $00, $D0   ;score player 2
+    .db $30, $23, $00, $30   ;score player 1
+    .db $30, $23, $00, $D0   ;score player 2
 
 
 background_hwall:          ; Horizontal wall row
@@ -766,23 +766,23 @@ background_hwall:          ; Horizontal wall row
     .db $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13
 
 background_header:        ; Writes "player 1" and "player 2" on header
-    .db $14,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C
-    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$14
+    .db $14,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40
+    .db $40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$14
 
-    .db $14,$2C,$2C,$23,$24,$25,$26,$27,$28,$2C,$1A,$2C,$2C,$2C,$2C,$2C
-    .db $2C,$2C,$2C,$2C,$2C,$23,$24,$25,$26,$27,$28,$2C,$1B,$2C,$2C,$14
+    .db $14,$40,$40,$19,$1A,$1B,$1C,$1D,$1E,$1F,$24,$40,$40,$40,$40,$40
+    .db $40,$40,$40,$40,$40,$19,$1A,$1B,$1C,$1D,$1E,$1F,$25,$40,$40,$14
 
 background_vwall:         ; Background with simple wall on the sides
 
-    .db $14,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C
-    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$14
+    .db $14,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40
+    .db $40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$14
 
 background_lava:          ; Background with lava on the sides (2 types of lava)
-    .db $10,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C
-    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$20
+    .db $10,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40
+    .db $40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$20
 
-    .db $11,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C
-    .db $2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$2C,$21
+    .db $11,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40
+    .db $40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$21
 
 attribute:
     .db %10010101, %10100101, %10100101, %10100101, %10100101, %10100101, %10100101, %01100101
