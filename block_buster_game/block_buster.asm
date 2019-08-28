@@ -75,9 +75,10 @@ GOAL_FLAG = 0
 
     ball_x .dsb 1
     ball_y .dsb 1
-    ball_vx .dsb 2
+    ball_vx .dsb 1
     ball_vy .dsb 1
-
+    
+    dummy .dsb 1
     score_left .dsb 1
     score_right .dsb 1
     goal_flag .dsb 1
@@ -911,10 +912,12 @@ UpdateSprites:      ; Changes sprites on screen. Ball moves, score is updated.
     sta $0203
 
     lda score_left    ; Writes player 1's score on screen.
+    clc
     adc #$23          ; Sprite with number zero.
     sta $020D
 
     lda score_right   ; Writes player 2's score on screen.
+    clc
     adc #$23          ; Sprite with number zero.
     sta $0211
 
