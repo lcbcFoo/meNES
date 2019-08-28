@@ -19,7 +19,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ;===================================================  end of screen (0 or 256)
 
 ; bar vertical size
-BAR_SIZE = 20
+BAR_SIZE = 8
 
 ; left bar surface (relative to 0)
 LEFT_BAR_SURFACE = 20
@@ -45,7 +45,7 @@ BALL_Y = 80
 BALL_VX = 1
 BALL_VY = 1
 
-BAR_LEFT_Y = 140
+BAR_LEFT_Y = 200
 BAR_RIGHT_Y = 95
 MOVE_BAR_DIRECTION = 0
 
@@ -423,10 +423,7 @@ END_MOVE_BALL:
 ; end mode_ball
 
 
-players_move:
-    ; TODO: implement bar movement, depends on input
-    RTS
-;end players_move
+
 
 
 change_ball_vy:
@@ -480,7 +477,7 @@ right_scored:
     LDA     #0
     STA     score_right
     STA     score_left
-R_SCORED_L1:    
+R_SCORED_L1:
     LDA     #1
     STA     goal_flag               ; store 1 in goal_flag
     RTS
@@ -500,22 +497,22 @@ L_SCORED_L1:
     RTS
 ; end left_scored
 
-reset_score_right:
-    STA     score_right
-    RTS
+;reset_score_right:
+;    STA     score_right
+;    RTS
 
 
 ;       BALL HITS BAR LOGIC
 ;
-; At this point we now that LEFT_LIMIT < ball_x < RIGHT_LIMIT because we
+; At this point we know that LEFT_LIMIT < ball_x < RIGHT_LIMIT because we
 ; passed check_goal and no one scored. We need only to check if:
-;   
 ;
-;       ball_x <= left_bar_surface 
+;
+;       ball_x <= left_bar_surface
 ;   AND
 ;       left_bar_y - bar_size_y <= ball_y <= left_bar_y + 8
 ; OR
-;       ball_x >= right_bar_surface 
+;       ball_x >= right_bar_surface
 ;   AND
 ;       right_bar_y - bar_size_y <= ball_y <= right_bar_y + 8
 
@@ -526,7 +523,7 @@ test_bar_y_limits:
     SEC
     SBC     #BAR_SIZE               ; subtract BAR_SIZE
     CMP     ball_y
-    BEQ     Y_LIM_L1 
+    BEQ     Y_LIM_L1
     BCS     TEST_VERT_BAR_FALSE     ; bar_y-bar_size > ball_y -> ball is over
 
 Y_LIM_L1:
@@ -556,7 +553,7 @@ TEST_LEFT_BAR_Y:
     CMP     #0
     BEQ     NO_HIT                  ; no need to test right bar at this point
     LDA     #0                      ; load 0 to A and call ball_hit_bar
-    JSR     ball_hit_bar                 
+    JSR     ball_hit_bar
     RTS
 
 TEST_RIGHT_BAR:
@@ -569,7 +566,7 @@ TEST_RIGHT_BAR:
     CMP     #0
     BEQ     NO_HIT
     LDA     #1                      ; load 1 to A and call ball_hit_bar
-    JSR     ball_hit_bar                 
+    JSR     ball_hit_bar
     RTS
 
 NO_HIT:
@@ -627,116 +624,215 @@ game_start:
 ; Prints message at end of game and waits for user input to restart game.
 game_over:
 
+;------------------------------------------------------------------------------
+;------------------- MOVE PLAYER BARS (PADDLES) -------------------------------
 
-; Reads the p1 input.
+players_move:
+    JSR MOVE_PLAYER_1
+    JSR MOVE_PLAYER_2
+    RTS
+
+; ----------------- PLAYER 1 ------------------
+MOVE_PLAYER_1:
+    JSR read_p1_input               ; Read input from player 1
+
+    LDA move_p1_bar_direction
+    CMP #$00                        ; Not moving
+    BEQ END_MOVE_P1_BAR
+    CMP #$01                        ; Moving up
+    BEQ MOVE_P1_BAR_UP
+    CMP #$02                        ; Moving down
+    BEQ MOVE_P1_BAR_DOWN
+
+; ---- PLAYER 1 - MOVE UP ----
+MOVE_P1_BAR_UP:
+    LDA bar_left_y
+    SEC
+    SBC #BAR_SPEED
+    CMP #UP_LIMIT
+    BCC END_MOVE_P1_BAR             ; If position is less the up limit, do nothing
+    BEQ END_MOVE_P1_BAR
+    STA bar_left_y                  ; Updates bar position
+    JMP END_MOVE_P1_BAR
+
+; ---- PLAYER 1 - MOVE DOWN ---
+MOVE_P1_BAR_DOWN:       ; NOTE: when using instr CLC before ADC, doesnt work.
+    LDA bar_left_y
+    ADC #BAR_SIZE
+    ADC #BAR_SPEED
+    CMP #DOWN_LIMIT
+    BCS END_MOVE_P1_BAR
+    SBC #BAR_SIZE
+    STA bar_left_y
+    JMP END_MOVE_P1_BAR
+
+END_MOVE_P1_BAR:
+    RTS
+;----------------------------------------------
+
+; ----------------- PLAYER 2 ------------------
+MOVE_PLAYER_2:
+    JSR read_p2_input               ; Read input from player 2
+
+    LDA move_p2_bar_direction
+    CMP #$00                        ; Not moving
+    BEQ END_MOVE_P2_BAR
+    CMP #$01                        ; Moving up
+    BEQ MOVE_P2_BAR_UP
+    CMP #$02                        ; Moving down
+    BEQ MOVE_P2_BAR_DOWN
+
+; ---- PLAYER 2 - MOVE UP ----
+MOVE_P2_BAR_UP:
+    LDA bar_right_y
+    SEC
+    SBC #BAR_SPEED
+    CMP #UP_LIMIT
+    BCC END_MOVE_P2_BAR             ; If position is less then up limit, do nothing
+    BEQ END_MOVE_P2_BAR
+    STA bar_right_y                  ; Updates bar position
+    JMP END_MOVE_P2_BAR
+
+; ---- PLAYER 2 - MOVE DOWN ---
+MOVE_P2_BAR_DOWN:       ; NOTE: when using instr CLC before ADC, doesnt work.
+    LDA bar_right_y
+    ADC #BAR_SIZE
+    ADC #BAR_SPEED
+    CMP #DOWN_LIMIT
+    BCS END_MOVE_P2_BAR
+    SBC #BAR_SIZE
+    STA bar_right_y
+    JMP END_MOVE_P2_BAR
+
+END_MOVE_P2_BAR:
+    RTS
+;----------------------------------------------
+
+;------------------------ END OF MOVE PLAYER BARS ------------------------------
+;-------------------------------------------------------------------------------
+
+
+;--------------------------- READ INPUT FROM PLAYERS ---------------------------
+
+; ------------- PLAYER 1 -----------------
 read_p1_input:
-; LatchController P1
+    ; LatchController P1
     LDA #$01
     STA $4016
     LDA #$00
     STA $4016
 
-; Set P1 bar to not move (Could not validate. Possible issue)
+    ; Set P1 bar to not move (Could not validate. Possible issue)
     LDA #$00
     STA move_p1_bar_direction
 
-; Ignore A, B, Select and Start buttons
+    ; Ignore A, B, Select and Start buttons
     LDA $4016
     LDA $4016
     LDA $4016
     LDA $4016
 
-; Read Player 1 Up Button
+;------ READ PLAYER 1 UP BUTTOM ----
 READ_UP_P1:
     LDA $4016
     AND #%00000001
     BEQ READ_UP_END_P1
 
-; Set p1 direction up
+    ; Set p1 direction up
     LDA #$01
     STA move_p1_bar_direction
 READ_UP_END_P1:
 
-; Read Player 1 Down Button
+;----- READ PLAYER 1 DOWN BUTTOM ---
 READ_DOWN_P1:
     LDA $4016
     AND #%00000001
     BEQ READ_DOWN_END_P1
 
-; Set p1 direction down
+    ; Set p1 direction down
     LDA #$02
     STA move_p1_bar_direction
 READ_DOWN_END_P1:
+    RTS
+;--------- END READ INPUT P1 -------------
 
-RTS
-;end read_p1_input
-
-; Reads the p2 input.
+; ------------- PLAYER 2 -----------------
 read_p2_input:
-; LatchController P2
+    ; LatchController P2
     LDA #$01
     STA $4017
     LDA #$00
     STA $4017
 
-; Set P2 bar to not move (Could not validate. Possible issue)
+    ; Set P2 bar to not move (Could not validate. Possible issue)
     LDA #$00
     STA move_p2_bar_direction
 
-; Ignore A, B, Select and Start buttons
+    ; Ignore A, B, Select and Start buttons
     LDA $4017
     LDA $4017
     LDA $4017
     LDA $4017
 
-; Read Player 2 Up Button
+;------ READ PLAYER 2 UP BUTTOM ----
 READ_UP_P2:
     LDA $4017
     AND #%00000001
     BEQ READ_UP_END_P2
 
-; Set p2 direction up
+    ; Set p2 direction up
     LDA #$01
     STA move_p2_bar_direction
 READ_UP_END_P2:
 
-; Read Player 2 Down Button
+;----- READ PLAYER 2 DOWN BUTTOM ---
 READ_DOWN_P2:
     LDA $4017
     AND #%00000001
     BEQ READ_DOWN_END_P2
 
-; Set p2 direction down
+    ; Set p2 direction down
     LDA #$02
     STA move_p2_bar_direction
 READ_DOWN_END_P2:
+    RTS
+;--------- END READ INPUT P2 -------------
 
-RTS
-;end read_p2_input
+; ---------------------------- END OF READ INPUT ------------------------------
+;------------------------------------------------------------------------------
+
+
+;------------------------- UPDATE SPRITES ON SCREEN ---------------------------
 
 UpdateSprites:      ; Changes sprites on screen. Ball moves, score is updated.
-  LDA ball_y        ; Update ball's position (x,y).
-  STA $0200
-  LDA ball_x
-  STA $0203
+    LDA ball_y        ; Update ball's position (x,y).
+    STA $0200
+    LDA ball_x
+    STA $0203
 
-  LDA score_left    ; Writes player 1's score on screen.
-  ADC #$23          ; Sprite with number zero.
-  STA $020D
+    LDA score_left    ; Writes player 1's score on screen.
+    ADC #$23          ; Sprite with number zero.
+    STA $020D
 
-  LDA score_right   ; Writes player 2's score on screen.
-  ADC #$23          ; Sprite with number zero.
-  STA $0211
+    LDA score_right   ; Writes player 2's score on screen.
+    ADC #$23          ; Sprite with number zero.
+    STA $0211
 
-  ; TODO: update paddle sprites
+    LDA bar_left_y    ; Updates position on player 1's paddle.
+    STA $0204
 
-  RTS
+    LDA bar_right_y   ; Updates position on player 2' paddle.
+    STA $0208
+
+    RTS
+; ------------------------- END UPDATE SPRITES ---------------------------------
+;-------------------------------------------------------------------------------
 
 infinite_loop:
     jmp infinite_loop
 
 
-; BACKGROUND SETUP ------------------------------------------------------------
+;---------------------------- BACKGROUND SETUP ---------------------------------
 ; Mapping reference guide:
 ; P .. R-> 19 .. 1E
 ; Sky -> 40
@@ -754,8 +850,8 @@ palette:
 sprites:
        ;vert tile attr horiz
     .db $90, $17, $00, $80   ;bola
-    .db $90, $18, $00, $0A   ;paddle 1
-    .db $90, $18, $00, $F0   ;paddle 2
+    .db $90, $18, $00, $0A   ;bar player 1
+    .db $90, $18, $00, $F0   ;bar player 2
 scores:
     .db $30, $23, $00, $30   ;score player 1
     .db $30, $23, $00, $D0   ;score player 2
