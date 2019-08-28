@@ -115,176 +115,176 @@ Reset:
 
     ; Initialize variables with default value
 
-    LDA     #SCORE_LEFT
-    STA     score_left
-    LDA     #SCORE_RIGHT
-    STA     score_right
-    JSR     setup_game
+    lda     #SCORE_LEFT
+    sta     score_left
+    lda     #SCORE_RIGHT
+    sta     score_right
+    jsr     setup_game
 
 
 ; ------------------------- BACKGROUND ----------------------------------------
 
 ; -------------- LOAD PALETTES --------------------------------------
 LoadPalettes:
-    LDA $2002             ; read PPU status to reset the high/low latch
-    LDA #$3F
-    STA $2006             ; write the high byte of $3F00 address
-    LDA #$00
-    STA $2006             ; write the low byte of $3F00 address
+    lda $2002             ; read PPU status to reset the high/low latch
+    lda #$3F
+    sta $2006             ; write the high byte of $3F00 address
+    lda #$00
+    sta $2006             ; write the low byte of $3F00 address
 
-    LDX #$00              ; use x as "iterator" - start at 0
+    ldx #$00              ; use x as "iterator" - start at 0
 LoadPalettesLoop:
-    LDA palette, x        ; load from (palette + the value in x)
-    STA $2007             ; write to PPU
-    INX                   ; increment "iterator"
-    CPX #$20              ; Compare X to hex $20, loading 32 colors = 2 palettes
-    BNE LoadPalettesLoop
+    lda palette, x        ; load from (palette + the value in x)
+    sta $2007             ; write to PPU
+    inx                   ; increment "iterator"
+    cpx #$20              ; Compare X to hex $20, loading 32 colors = 2 palettes
+    bne LoadPalettesLoop
 ;---------------------------------------------------------------------
 
 ; ----------- LOAD SPRITES -------------------------------------------
 LoadSprites:
-    LDX #$00              ; start at 0
+    ldx #$00              ; start at 0
 LoadSpritesLoop:
-    LDA sprites, x        ; load from (sprites +  x)
-    STA $0200, x          ; store into RAM address ($0200 + x)
-    INX
-    CPX #$14              ; loads 5 sprites
-    BNE LoadSpritesLoop
+    lda sprites, x        ; load from (sprites +  x)
+    sta $0200, x          ; store into RAM address ($0200 + x)
+    inx
+    cpx #$14              ; loads 5 sprites
+    bne LoadSpritesLoop
 ;----------------------------------------------------------------------
 
 ; ------------ LOAD BACKGROUND ----------------------------------------
 LoadBackground:
-    LDA $2002             ; read PPU status to reset the high/low latch
-    LDA #$20
-    STA $2006             ; write the high byte of $2000 address
-    LDA #$00
-    STA $2006             ; write the low byte of $2000 address
+    lda $2002             ; read PPU status to reset the high/low latch
+    lda #$20
+    sta $2006             ; write the high byte of $2000 address
+    lda #$00
+    sta $2006             ; write the low byte of $2000 address
 
 ; ------- TOP WALL -------
-    LDX #$00
+    ldx #$00
 LoopBGTopWall:            ; Loads wall on top of the screen
-    LDA background_hwall, x
-    STA $2007
-    INX
-    CPX #$20              ; 1 row
-    BNE LoopBGTopWall
+    lda background_hwall, x
+    sta $2007
+    inx
+    cpx #$20              ; 1 row
+    bne LoopBGTopWall
 
 ; -------- HEADER --------
-    LDX #$00              ; Loads header on screen ("player 1" and "player 2")
+    ldx #$00              ; Loads header on screen ("player 1" and "player 2")
 LoopBGHeader:
-    LDA background_header, x
-    STA $2007
-    INX
-    CPX #$40              ; 2 rows
-    BNE LoopBGHeader
+    lda background_header, x
+    sta $2007
+    inx
+    cpx #$40              ; 2 rows
+    bne LoopBGHeader
 
 ; ----- SCORE AREA -------
-    LDY #$00              ; Loads score area on screen (where score sprites will go)
+    ldy #$00              ; Loads score area on screen (where score sprites will go)
 OutsideLoopBGScoreArea:   ; Used two loops because register x isn't big enough.
-    LDX #$00
+    ldx #$00
 LoadBGScoreArea:
-    LDA background_vwall, x
-    STA $2007
-    INX
-    CPX #$20              ; 1 row
-    BNE LoadBGScoreArea
-    INY
-    CPY #$4               ; 4 times
-    BNE OutsideLoopBGScoreArea
+    lda background_vwall, x
+    sta $2007
+    inx
+    cpx #$20              ; 1 row
+    bne LoadBGScoreArea
+    iny
+    cpy #$4               ; 4 times
+    bne OutsideLoopBGScoreArea
 
 ; ----- DIVISION WALL ----
-    LDX #$00              ; Loads a line of horizontal wall on screen.
+    ldx #$00              ; Loads a line of horizontal wall on screen.
 LoopBGDivision:
-    LDA background_hwall, x
-    STA $2007
-    INX
-    CPX #$20              ; 1 row
-    BNE LoopBGDivision
+    lda background_hwall, x
+    sta $2007
+    inx
+    cpx #$20              ; 1 row
+    bne LoopBGDivision
 
 ; ----- GAME/LAVA ---------
-    LDY #$00              ; Loads game background with lava on the sides.
+    ldy #$00              ; Loads game background with lava on the sides.
 OutsideLoopBGLava:        ; Uses two loops because x isn't big enough.
-    LDX #$00
+    ldx #$00
 LoadBGLava:
-    LDA background_lava, x
-    STA $2007
-    INX
-    CPX #$40              ; 2 rows
-    BNE LoadBGLava
-    INY
-    CPY #$09              ; 9 times (9x2 = 18 rows)
-    BNE OutsideLoopBGLava
+    lda background_lava, x
+    sta $2007
+    inx
+    cpx #$40              ; 2 rows
+    bne LoadBGLava
+    iny
+    cpy #$09              ; 9 times (9x2 = 18 rows)
+    bne OutsideLoopBGLava
 
 ; ----- BOTTOM WALL -------
-    LDX #$00              ; Loads bottom wall on screen
+    ldx #$00              ; Loads bottom wall on screen
 LoopBGBottomWall:
-    LDA background_hwall, x
-    STA $2007
-    INX
-    CPX #$20              ; 1 row
-    BNE LoopBGBottomWall
+    lda background_hwall, x
+    sta $2007
+    inx
+    cpx #$20              ; 1 row
+    bne LoopBGBottomWall
 ;------------------------------------------------------------------------
 
 ; -------------- LOAD ATTRIBUTES ----------------------------------------
 LoadAttribute:
-    LDA $2002             ; read PPU status to reset the high/low latch
-    LDA #$23
-    STA $2006             ; write the high byte of $23C0 address
-    LDA #$C0
-    STA $2006             ; write the low byte of $23C0 address
+    lda $2002             ; read PPU status to reset the high/low latch
+    lda #$23
+    sta $2006             ; write the high byte of $23C0 address
+    lda #$C0
+    sta $2006             ; write the low byte of $23C0 address
 
-    LDX #$00
+    ldx #$00
 LoadAttributeLoop:
-    LDA attribute, x      ; load from (attribute + the value in x)
-    STA $2007             ; write to PPU
-    INX
-    CPX #$10              ; Compare X to hex $10 - two lines of attributes (16 bytes)
-    BNE LoadAttributeLoop
+    lda attribute, x      ; load from (attribute + the value in x)
+    sta $2007             ; write to PPU
+    inx
+    cpx #$10              ; Compare X to hex $10 - two lines of attributes (16 bytes)
+    bne LoadAttributeLoop
 ;----------------------------------------------------------------------------
 
-    LDA #%10000000   ; enable NMI, both sprites and background from Pattern Table 0.
-    STA $2000
-    LDA #%00011110   ; enable sprites, enable background, no clipping on left side
-    STA $2001
+    lda #%10000000   ; enable NMI, both sprites and background from Pattern Table 0.
+    sta $2000
+    lda #%00011110   ; enable sprites, enable background, no clipping on left side
+    sta $2001
 
 ; ------- END OF BACKGROUND --------------------------------------------------
 ;-----------------------------------------------------------------------------
 
-    JMP     main_loop
+    jmp     main_loop
 
 NMI:
 
     ;NOTE: NMI code goes here
-    SEI
+    sei
 
-    PHA         ; back up registers (important)
-    TXA
-    PHA
-    TYA
-    PHA
+    pha         ; back up registers (important)
+    txa
+    pha
+    tya
+    pha
 
 
-    LDA #$00
-    STA $2003       ; set the low byte (00) of the RAM address
-    LDA #$02
-    STA $4014       ; set the high byte (02) of the RAM address, start the transfer
+    lda #$00
+    sta $2003       ; set the low byte (00) of the RAM address
+    lda #$02
+    sta $4014       ; set the high byte (02) of the RAM address, start the transfer
 
-    JSR UpdateSprites ; Update sprites on screen
+    jsr UpdateSprites ; Update sprites on screen
 
-    LDA     #0
-    STA     sleeping
+    lda     #0
+    sta     sleeping
 
-    PLA            ; restore regs and exit
-    TAY
-    PLA
-    TAX
-    PLA
-    CLI
-    RTI
+    pla            ; restore regs and exit
+    tay
+    pla
+    tax
+    pla
+    cli
+    rti
 
 
 IRQ:
-    RTI
+    rti
 
 
 
@@ -297,129 +297,129 @@ IRQ:
 
 ; Register Y -> 1 if value in A register is negative, else to Y -> 0
 is_negative:
-	CMP     #$7F
-	BPL     IS_NEGATIVE_NEG_LABEL
-	LDY     #0
-	RTS
+	cmp     #$7F
+	bpl     IS_NEGATIVE_NEG_LABEL
+	ldy     #0
+	rts
 IS_NEGATIVE_NEG_LABEL:
-	LDY     #1
-	RTS
+	ldy     #1
+	rts
 ; end is_negative
 
 
 ; Invert value in A register. Equivalent to A = -A
 invert:
-	EOR     #$FF
-	CLC
-	ADC     #1
-	RTS
+	eor     #$FF
+	clc
+	adc     #1
+	rts
 ;end invert
 
 
 ; Set A to the module of the value in A. A = |A|
 module:
-	JSR     is_negative
-    CPY     #0
-	BNE     MODULE_NEG_LABEL
-	RTS
+	jsr     is_negative
+  cpy     #0
+	bne     MODULE_NEG_LABEL
+	rts
 MODULE_NEG_LABEL:
-	JSR     invert
-	RTS
+	jsr     invert
+	rts
 ;end module
 
 
 setup_game:
 
     ; Initialize variables with default value
-    LDA     #BALL_X
-    STA     ball_x
-    LDA     #BALL_Y
-    STA     ball_y
-    LDA     #BALL_VX
-    STA     ball_vx
-    LDA     #BALL_VY
-    STA     ball_vy
+    lda     #BALL_X
+    sta     ball_x
+    lda     #BALL_Y
+    sta     ball_y
+    lda     #BALL_VX
+    sta     ball_vx
+    lda     #BALL_VY
+    sta     ball_vy
 
-    LDA     #BAR_LEFT_Y
-    STA     bar_left_y
-    LDA     #BAR_RIGHT_Y
-    STA     bar_right_y
-    LDA     #MOVE_BAR_DIRECTION
-    STA     move_p1_bar_direction
-    STA     move_p2_bar_direction
+    lda     #BAR_LEFT_Y
+    sta     bar_left_y
+    lda     #BAR_RIGHT_Y
+    sta     bar_right_y
+    lda     #MOVE_BAR_DIRECTION
+    sta     move_p1_bar_direction
+    sta     move_p2_bar_direction
 
-    LDA     #GOAL_FLAG
-    STA     goal_flag
-    RTS
+    lda     #GOAL_FLAG
+    sta     goal_flag
+    rts
 ; end setup_game
 
 
 .org   $C200
 main_loop:
-    JSR     check_hits_something
-    JSR     players_move
-    JSR     move_ball
-    JSR     wait
-    JMP     main_loop
+    jsr     check_hits_something
+    jsr     players_move
+    jsr     move_ball
+    jsr     wait
+    jmp     main_loop
 ; end main_loop
 
 ; Change location of the ball based on horizontal and vertical speed.
 .org $C300
 move_ball:
-    LDA     ball_x                  ; load ball x into A
-    CLC                             ; clean carry
-    ADC     ball_vx                 ; sum it with ball_vx
-    CMP     #LEFT_LIMIT             ; check horizontal limits
-    BCS     MOVE_CHECK_RIGHT        ; if ball_x >= LEFT_LIMIT
+    lda     ball_x                  ; load ball x into A
+    clc                             ; clean carry
+    adc     ball_vx                 ; sum it with ball_vx
+    cmp     #LEFT_LIMIT             ; check horizontal limits
+    bcs     MOVE_CHECK_RIGHT        ; if ball_x >= LEFT_LIMIT
                                     ; ELSE limit ball_x
-    LDA     #LEFT_LIMIT             ; ball_x = LEFT_LIMIT
-    STA     ball_x                  ; save ball_x to variable
-    JSR     right_scored            ; touch left limit -> right scored
-    JMP     MOVE_BALL_Y             ; no need to test RIGHT
+    lda     #LEFT_LIMIT             ; ball_x = LEFT_LIMIT
+    sta     ball_x                  ; save ball_x to variable
+    jsr     right_scored            ; touch left limit -> right scored
+    jmp     MOVE_BALL_Y             ; no need to test RIGHT
 
 MOVE_CHECK_RIGHT:
-    CLC
-    ADC     #BALL_DIAMETER          ; add ball diameter to compare RIGHT
-    CMP     #RIGHT_LIMIT
-    BCC     END_MOVE_BALL_X         ; if ball_x < RIGHT_LIMIT
+    clc
+    adc     #BALL_DIAMETER          ; add ball diameter to compare RIGHT
+    cmp     #RIGHT_LIMIT
+    bcc     END_MOVE_BALL_X         ; if ball_x < RIGHT_LIMIT
                                     ; ELSE limit ball_x
-    JSR     left_scored             ; touch right -> left scored
-    LDA     #RIGHT_LIMIT            ; ball_x = RIGHT_LIMIT (subtract 8 below)
+    jsr     left_scored             ; touch right -> left scored
+    lda     #RIGHT_LIMIT            ; ball_x = RIGHT_LIMIT (subtract 8 below)
 END_MOVE_BALL_X:
-    SEC
-    SBC     #BALL_DIAMETER          ; subtract diameter after tests
-    STA     ball_x
+    sec
+    sbc     #BALL_DIAMETER          ; subtract diameter after tests
+    sta     ball_x
 
 MOVE_BALL_Y:
-    LDA     ball_y                  ; load ball y into A
-    CLC
-    ADC     ball_vy                 ; sum it with ball_vy
-    CMP     #UP_LIMIT               ; check vertical limits
-    BEQ     MOVE_BALL_L1
-    BCS     MOVE_CHECK_DOWN         ; if ball_y > UP_LIMIT
+    lda     ball_y                  ; load ball y into A
+    clc
+    adc     ball_vy                 ; sum it with ball_vy
+    cmp     #UP_LIMIT               ; check vertical limits
+    beq     MOVE_BALL_L1
+    bcs     MOVE_CHECK_DOWN         ; if ball_y > UP_LIMIT
 
 MOVE_BALL_L1:                       ; ELSE limit ball_y
-    LDA     #UP_LIMIT               ; ball_y = UP_LIMIT
-    STA     ball_y                  ; save ball_y to variable
-    JSR     change_ball_vy
-    JMP     END_MOVE_BALL           ; no need to test DOWN
+    lda     #UP_LIMIT               ; ball_y = UP_LIMIT
+    sta     ball_y                  ; save ball_y to variable
+    jsr     change_ball_vy
+    jmp     END_MOVE_BALL           ; no need to test DOWN
 
 MOVE_CHECK_DOWN:
-    CLC
-    ADC     #BALL_DIAMETER          ; add ball diameter to compare DOWN
-    CMP     #DOWN_LIMIT
-    BCC     END_MOVE_BALL_Y         ; if ball_y < DOWN_LIMIT
+    clc
+    adc     #BALL_DIAMETER          ; add ball diameter to compare DOWN
+    cmp     #DOWN_LIMIT
+    bcc     END_MOVE_BALL_Y         ; if ball_y < DOWN_LIMIT
                                     ; ELSE limit ball_y and change ball_vy
-    JSR     change_ball_vy          ; invert ball_vy
-    LDA     #DOWN_LIMIT             ; ball_y = DOWN_LIMIT (subtract 8 below)
+    jsr     change_ball_vy          ; invert ball_vy
+    lda     #DOWN_LIMIT             ; ball_y = DOWN_LIMIT (subtract 8 below)
 
 END_MOVE_BALL_Y:
-    SEC
-    SBC     #BALL_DIAMETER          ; subtract diameter after tests
-    STA     ball_y
+    sec
+    sbc     #BALL_DIAMETER          ; subtract diameter after tests
+    sta     ball_y
 
 END_MOVE_BALL:
-    RTS
+    rts
 ; end mode_ball
 
 
@@ -427,79 +427,79 @@ END_MOVE_BALL:
 
 
 change_ball_vy:
-    LDA     ball_vy                 ; load ball vy into A
-    JSR     invert                  ; invert ball_vy
-    STA     ball_vy
-    RTS
+    lda     ball_vy                 ; load ball vy into A
+    jsr     invert                  ; invert ball_vy
+    sta     ball_vy
+    rts
 ;end ball_vy
 
 change_ball_vx:
-    LDA     ball_vx                 ; load ball vx into A
-    JSR     invert                  ; invert ball_vx
-    RTS
+    lda     ball_vx                 ; load ball vx into A
+    jsr     invert                  ; invert ball_vx
+    rts
 ;end ball_vx
 
 
 ; Checks if the ball hits the bar.
 check_hits_something:
     ; this is now done in move_ball so to not allow ball to pass walls
-    JSR     check_hit_bars          ; check if hit bars (this order is not
+    jsr     check_hit_bars          ; check if hit bars (this order is not
                                     ; intuitive but may make sense in math)
-    JSR     check_hit_mid_bar       ; check if ball hit middle bar
-    RTS
+    jsr     check_hit_mid_bar       ; check if ball hit middle bar
+    rts
 ;end check_hits_something
 
 
 ; Checks if the ball hits the walls.
 check_hits_walls:
-    LDA     ball_y                  ; load ball_y into A
-    CMP     #DOWN_LIMIT             ; compare with DOWN_LIMIT
-    BCS     HIT_WALL                ; branch IF ball_y >= DOWN_LIMIT
-    CMP     #UP_LIMIT               ; compare ball_y with UP_LIMIT
-    BEQ     HIT_WALL
-    BCS     CHECK_HIT_END           ; branch IF ball_y > UP_LIMIT
+    lda     ball_y                  ; load ball_y into A
+    cmp     #DOWN_LIMIT             ; compare with DOWN_LIMIT
+    bcs     HIT_WALL                ; branch IF ball_y >= DOWN_LIMIT
+    cmp     #UP_LIMIT               ; compare ball_y with UP_LIMIT
+    beq     HIT_WALL
+    bcs     CHECK_HIT_END           ; branch IF ball_y > UP_LIMIT
                                     ; ELSE (DOWN <= ball || ball <= UP)
 HIT_WALL:
-    LDA     ball_vy                 ; load ball_vy into A
-    JSR     invert                  ; invert ball_vy
-    STA     ball_vy                 ; save ball_vy
+    lda     ball_vy                 ; load ball_vy into A
+    jsr     invert                  ; invert ball_vy
+    sta     ball_vy                 ; save ball_vy
 CHECK_HIT_END:
-    RTS
+    rts
 
 ; end check_hits_walls
 
 ; Checks if a goal was scored
 right_scored:
-    INC     score_right             ; increment score right
-    LDA     score_right             ; limit scores to 9
-    CMP     #10
-    BNE     R_SCORED_L1
-    LDA     #0
-    STA     score_right
-    STA     score_left
+    inc     score_right             ; increment score right
+    lda     score_right             ; limit scores to 9
+    cmp     #10
+    bne     R_SCORED_L1
+    lda     #0
+    sta     score_right
+    sta     score_left
 R_SCORED_L1:
-    LDA     #1
-    STA     goal_flag               ; store 1 in goal_flag
-    RTS
+    lda     #1
+    sta     goal_flag               ; store 1 in goal_flag
+    rts
 ; end right_scored
 
 left_scored:
-    INC     score_left              ; increment score left
-    LDA     score_left              ; limit scores to 9
-    CMP     #10
-    BNE     L_SCORED_L1
-    LDA     #0
-    STA     score_right
-    STA     score_left
+    inc     score_left              ; increment score left
+    lda     score_left              ; limit scores to 9
+    cmp     #10
+    bne     L_SCORED_L1
+    lda     #0
+    sta     score_right
+    sta     score_left
 L_SCORED_L1:
-    LDA     #2
-    STA     goal_flag               ; store 2 in goal_flag
-    RTS
+    lda     #2
+    sta     goal_flag               ; store 2 in goal_flag
+    rts
 ; end left_scored
 
 ;reset_score_right:
-;    STA     score_right
-;    RTS
+;    sta     score_right
+;    rts
 
 
 ;       BALL HITS BAR LOGIC
@@ -520,92 +520,92 @@ L_SCORED_L1:
 ; expects in register A the bar_y which is being tested
 ; returns A = 1 if hit bar, A = 0 otherwise
 test_bar_y_limits:
-    SEC
-    SBC     #BAR_SIZE               ; subtract BAR_SIZE
-    CMP     ball_y
-    BEQ     Y_LIM_L1
-    BCS     TEST_VERT_BAR_FALSE     ; bar_y-bar_size > ball_y -> ball is over
+    sec
+    sbc     #BAR_SIZE               ; subtract BAR_SIZE
+    cmp     ball_y
+    beq     Y_LIM_L1
+    bcs     TEST_VERT_BAR_FALSE     ; bar_y-bar_size > ball_y -> ball is over
 
 Y_LIM_L1:
-    CLC
-    ADC     #BAR_SIZE               ; sum BAR_SIZE
-    CLC
-    ADC     #BALL_DIAMETER          ; sum BALL_DIAMETER
-    CMP     ball_y
-    BCC     TEST_VERT_BAR_FALSE     ; bar_y + 8 < ball_y -> ball is under
+    clc
+    adc     #BAR_SIZE               ; sum BAR_SIZE
+    clc
+    adc     #BALL_DIAMETER          ; sum BALL_DIAMETER
+    cmp     ball_y
+    bcc     TEST_VERT_BAR_FALSE     ; bar_y + 8 < ball_y -> ball is under
 
-    LDA     #1
-    RTS
+    lda     #1
+    rts
 
 TEST_VERT_BAR_FALSE:
-    LDA     #0
-    RTS
+    lda     #0
+    rts
 
 .org    $C400
 check_hit_bars:
-    LDA     ball_x                  ; load ball x into A
-    CMP     #LEFT_BAR_SURFACE
-    BEQ     TEST_LEFT_BAR_Y         ; test vertical pos if ball_x <= left_bar_x
-    BCS     TEST_RIGHT_BAR
+    lda     ball_x                  ; load ball x into A
+    cmp     #LEFT_BAR_SURFACE
+    beq     TEST_LEFT_BAR_Y         ; test vertical pos if ball_x <= left_bar_x
+    bcs     TEST_RIGHT_BAR
 TEST_LEFT_BAR_Y:
-    LDA     bar_left_y              ; load left_bar_y into A and test Y limits
-    JSR     test_bar_y_limits
-    CMP     #0
-    BEQ     NO_HIT                  ; no need to test right bar at this point
-    LDA     #0                      ; load 0 to A and call ball_hit_bar
-    JSR     ball_hit_bar
-    RTS
+    lda     bar_left_y              ; load left_bar_y into A and test Y limits
+    jsr     test_bar_y_limits
+    cmp     #0
+    beq     NO_HIT                  ; no need to test right bar at this point
+    lda     #0                      ; load 0 to A and call ball_hit_bar
+    jsr     ball_hit_bar
+    rts
 
 TEST_RIGHT_BAR:
-    LDA     ball_x                  ; load ball_x into A
-    CMP     #RIGHT_BAR_SURFACE
-    BCC     NO_HIT                  ; if ball_x < right_bar_surface -> no hit
+    lda     ball_x                  ; load ball_x into A
+    cmp     #RIGHT_BAR_SURFACE
+    bcc     NO_HIT                  ; if ball_x < right_bar_surface -> no hit
 
-    LDA     bar_right_y             ; load right_bar_y into A and test Y limits
-    JSR     test_bar_y_limits
-    CMP     #0
-    BEQ     NO_HIT
-    LDA     #1                      ; load 1 to A and call ball_hit_bar
-    JSR     ball_hit_bar
-    RTS
+    lda     bar_right_y             ; load right_bar_y into A and test Y limits
+    jsr     test_bar_y_limits
+    cmp     #0
+    beq     NO_HIT
+    lda     #1                      ; load 1 to A and call ball_hit_bar
+    jsr     ball_hit_bar
+    rts
 
 NO_HIT:
-    RTS
+    rts
 ; end check_hit_bars
 
 
 ; do something when ball hits bar. Expects in A: 0 if hit left bar, 1 if right
 ball_hit_bar:
     ; For now, invert both ball_vx and ball_vy
-    LDA     ball_vy
-    JSR     invert
-    STA     ball_vy
-    LDA     ball_vx
-    JSR     invert
-    STA     ball_vx
+    lda     ball_vy
+    jsr     invert
+    sta     ball_vy
+    lda     ball_vx
+    jsr     invert
+    sta     ball_vx
 
-    RTS
+    rts
 
 
 check_hit_mid_bar:
     ; TODO: implement
-    RTS
+    rts
 ;end check_hit_mid_bar
 
 
 wait:
-    INC     sleeping
+    inc     sleeping
 SLEEP:
-    LDA     sleeping
-    BNE     SLEEP
-    RTS
+    lda     sleeping
+    bne     SLEEP
+    rts
 ; end wait
 
 goal_scored:
-    JSR     setup_game
+    jsr     setup_game
     ; TODO: setup screen and start match
-    ;JMP     wait
-    RTS
+    ;jmp     wait
+    rts
 ; end foooooo
 ;-----------------------------------------------------------------------------
 
@@ -628,84 +628,84 @@ game_over:
 ;------------------- MOVE PLAYER BARS (PADDLES) -------------------------------
 
 players_move:
-    JSR MOVE_PLAYER_1
-    JSR MOVE_PLAYER_2
-    RTS
+    jsr MOVE_PLAYER_1
+    jsr MOVE_PLAYER_2
+    rts
 
 ; ----------------- PLAYER 1 ------------------
 MOVE_PLAYER_1:
-    JSR read_p1_input               ; Read input from player 1
+    jsr read_p1_input               ; Read input from player 1
 
-    LDA move_p1_bar_direction
-    CMP #$00                        ; Not moving
-    BEQ END_MOVE_P1_BAR
-    CMP #$01                        ; Moving up
-    BEQ MOVE_P1_BAR_UP
-    CMP #$02                        ; Moving down
-    BEQ MOVE_P1_BAR_DOWN
+    lda move_p1_bar_direction
+    cmp #$00                        ; Not moving
+    beq END_MOVE_P1_BAR
+    cmp #$01                        ; Moving up
+    beq MOVE_P1_BAR_UP
+    cmp #$02                        ; Moving down
+    beq MOVE_P1_BAR_DOWN
 
 ; ---- PLAYER 1 - MOVE UP ----
 MOVE_P1_BAR_UP:
-    LDA bar_left_y
-    SEC
-    SBC #BAR_SPEED
-    CMP #UP_LIMIT
-    BCC END_MOVE_P1_BAR             ; If position is less the up limit, do nothing
-    BEQ END_MOVE_P1_BAR
-    STA bar_left_y                  ; Updates bar position
-    JMP END_MOVE_P1_BAR
+    lda bar_left_y
+    sec
+    sbc #BAR_SPEED
+    cmp #UP_LIMIT
+    bcc END_MOVE_P1_BAR             ; If position is less the up limit, do nothing
+    beq END_MOVE_P1_BAR
+    sta bar_left_y                  ; Updates bar position
+    jmp END_MOVE_P1_BAR
 
 ; ---- PLAYER 1 - MOVE DOWN ---
-MOVE_P1_BAR_DOWN:       ; NOTE: when using instr CLC before ADC, doesnt work.
-    LDA bar_left_y
-    ADC #BAR_SIZE
-    ADC #BAR_SPEED
-    CMP #DOWN_LIMIT
-    BCS END_MOVE_P1_BAR
-    SBC #BAR_SIZE
-    STA bar_left_y
-    JMP END_MOVE_P1_BAR
+MOVE_P1_BAR_DOWN:       ; NOTE: when using instr clc before ADC, doesnt work.
+    lda bar_left_y
+    adc #BAR_SIZE
+    adc #BAR_SPEED
+    cmp #DOWN_LIMIT
+    bcs END_MOVE_P1_BAR
+    sbc #BAR_SIZE
+    sta bar_left_y
+    jmp END_MOVE_P1_BAR
 
 END_MOVE_P1_BAR:
-    RTS
+    rts
 ;----------------------------------------------
 
 ; ----------------- PLAYER 2 ------------------
 MOVE_PLAYER_2:
-    JSR read_p2_input               ; Read input from player 2
+    jsr read_p2_input               ; Read input from player 2
 
-    LDA move_p2_bar_direction
-    CMP #$00                        ; Not moving
-    BEQ END_MOVE_P2_BAR
-    CMP #$01                        ; Moving up
-    BEQ MOVE_P2_BAR_UP
-    CMP #$02                        ; Moving down
-    BEQ MOVE_P2_BAR_DOWN
+    lda move_p2_bar_direction
+    cmp #$00                        ; Not moving
+    beq END_MOVE_P2_BAR
+    cmp #$01                        ; Moving up
+    beq MOVE_P2_BAR_UP
+    cmp #$02                        ; Moving down
+    beq MOVE_P2_BAR_DOWN
 
 ; ---- PLAYER 2 - MOVE UP ----
 MOVE_P2_BAR_UP:
-    LDA bar_right_y
-    SEC
-    SBC #BAR_SPEED
-    CMP #UP_LIMIT
-    BCC END_MOVE_P2_BAR             ; If position is less then up limit, do nothing
-    BEQ END_MOVE_P2_BAR
-    STA bar_right_y                  ; Updates bar position
-    JMP END_MOVE_P2_BAR
+    lda bar_right_y
+    sec
+    sbc #BAR_SPEED
+    cmp #UP_LIMIT
+    bcc END_MOVE_P2_BAR             ; If position is less then up limit, do nothing
+    beq END_MOVE_P2_BAR
+    sta bar_right_y                  ; Updates bar position
+    jmp END_MOVE_P2_BAR
 
 ; ---- PLAYER 2 - MOVE DOWN ---
-MOVE_P2_BAR_DOWN:       ; NOTE: when using instr CLC before ADC, doesnt work.
-    LDA bar_right_y
-    ADC #BAR_SIZE
-    ADC #BAR_SPEED
-    CMP #DOWN_LIMIT
-    BCS END_MOVE_P2_BAR
-    SBC #BAR_SIZE
-    STA bar_right_y
-    JMP END_MOVE_P2_BAR
+MOVE_P2_BAR_DOWN:       ; NOTE: when using instr clc before ADC, doesnt work.
+    lda bar_right_y
+    adc #BAR_SIZE
+    adc #BAR_SPEED
+    cmp #DOWN_LIMIT
+    bcs END_MOVE_P2_BAR
+    sbc #BAR_SIZE
+    sta bar_right_y
+    jmp END_MOVE_P2_BAR
 
 END_MOVE_P2_BAR:
-    RTS
+    rts
 ;----------------------------------------------
 
 ;------------------------ END OF MOVE PLAYER BARS ------------------------------
@@ -717,85 +717,85 @@ END_MOVE_P2_BAR:
 ; ------------- PLAYER 1 -----------------
 read_p1_input:
     ; LatchController P1
-    LDA #$01
-    STA $4016
-    LDA #$00
-    STA $4016
+    lda #$01
+    sta $4016
+    lda #$00
+    sta $4016
 
     ; Set P1 bar to not move (Could not validate. Possible issue)
-    LDA #$00
-    STA move_p1_bar_direction
+    lda #$00
+    sta move_p1_bar_direction
 
     ; Ignore A, B, Select and Start buttons
-    LDA $4016
-    LDA $4016
-    LDA $4016
-    LDA $4016
+    lda $4016
+    lda $4016
+    lda $4016
+    lda $4016
 
 ;------ READ PLAYER 1 UP BUTTOM ----
 READ_UP_P1:
-    LDA $4016
-    AND #%00000001
-    BEQ READ_UP_END_P1
+    lda $4016
+    and #%00000001
+    beq READ_UP_END_P1
 
     ; Set p1 direction up
-    LDA #$01
-    STA move_p1_bar_direction
+    lda #$01
+    sta move_p1_bar_direction
 READ_UP_END_P1:
 
 ;----- READ PLAYER 1 DOWN BUTTOM ---
 READ_DOWN_P1:
-    LDA $4016
-    AND #%00000001
-    BEQ READ_DOWN_END_P1
+    lda $4016
+    and #%00000001
+    beq READ_DOWN_END_P1
 
     ; Set p1 direction down
-    LDA #$02
-    STA move_p1_bar_direction
+    lda #$02
+    sta move_p1_bar_direction
 READ_DOWN_END_P1:
-    RTS
+    rts
 ;--------- END READ INPUT P1 -------------
 
 ; ------------- PLAYER 2 -----------------
 read_p2_input:
     ; LatchController P2
-    LDA #$01
-    STA $4017
-    LDA #$00
-    STA $4017
+    lda #$01
+    sta $4017
+    lda #$00
+    sta $4017
 
     ; Set P2 bar to not move (Could not validate. Possible issue)
-    LDA #$00
-    STA move_p2_bar_direction
+    lda #$00
+    sta move_p2_bar_direction
 
     ; Ignore A, B, Select and Start buttons
-    LDA $4017
-    LDA $4017
-    LDA $4017
-    LDA $4017
+    lda $4017
+    lda $4017
+    lda $4017
+    lda $4017
 
 ;------ READ PLAYER 2 UP BUTTOM ----
 READ_UP_P2:
-    LDA $4017
-    AND #%00000001
-    BEQ READ_UP_END_P2
+    lda $4017
+    and #%00000001
+    beq READ_UP_END_P2
 
     ; Set p2 direction up
-    LDA #$01
-    STA move_p2_bar_direction
+    lda #$01
+    sta move_p2_bar_direction
 READ_UP_END_P2:
 
 ;----- READ PLAYER 2 DOWN BUTTOM ---
 READ_DOWN_P2:
-    LDA $4017
-    AND #%00000001
-    BEQ READ_DOWN_END_P2
+    lda $4017
+    and #%00000001
+    beq READ_DOWN_END_P2
 
     ; Set p2 direction down
-    LDA #$02
-    STA move_p2_bar_direction
+    lda #$02
+    sta move_p2_bar_direction
 READ_DOWN_END_P2:
-    RTS
+    rts
 ;--------- END READ INPUT P2 -------------
 
 ; ---------------------------- END OF READ INPUT ------------------------------
@@ -805,26 +805,26 @@ READ_DOWN_END_P2:
 ;------------------------- UPDATE SPRITES ON SCREEN ---------------------------
 
 UpdateSprites:      ; Changes sprites on screen. Ball moves, score is updated.
-    LDA ball_y        ; Update ball's position (x,y).
-    STA $0200
-    LDA ball_x
-    STA $0203
+    lda ball_y        ; Update ball's position (x,y).
+    sta $0200
+    lda ball_x
+    sta $0203
 
-    LDA score_left    ; Writes player 1's score on screen.
-    ADC #$23          ; Sprite with number zero.
-    STA $020D
+    lda score_left    ; Writes player 1's score on screen.
+    adc #$23          ; Sprite with number zero.
+    sta $020D
 
-    LDA score_right   ; Writes player 2's score on screen.
-    ADC #$23          ; Sprite with number zero.
-    STA $0211
+    lda score_right   ; Writes player 2's score on screen.
+    adc #$23          ; Sprite with number zero.
+    sta $0211
 
-    LDA bar_left_y    ; Updates position on player 1's paddle.
-    STA $0204
+    lda bar_left_y    ; Updates position on player 1's paddle.
+    sta $0204
 
-    LDA bar_right_y   ; Updates position on player 2' paddle.
-    STA $0208
+    lda bar_right_y   ; Updates position on player 2' paddle.
+    sta $0208
 
-    RTS
+    rts
 ; ------------------------- END UPDATE SPRITES ---------------------------------
 ;-------------------------------------------------------------------------------
 
