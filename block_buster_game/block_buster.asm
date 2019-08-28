@@ -2,7 +2,7 @@
 ; constants
 ;----------------------------------------------------------------
 
-PRG_COUNT = 1 ;1 = 16KB, 2 = 32KB
+PRG_COUNT = 2 ;1 = 16KB, 2 = 32KB
 MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
 
@@ -82,6 +82,7 @@ GOAL_FLAG = 0
     goal_flag .dsb 1
 
     sleeping .dsb 1
+    sound_ptr:    .dsb 2
 
    .ende
 
@@ -106,8 +107,13 @@ GOAL_FLAG = 0
 
 
 ;----------------------------------------------------------------
-; program bank(s)
+; First 8k of PRG-ROM to SOUND
 ;----------------------------------------------------------------
+
+   .base $10000-(PRG_COUNT*$4000)
+   .include "sound_engine.asm"
+
+;;;;;;;;;;;;;;;
 
    .org $C000
 
@@ -248,7 +254,16 @@ LoadAttributeLoop:
     sta $2001
 
 ; ------- END OF BACKGROUND --------------------------------------------------
-;-----------------------------------------------------------------------------
+
+; ------------------------------ SOUND ----------------------------------------
+; ---------------------- ENABLE SOUNDS ----------------------------
+    jsr sound_init
+
+    lda #$00
+    jsr sound_load
+; -----------------------------------------------------------------
+
+; ------------------------------ END OF SOUND ---------------------------------
 
     jmp     main_loop
 
@@ -270,6 +285,10 @@ NMI:
     sta $4014       ; set the high byte (02) of the RAM address, start the transfer
 
     jsr UpdateSprites ; Update sprites on screen
+
+;----------- Comment the following line to disable the song ----------------
+    jsr sound_play_frame    ;run our sound engine after all drawing code is done.
+                            ;this ensures our sound engine gets run once per frame.
 
     lda     #0
     sta     sleeping
