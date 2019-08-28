@@ -40,7 +40,7 @@ BALL_DIAMETER = 8
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Default values for variables
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-BALL_X = 235
+BALL_X = 135
 BALL_Y = 80
 BALL_VX = 1
 BALL_VY = 1
@@ -356,12 +356,25 @@ setup_game:
 
 .org   $C200
 main_loop:
+    jsr     check_game_status
     jsr     check_hits_something
     jsr     players_move
     jsr     move_ball
     jsr     wait
     jmp     main_loop
 ; end main_loop
+
+
+check_game_status:
+    lda     goal_flag
+    beq     END_STATUS
+    jsr     setup_game
+    lda     #0
+    sta     goal_flag
+    rts
+
+END_STATUS:
+    rts
 
 ; Change location of the ball based on horizontal and vertical speed.
 .org $C300
@@ -436,6 +449,7 @@ change_ball_vy:
 change_ball_vx:
     lda     ball_vx                 ; load ball vx into A
     jsr     invert                  ; invert ball_vx
+    sta     ball_vx
     rts
 ;end ball_vx
 
@@ -476,7 +490,6 @@ right_scored:
     bne     R_SCORED_L1
     lda     #0
     sta     score_right
-    sta     score_left
 R_SCORED_L1:
     lda     #1
     sta     goal_flag               ; store 1 in goal_flag
@@ -489,17 +502,12 @@ left_scored:
     cmp     #10
     bne     L_SCORED_L1
     lda     #0
-    sta     score_right
     sta     score_left
 L_SCORED_L1:
     lda     #2
     sta     goal_flag               ; store 2 in goal_flag
     rts
 ; end left_scored
-
-;reset_score_right:
-;    sta     score_right
-;    rts
 
 
 ;       BALL HITS BAR LOGIC
