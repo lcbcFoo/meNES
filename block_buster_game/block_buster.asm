@@ -22,13 +22,13 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 BAR_SIZE = 8
 
 ; left bar surface (relative to 0)
-LEFT_BAR_SURFACE = 20
+LEFT_BAR_SURFACE = 19
 
 ; right bar surface (relative to 0)
-RIGHT_BAR_SURFACE = 236
+RIGHT_BAR_SURFACE = 237
 
 ; How many pixels bar move if button is pressed
-BAR_SPEED = 1
+BAR_SPEED = 2
 
 LEFT_LIMIT = 10
 RIGHT_LIMIT = 246
@@ -44,6 +44,7 @@ BALL_X = 135
 BALL_Y = 80
 BALL_VX = 1
 BALL_VY = 1
+MAX_VY = 4
 
 BAR_LEFT_Y = 200
 BAR_RIGHT_Y = 95
@@ -80,6 +81,7 @@ GOAL_FLAG = 0
     score_left .dsb 1
     score_right .dsb 1
     goal_flag .dsb 1
+    last_start .dsb 1
 
     sleeping .dsb 1
     sound_ptr:    .dsb 2
@@ -338,7 +340,7 @@ invert:
 ; Set A to the module of the value in A. A = |A|
 module:
 	jsr     is_negative
-  cpy     #0
+    cpy     #0
 	bne     MODULE_NEG_LABEL
 	rts
 MODULE_NEG_LABEL:
@@ -354,8 +356,23 @@ setup_game:
     sta     ball_x
     lda     #BALL_Y
     sta     ball_y
+
+    ; make ball start to left and next time to right
+    lda     last_start
+    beq     CHANGE_START
+    lda     #BALL_VX
+    jsr     invert
+    sta     ball_vx
+    lda     #0
+    sta     last_start
+    jmp     SETUP_Y
+CHANGE_START:
     lda     #BALL_VX
     sta     ball_vx
+    lda     #1
+    sta     last_start
+
+SETUP_Y:
     lda     #BALL_VY
     sta     ball_vy
 
@@ -575,24 +592,36 @@ check_hit_bars:
     beq     TEST_LEFT_BAR_Y         ; test vertical pos if ball_x <= left_bar_x
     bcs     TEST_RIGHT_BAR
 TEST_LEFT_BAR_Y:
-    lda     bar_left_y              ; load left_bar_y into A and test Y limits
+    lda     bar_left_y              ; load bar_left_y into A and test Y limits
     jsr     test_bar_y_limits
     cmp     #0
     beq     NO_HIT                  ; no need to test right bar at this point
-    lda     #0                      ; load 0 to A and call ball_hit_bar
+
+    lda     #LEFT_BAR_SURFACE       ; limit ball position to right_bar surface
+    sta     ball_x
+    
+    lda     bar_left_y              ; load bar_left_y to A and call ball_hit_bar
     jsr     ball_hit_bar
     rts
 
 TEST_RIGHT_BAR:
     lda     ball_x                  ; load ball_x into A
+    clc
+    adc     #BALL_DIAMETER
     cmp     #RIGHT_BAR_SURFACE
     bcc     NO_HIT                  ; if ball_x < right_bar_surface -> no hit
 
-    lda     bar_right_y             ; load right_bar_y into A and test Y limits
+    lda     bar_right_y             ; load bar_right_y into A and test Y limits
     jsr     test_bar_y_limits
     cmp     #0
     beq     NO_HIT
-    lda     #1                      ; load 1 to A and call ball_hit_bar
+
+    lda     #RIGHT_BAR_SURFACE      ; limit ball position to right_bar surface
+    sec
+    sbc     #BALL_DIAMETER
+    sta     ball_x
+
+    lda     bar_right_y             ; load bar_right_y to A and call ball_hit_bar
     jsr     ball_hit_bar
     rts
 
@@ -604,14 +633,63 @@ NO_HIT:
 ; do something when ball hits bar. Expects in A: 0 if hit left bar, 1 if right
 ball_hit_bar:
     ; For now, invert both ball_vx and ball_vy
+    clc
+    adc     #BALL_DIAMETER
+    sec
+    sbc     ball_y
+    cmp     #5
+    bcs     L1_HIT_BAR
+    ; ball hit first quarter of the bar, ball_vy = |ball_vy| + 1
     lda     ball_vy
+    jsr     module
+    clc
+    adc     #1
+    cmp     #MAX_VY
+    bcc     L0_HIT_BAR
+    lda     #(MAX_VY-1)
+
+L0_HIT_BAR:
+    sta     ball_vy
+    jmp     INVERT_VX
+
+L1_HIT_BAR:
+    cmp     #10
+    bcs     L2_HIT_BAR
+    ; ball hit second quarter of the bar, ball_vy = |y|
+    lda     ball_vy
+    jsr     module
+    sta     ball_vy
+    jmp     INVERT_VX
+
+L2_HIT_BAR:
+    cmp     #15
+    bcs     L3_HIT_BAR
+    ; ball hit third quarter of the bar, ball_vy = -|y|
+    lda     ball_vy
+    jsr     module
     jsr     invert
     sta     ball_vy
+    jmp     INVERT_VX
+
+L3_HIT_BAR:
+    ; ball hit last quarter of the bar, ball_vy = -(|y|+1)
+    lda     ball_vy
+    jsr     module
+    clc
+    adc     #1
+    cmp     #MAX_VY
+    bcc     L4_HIT_BAR
+    lda     #(MAX_VY-1)
+L4_HIT_BAR
+    jsr     invert
+    sta     ball_vy
+
+INVERT_VX:
     lda     ball_vx
     jsr     invert
     sta     ball_vx
-
     rts
+; end ball_hit_bar
 
 
 check_hit_mid_bar:
@@ -628,11 +706,6 @@ SLEEP:
     rts
 ; end wait
 
-goal_scored:
-    jsr     setup_game
-    ; TODO: setup screen and start match
-    ;jmp     wait
-    rts
 ; end foooooo
 ;-----------------------------------------------------------------------------
 
