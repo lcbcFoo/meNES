@@ -849,7 +849,7 @@ palette:
 
 sprites:
        ;vert tile attr horiz
-    .db $90, $17, $00, $80   ;bola
+    .db $90, $16, $00, $80   ;bola
     .db $90, $18, $00, $0A   ;bar player 1
     .db $90, $18, $00, $F0   ;bar player 2
 scores:
