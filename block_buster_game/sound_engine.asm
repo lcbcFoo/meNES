@@ -22,8 +22,10 @@ SFX_2     = $05
     sound_disable_flag .dsb 1 ;sound_disable_flag  .rs 1   ;a flag variable that keeps track of whether the sound engine is disabled or not.
     sound_temp1 .dsb 1 ;sound_temp1 .rs 1           ;temporary variables
     sound_temp2 .dsb 1 ;sound_temp2 .rs 1
+    sound_sq1_old .dsb 1  ;the last value written to $4003
+    sound_sq2_old .dsb 1  ;the last value written to $4007
 
-    sound_frame_counter dsb 1
+    soft_apu_ports .dsb 16
 
 
     ;reserve 6 bytes, one for each stream
@@ -35,6 +37,13 @@ SFX_2     = $05
     stream_ptr_HI .dsb 6 ;stream_ptr_HI .rs 6         ;high byte of pointer to data stream
     stream_note_LO .dsb 6 ;stream_note_LO .rs 6        ;low 8 bits of period for the current note on a stream
     stream_note_HI .dsb 6 ;stream_note_HI .rs 6        ;high 3 bits of period for the current note on a stream
+    stream_tempo .dsb 6          ;the value to add to our ticker total each frame
+    stream_ticker_total .dsb 6   ;our running ticker total.
+    stream_note_length_counter .dsb 6
+    stream_note_length .dsb 6    ;note length count value
+    stream_ve .dsb 6         ;current volume envelope
+    stream_ve_index .dsb 6   ;current position within the volume envelope
+
 
     .ende
 
@@ -42,15 +51,20 @@ sound_init:
     LDA #$0F
     STA $4015   ;enable Square 1, Square 2, Triangle and Noise channels
 
-    LDA #$30
-    STA $4000   ;set Square 1 volume to 0
-    STA $4004   ;set Square 2 volume to 0
-    STA $400C   ;set Noise volume to 0
-    LDA #$80
-    STA $4008   ;silence Triangle
-
     LDA #$00
     STA sound_disable_flag  ;clear disable flag
+
+    lda #$FF
+    sta sound_sq1_old
+    sta sound_sq2_old
+
+se_silence:
+    lda #$30
+    sta soft_apu_ports      ;set Square 1 volume to 0
+    sta soft_apu_ports+4    ;set Square 2 volume to 0
+    sta soft_apu_ports+12   ;set Noise volume to 0
+    lda #$80
+    sta soft_apu_ports+8     ;silence Triangle
 
     RTS
 
@@ -96,12 +110,26 @@ loop:
     STA stream_vol_duty, X
     INY
 
+    lda (sound_ptr), y      ;the stream's volume envelope
+    sta stream_ve, x
+    iny
+
     LDA (sound_ptr), Y      ;pointer to stream data.  Little endian, so low byte first
     STA stream_ptr_LO, X
     INY
 
     LDA (sound_ptr), Y
     STA stream_ptr_HI, X
+
+    lda	#$ff
+    sta	stream_ticker_total, x
+
+    lda	#$01
+    sta	stream_note_length_counter, x
+    sta	stream_note_length, x
+
+    lda	#$00
+    sta	stream_ve_index, x
 next_stream:
     INY
 
@@ -118,10 +146,10 @@ sound_play_frame:
     LDA sound_disable_flag
     BNE done   ;if sound engine is disabled, don't advance a frame
 
-    INC sound_frame_counter
-    LDA sound_frame_counter
-    CMP #$08    ;***change this compare value to make the notes play faster or slower***
-    BNE done   ;only take action once every 8 frames.
+    ;; Silence all channels. se_set_apu will set volumen later for all
+    ;; channels that are enabled. The purpose of this subroutine call is
+    ;; to silence all channels that aren't used by any streams
+    jsr	se_silence
 
     LDX #$00                ;our stream index.  start at MUSIC_SQ1 stream
 frameloop:
@@ -129,16 +157,27 @@ frameloop:
     AND #$01
     BEQ frame_next_stream        ;if disabled, skip to next stream
 
+    lda stream_ticker_total, x
+    clc
+    adc stream_tempo, x
+    sta stream_ticker_total, x
+    bcc frame_next_stream    ;carry clear = no tick. if no tick, we are done with this stream
+
+    dec stream_note_length_counter, x   ;else there is a tick. decrement the note length counter
+    bne frame_next_stream    ;if counter is non-zero, our note isn't finished playing yet
+    lda stream_note_length, x   ;else our note is finished. reload the note length counter
+    sta stream_note_length_counter, x
+
     JSR se_fetch_byte       ;read from the stream and update RAM
-    JSR se_set_apu          ;write volume/duty, sweep, and note periods of current stream to the APU ports
+    jsr se_set_temp_ports
+
 
 frame_next_stream:
     INX
     CPX #$06                ;loop through all 6 streams.
     BNE frameloop
 
-    LDA #$00
-    STA sound_frame_counter ;reset frame counter so we can start counting to 8 again.
+    JSR se_set_apu          ;write volume/duty, sweep, and note periods of current stream to the APU ports
 done:
     RTS
 
@@ -153,6 +192,8 @@ se_fetch_byte:
     STA (sound_ptr)+1
 
     LDY #$00
+
+fetch:
     LDA (sound_ptr), Y      ;read a byte using indirect mode
     BPL note               ;if <#$80, we have a note
     CMP #$A0                ;else if <#$A0 we have a note length
@@ -161,8 +202,15 @@ opcode:                    ;else we have an opcode
     ;nothing here yet
     JMP update_pointer
 note_length:
-    ;nothing here yet
-    JMP update_pointer
+    and #%01111111          ;chop off bit7
+    sty sound_temp1         ;save Y because we are about to destroy it
+    tay
+    lda note_length_table, y    ;get the note length count value
+    sta stream_note_length, x   ;save the note length in RAM so we can use it to refill the counter
+    sta stream_note_length_counter, x   ;stick it in our note length counter
+    ldy sound_temp1         ;restore Y
+    iny                     ;set index to next byte in the stream
+    jmp fetch              ;fetch another byte
 note:
     ASL                     ;multiply by 2 because we are index into a table of words
     STY sound_temp1         ;save our Y register because we are about to destroy it
@@ -172,6 +220,12 @@ note:
     LDA note_table+1, y     ;pull high 3-bits of period from our note table
     STA stream_note_HI, x
     LDY sound_temp1         ;restore the Y register
+
+    lda #$00
+    sta stream_ve_index, x  ;reset the volume envelope.
+
+    ;check if it's a rest and modify the status flag appropriately
+    jsr se_check_rest
 
  ;update our stream pointers to point to the next byte in the data stream
  update_pointer:
@@ -185,32 +239,153 @@ note:
 end:
     RTS
 
+;---------------------------CHECK REST---------------------------------------
+se_check_rest:
+    lda (sound_ptr), y  ;read the note byte again
+    cmp #rest           ;is it a rest? (==$5E)
+    bne @not_rest
+    lda stream_status, x
+    ora #%00000010      ;if so, set the rest bit in the status byte
+    bne @store          ;this will always branch.  bne is cheaper than a jmp.
+@not_rest:
+    lda stream_status, x
+    and #%11111101      ;clear the rest bit in the status byte
+@store:
+    sta stream_status, x
+    rts
+;---------------------------END CHECK REST---------------------------------------
+
+;----------------------------SET TEMP PORTS------------------------------------------
+se_set_temp_ports:
+    lda stream_channel, x
+    asl a
+    asl a
+    tay
+
+    jsr se_set_stream_volume    ;let's stick all of our volume code into a new subroutine
+                                ;less cluttered that way
+    lda #$08
+    sta soft_apu_ports+1, y     ;sweep
+
+    lda stream_note_LO, x
+    sta soft_apu_ports+2, y     ;period LO
+
+    lda stream_note_HI, x
+    sta soft_apu_ports+3, y     ;period HI
+
+    rts
+;---------------------------- END SET TEMP PORTS------------------------------------------
+
+se_set_stream_volume:
+    sty sound_temp1             ;save our index into soft_apu_ports (we are about to destroy y)
+
+    lda stream_ve, x            ;which volume envelope?
+    asl a                       ;multiply by 2 because we are indexing into a table of addresses (words)
+    tay
+    lda volume_envelopes, y     ;get the low byte of the address from the pointer table
+    sta sound_ptr               ;put it into our pointer variable
+    lda volume_envelopes+1, y   ;get the high byte of the address
+    sta sound_ptr+1
+
+@read_ve:
+    ldy stream_ve_index, x      ;our current position within the volume envelope.
+    lda (sound_ptr), y          ;grab the value.
+    cmp #$FF
+    bne @set_vol                ;if not FF, set the volume
+    dec stream_ve_index, x      ;else if FF, go back one and read again
+    jmp @read_ve                ;  FF essentially tells us to repeat the last
+                                ;  volume value for the remainder of the note
+@set_vol:
+    sta sound_temp2             ;save our new volume value (about to destroy A)
+
+    cpx #TRIANGLE
+    bne @squares                ;if not triangle channel, go ahead
+    lda sound_temp2
+    bne @squares                ;else if volume not zero, go ahead (treat same as squares)
+    lda #$80
+    bmi @store_vol              ;else silence the channel with #$80
+
+@squares:
+    lda stream_vol_duty, x      ;get current vol/duty settings
+    and #$F0                    ;zero out the old volume
+    ora sound_temp2             ;OR our new volume in.
+
+@store_vol:
+    ldy sound_temp1             ;get our index into soft_apu_ports
+    sta soft_apu_ports, y       ;store the volume in our temp port
+    inc stream_ve_index, x      ;set our volume envelop index to the next position
+
+@rest_check:
+    ;check the rest flag. if set, overwrite volume with silence value
+    lda stream_status, x
+    and #%00000010
+    beq @done                   ;if clear, no rest, so quit
+    lda stream_channel, x
+    cmp #TRIANGLE               ;if triangle, silence with #$80
+    beq @tri                    ;else, silence with #$30
+    lda #$30
+    bne @store                  ;this always branches.  bne is cheaper than a jmp
+@tri:
+    lda #$80
+@store:
+    sta soft_apu_ports, y
+@done:
+    rts
+
+;----------------------------SET APU------------------------------------------
 se_set_apu:
-    LDA stream_channel, X   ;which channel does this stream write to?
-    ASL A
-    ASL A                   ;multiply by 4 so Y will index into the right set of APU ports (see below)
-    TAY
-    LDA stream_vol_duty, X
-    STA $4000, Y
-    LDA stream_note_LO, X
-    STA $4002, Y
-    LDA stream_note_HI, X
-    STA $4003, Y
+@square1:
+    lda soft_apu_ports+0
+    sta $4000
+    lda soft_apu_ports+1
+    sta $4001
+    lda soft_apu_ports+2
+    sta $4002
+    lda soft_apu_ports+3
+    cmp sound_sq1_old       ;compare to last write
+    beq @square2            ;don't write this frame if they were equal
+    sta $4003
+    sta sound_sq1_old       ;save the value we just wrote to $4003
+@square2:
+    lda soft_apu_ports+4
+    sta $4004
+    lda soft_apu_ports+5
+    sta $4005
+    lda soft_apu_ports+6
+    sta $4006
+    lda soft_apu_ports+7
+    cmp sound_sq2_old
+    beq @triangle
+    sta $4007
+    sta sound_sq2_old       ;save the value we just wrote to $4007
+@triangle:
+    lda soft_apu_ports+8
+    sta $4008
+    lda soft_apu_ports+10
+    sta $400A
+    lda soft_apu_ports+11
+    sta $400B
+@noise:
+    lda soft_apu_ports+12
+    sta $400C
+    lda soft_apu_ports+14
+    sta $400E
+    lda soft_apu_ports+15
+    sta $400F
+    rts
 
-    LDA stream_channel, X
-    CMP #TRIANGLE
-    BCS set_apu_end:        ;if Triangle or Noise, skip this part
-    LDA #$08        ;else, set negate flag in sweep unit to allow low notes on Squares
-    STA $4001, Y
-set_apu_end:
-    RTS
+;-----------------------------------------------------------------------------
 
-NUM_SONGS = $01 ;if you add a new song, change this number.
+NUM_SONGS = $02 ;if you add a new song, change this number.
                 ;the main asm file checks this number in its song_up and song_down subroutines
                 ;to determine when to wrap around.
 
 song_headers:
     .dw song0_header
+    .dw song1_header
 
     .include "note_table.i"
+    .include "note_length_table.i"
+    .include "volume_envelopes.i"
     .include "song0.i"
+    .include "song1.i"
