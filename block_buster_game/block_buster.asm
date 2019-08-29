@@ -92,7 +92,7 @@ GOAL_FLAG = 0
     ;SOUND POINTERS
     sound_ptr:    .dsb 2
     sound_ptr2:   .dsb 2
-    jmp_ptr:      .dsb 2
+    ;jmp_ptr:      .dsb 2 Possible problem. Check later
 
    .ende
 
@@ -535,6 +535,7 @@ END_MOVE_BALL:
 
 
 change_ball_vy:
+    jsr     makes_sound_brick
     lda     ball_vy                 ; load ball vy into A
     jsr     invert                  ; invert ball_vy
     sta     ball_vy
@@ -698,6 +699,7 @@ END_AVOID:
 ; do something when ball hits bar. Expects in A: 0 if hit left bar, 1 if right
 ball_hit_bar:
     pha                             ; save A to stack
+    jsr     makes_sound_brick
     lda     hit_bar_flag
     beq     CAN_HIT_BAR
     pla
@@ -810,6 +812,9 @@ SLEEP:
 
 ; Makes sound when ball hits a brick.
 makes_sound_brick:
+lda #$02
+jsr sound_load
+rts
 
 ; Makes sound when ball hits the lava.
 makes_sound_lava:

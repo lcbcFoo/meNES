@@ -229,7 +229,14 @@ se_fetch_byte:
     iny                     ;set index to next byte in the stream
     jmp @fetch              ;fetch another byte
 @note:
-    ;ASL                     ;multiply by 2 because we are index into a table of words
+    sta sound_temp2             ;save the note value
+    lda stream_channel, x       ;what channel are we using?
+    cmp #NOISE                  ;is it the Noise channel?
+    bne @not_noise
+    jsr se_do_noise             ;if so, JSR to a subroutine to handle noise data
+    jmp @reset_ve                   ;and skip the note table when we return
+@not_noise:                     ;else grab a period from the note_table
+    lda sound_temp2     ;restore note value
     STY sound_temp1         ;save our Y register because we are about to destroy it
     clc
     adc	stream_note_offset, x
@@ -241,11 +248,14 @@ se_fetch_byte:
     STA stream_note_HI, x
     LDY sound_temp1         ;restore the Y register
 
-    lda #$00
-    sta stream_ve_index, x  ;reset the volume envelope.
 
     ;check if it's a rest and modify the status flag appropriately
     jsr se_check_rest
+
+@reset_ve:
+    lda #$00
+    sta stream_ve_index, x  ;reset the volume envelope.
+
 
  ;update our stream pointers to point to the next byte in the data stream
  @update_pointer:
@@ -258,6 +268,22 @@ se_fetch_byte:
     INC stream_ptr_HI, x    ;if there was a carry, add 1 to the HI pointer.
 @end:
     RTS
+
+;---------------------------DO NOISE--------------------------------------
+se_do_noise:
+        lda sound_temp2     ;restore the note value
+        and #%00010000      ;isolate bit4
+        beq @mode0          ;if it's clear, Mode-0, so no conversion
+@mode1:
+        lda sound_temp2     ;else Mode-1, restore the note value
+        ora #%10000000      ;set bit 7 to set Mode-1
+        sta sound_temp2
+@mode0:
+        lda sound_temp2
+        sta stream_note_LO, x   ;temporary port that gets copied to $400E
+        rts
+
+;---------------------------END DO NOISE--------------------------------------
 
 ;---------------------------CHECK REST---------------------------------------
 se_check_rest:
@@ -284,12 +310,12 @@ se_opcode_launcher:
 	asl	a		; Multiply by 2 because it's a table of words
 	tay
 	lda	sound_opcodes, y 	; Get the low byte
-	sta	jmp_ptr
+	sta	sound_ptr2
 	lda	sound_opcodes+1, y 	; Get the high byte
-	sta	jmp_ptr+1
+	sta	sound_ptr2+1
 	ldy	sound_temp1	; Restore Y register
 	iny			; Set to next position in data stream
-	jmp	(jmp_ptr)
+	jmp	(sound_ptr2)
 ;--------------------------END OPCODE LAUNCHER-----------------------------------
 
 ;----------------------------SET TEMP PORTS------------------------------------------
@@ -413,13 +439,14 @@ se_set_apu:
 
 ;-----------------------------------------------------------------------------
 
-NUM_SONGS = $02 ;if you add a new song, change this number.
+NUM_SONGS = $03 ;if you add a new song, change this number.
                 ;the main asm file checks this number in its song_up and song_down subroutines
                 ;to determine when to wrap around.
 
 song_headers:
     .dw song0_header
     .dw song1_header
+    .dw song2_header
 
     .include "sound_opcodes.asm"
     .include "note_table.i"
@@ -427,3 +454,4 @@ song_headers:
     .include "volume_envelopes.i"
     .include "song0.i"
     .include "song1.i"
+    .include "song2.i"
