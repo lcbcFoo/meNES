@@ -44,6 +44,9 @@ SFX_2     = $05
     stream_ve .dsb 6         ;current volume envelope
     stream_ve_index .dsb 6   ;current position within the volume envelope
 
+    stream_loop1:		.dsb	6 ; Loop counter
+    stream_note_offset:	.dsb	6 ; For key changes
+
 
     .ende
 
@@ -92,14 +95,14 @@ sound_load:
     LDA (sound_ptr), Y      ;read the first byte: # streams
     STA sound_temp2         ;store in a temp variable.  We will use this as a loop counter
     INY
-loop:
+@loop:
     LDA (sound_ptr), Y      ;stream number
     TAX                     ;stream number acts as our variable index
     INY
 
     LDA (sound_ptr), Y      ;status byte.  1= enable, 0=disable
     STA stream_status, X
-    BEQ next_stream        ;if status byte is 0, stream disabled, so we are done
+    BEQ @next_stream        ;if status byte is 0, stream disabled, so we are done
     INY
 
     LDA (sound_ptr), Y      ;channel number
@@ -121,6 +124,9 @@ loop:
     LDA (sound_ptr), Y
     STA stream_ptr_HI, X
 
+    lda	(sound_ptr), y
+    sta	stream_tempo, x
+
     lda	#$ff
     sta	stream_ticker_total, x
 
@@ -130,21 +136,24 @@ loop:
 
     lda	#$00
     sta	stream_ve_index, x
-next_stream:
+    sta	stream_loop1, x
+    sta	stream_note_offset, x
+
+@next_stream:
     INY
 
     LDA sound_temp1         ;song number
     STA stream_curr_sound, X
 
     DEC sound_temp2         ;our loop counter
-    BNE loop
+    BNE @loop
     RTS
 
 ;--------------------------
 ; sound_play_frame advances the sound engine by one frame
 sound_play_frame:
     LDA sound_disable_flag
-    BNE done   ;if sound engine is disabled, don't advance a frame
+    BNE @done   ;if sound engine is disabled, don't advance a frame
 
     ;; Silence all channels. se_set_apu will set volumen later for all
     ;; channels that are enabled. The purpose of this subroutine call is
@@ -152,33 +161,34 @@ sound_play_frame:
     jsr	se_silence
 
     LDX #$00                ;our stream index.  start at MUSIC_SQ1 stream
-frameloop:
+@frameloop:
     LDA stream_status, X    ;check bit 0 to see if stream is enabled
     AND #$01
-    BEQ frame_next_stream        ;if disabled, skip to next stream
+    BEQ @frame_next_stream        ;if disabled, skip to next stream
 
     lda stream_ticker_total, x
     clc
     adc stream_tempo, x
     sta stream_ticker_total, x
-    bcc frame_next_stream    ;carry clear = no tick. if no tick, we are done with this stream
+    bcc @set_buffer    ;carry clear = no tick. if no tick, we are done with this stream
 
     dec stream_note_length_counter, x   ;else there is a tick. decrement the note length counter
-    bne frame_next_stream    ;if counter is non-zero, our note isn't finished playing yet
+    bne @set_buffer    ;if counter is non-zero, our note isn't finished playing yet
     lda stream_note_length, x   ;else our note is finished. reload the note length counter
     sta stream_note_length_counter, x
 
     JSR se_fetch_byte       ;read from the stream and update RAM
+@set_buffer:
     jsr se_set_temp_ports
 
 
-frame_next_stream:
+@frame_next_stream:
     INX
     CPX #$06                ;loop through all 6 streams.
-    BNE frameloop
+    BNE @frameloop
 
     JSR se_set_apu          ;write volume/duty, sweep, and note periods of current stream to the APU ports
-done:
+@done:
     RTS
 
 ;--------------------------
@@ -193,15 +203,22 @@ se_fetch_byte:
 
     LDY #$00
 
-fetch:
+@fetch:
     LDA (sound_ptr), Y      ;read a byte using indirect mode
-    BPL note               ;if <#$80, we have a note
+    BPL @note               ;if <#$80, we have a note
     CMP #$A0                ;else if <#$A0 we have a note length
-    BCC note_length
-opcode:                    ;else we have an opcode
-    ;nothing here yet
-    JMP update_pointer
-note_length:
+    BCC @note_length
+@opcode:                    ;else we have an opcode
+;; Do Opcode stuff
+    jsr	se_opcode_launcher
+    iny			; Next position in data stream
+    ;; After our opcode is done, grab another byte unless the stream
+    ;; is disabled.
+    lda	stream_status, x
+    and	#%00000001
+    bne	@fetch
+    rts
+@note_length:
     and #%01111111          ;chop off bit7
     sty sound_temp1         ;save Y because we are about to destroy it
     tay
@@ -210,10 +227,13 @@ note_length:
     sta stream_note_length_counter, x   ;stick it in our note length counter
     ldy sound_temp1         ;restore Y
     iny                     ;set index to next byte in the stream
-    jmp fetch              ;fetch another byte
-note:
-    ASL                     ;multiply by 2 because we are index into a table of words
+    jmp @fetch              ;fetch another byte
+@note:
+    ;ASL                     ;multiply by 2 because we are index into a table of words
     STY sound_temp1         ;save our Y register because we are about to destroy it
+    clc
+    adc	stream_note_offset, x
+  	asl	a
     TAY
     LDA note_table, y       ;pull low 8-bits of period and store it in RAM
     STA stream_note_LO, x
@@ -228,15 +248,15 @@ note:
     jsr se_check_rest
 
  ;update our stream pointers to point to the next byte in the data stream
- update_pointer:
+ @update_pointer:
     INY                     ;set index to the next byte in the data stream
     TYA
     CLC
     ADC stream_ptr_LO, x    ;add Y to the LO pointer
     STA stream_ptr_LO, x
-    BCC end
+    BCC @end
     INC stream_ptr_HI, x    ;if there was a carry, add 1 to the HI pointer.
-end:
+@end:
     RTS
 
 ;---------------------------CHECK REST---------------------------------------
@@ -244,6 +264,7 @@ se_check_rest:
     lda (sound_ptr), y  ;read the note byte again
     cmp #rest           ;is it a rest? (==$5E)
     bne @not_rest
+@rest:
     lda stream_status, x
     ora #%00000010      ;if so, set the rest bit in the status byte
     bne @store          ;this will always branch.  bne is cheaper than a jmp.
@@ -254,6 +275,22 @@ se_check_rest:
     sta stream_status, x
     rts
 ;---------------------------END CHECK REST---------------------------------------
+
+;--------------------------OPCODE LAUNCHER-----------------------------------
+se_opcode_launcher:
+	sty	sound_temp1	; Save Y register
+	sec
+	sbc	#$A0		; Turn opcode into a table index
+	asl	a		; Multiply by 2 because it's a table of words
+	tay
+	lda	sound_opcodes, y 	; Get the low byte
+	sta	jmp_ptr
+	lda	sound_opcodes+1, y 	; Get the high byte
+	sta	jmp_ptr+1
+	ldy	sound_temp1	; Restore Y register
+	iny			; Set to next position in data stream
+	jmp	(jmp_ptr)
+;--------------------------END OPCODE LAUNCHER-----------------------------------
 
 ;----------------------------SET TEMP PORTS------------------------------------------
 se_set_temp_ports:
@@ -384,6 +421,7 @@ song_headers:
     .dw song0_header
     .dw song1_header
 
+    .include "sound_opcodes.asm"
     .include "note_table.i"
     .include "note_length_table.i"
     .include "volume_envelopes.i"

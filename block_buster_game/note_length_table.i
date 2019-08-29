@@ -11,6 +11,8 @@ d_quarter = $88
 d_half = $89
 d_whole = $8A   ;don't forget we are counting in hex
 t_quarter = $8B
+five_eighths = $8C
+five_sixteenths = $8D
 
 note_length_table:
     .db $01   ;32nd note
@@ -25,3 +27,9 @@ note_length_table:
     .db $0C   ;dotted quarter note
     .db $18   ;dotted half note
     .db $30   ;dotted whole note?
+
+  	;; Other
+  	;; Modified quarter to fit after d_sixtength triplets
+  	.db	$07
+  	.db	$14		; 2 quarters plus an 8th
+  	.db	$0a

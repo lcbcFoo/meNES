@@ -78,7 +78,7 @@ GOAL_FLAG = 0
     ball_y .dsb 1
     ball_vx .dsb 1
     ball_vy .dsb 1
-    
+
     dummy .dsb 1
     score_left .dsb 1
     score_right .dsb 1
@@ -87,7 +87,12 @@ GOAL_FLAG = 0
 
     sleeping .dsb 1
     hit_bar_flag .dsb 1
+
+
+    ;SOUND POINTERS
     sound_ptr:    .dsb 2
+    sound_ptr2:   .dsb 2
+    jmp_ptr:      .dsb 2
 
    .ende
 
@@ -124,6 +129,54 @@ GOAL_FLAG = 0
 
 Reset:
 
+    sei			; Disable IRQs
+    cld			; Disable decimal mode
+    ldx	#$ff		; Set up stack
+    txs			;  .
+    inx			; Now X = 0
+
+    ;; First wait for vblank to make sure PPU is ready
+vblankwait1:
+    bit	$2002
+    bpl	vblankwait1
+
+clear_memory:
+  	lda	#$00
+  	sta	$0000, x
+  	sta	$0100, x
+  	sta	$0300, x
+  	sta	$0400, x
+  	sta	$0500, x
+  	sta	$0600, x
+  	sta	$0700, x
+  	lda	#$fe
+  	sta	$0200, x	; Move all sprites off screen
+  	inx
+  	bne	clear_memory
+
+	;; Second wait for vblank, PPU is ready after this
+vblankwait2:
+  	bit	$2002
+  	bpl	vblankwait2
+
+clear_nametables:
+  	lda	$2002		; Read PPU status to reset the high/low latch
+  	lda	#$20		; Write the high byte of $2000
+  	sta	$2006		;  .
+  	lda	#$00		; Write the low byte of $2000
+  	sta	$2006		;  .
+  	ldx	#$08		; Prepare to fill 8 pages ($800 bytes)
+  	ldy	#$00		;  x/y is 16-bit counter, high byte in x
+  	lda	#$00		; Fill with tile $00 (a transparent box)
+  				; Also sets attribute tables to $00
+@loop:
+  	sta	$2007
+  	dey
+  	bne	@loop
+  	dex
+  	bne	@loop
+
+
     ; Initialize variables with default value
 
     lda     #SCORE_LEFT
@@ -131,7 +184,6 @@ Reset:
     lda     #SCORE_RIGHT
     sta     score_right
     jsr     setup_game
-
 
 ; ------------------------- BACKGROUND ----------------------------------------
 
@@ -602,7 +654,7 @@ TEST_LEFT_BAR_Y:
     jsr     test_bar_y_limits
     cmp     #0
     beq     NO_HIT                  ; no need to test right bar at this point
-    
+
     lda     bar_left_y              ; load bar_left_y to A and call ball_hit_bar
     jsr     ball_hit_bar
     rts
