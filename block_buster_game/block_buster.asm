@@ -301,7 +301,7 @@ LoadAttributeLoop:
     lda attribute, x      ; load from (attribute + the value in x)
     sta $2007             ; write to PPU
     inx
-    cpx #$10              ; Compare X to hex $10 - two lines of attributes (16 bytes)
+    cpx #$18              ; Compare X to hex $10 - two lines of attributes (16 bytes)
     bne LoadAttributeLoop
 ;----------------------------------------------------------------------------
 
@@ -348,7 +348,7 @@ LoadPressLoop:
     lda sprites_press, x
     sta $0214, x
     inx
-    cpx #$14
+    cpx #$10
     bne LoadPressLoop
     rts
 
@@ -357,9 +357,9 @@ LoadStart:
     ldx #$00
 LoadStartLoop:
     lda sprites_start, x
-    sta $0228, x
+    sta $0224, x
     inx
-    cpx #$14
+    cpx #$10
     bne LoadStartLoop
     rts
 
@@ -370,7 +370,7 @@ LoadPlayer1Loop:
     lda sprites_player1, x
     sta $0248, x
     inx
-    cpx #$28
+    cpx #$18
     bne LoadPlayer1Loop
     rts
 
@@ -381,7 +381,7 @@ LoadPlayer2Loop:
     lda sprites_player2, x
     sta $0248, x
     inx
-    cpx #$28
+    cpx #$18
     bne LoadPlayer2Loop
     rts
 
@@ -390,9 +390,9 @@ LoadWins:
     ldx #$00
 LoadWinsLoop:
     lda sprites_wins, x
-    sta $0264, x
+    sta $0260, x
     inx
-    cpx #$14
+    cpx #$10
     bne LoadWinsLoop
     rts
 
@@ -403,7 +403,7 @@ EraseSpritesLoop:
     lda blank_sprite
     sta $0214, x
     inx
-    cpx #$28
+    cpx #$20
     bne EraseSpritesLoop
     rts
 
@@ -413,9 +413,9 @@ EraseVictorySprites:
     ldx #$00
 EraseVictorySpritesLoop:
     lda blank_sprite
-    sta $0248, x
+    sta $0234, x
     inx
-    cpx #$3C
+    cpx #$3B
     bne EraseVictorySpritesLoop
     rts
 ;------------------------------------------------------------------------------
@@ -1212,66 +1212,58 @@ infinite_loop:
 
 
 ;---------------------------- BACKGROUND SETUP ---------------------------------
-; Mapping reference guide:
-; P .. R-> 19 .. 1E
-; Sky -> 40
-; Numbers Mapping:
-; 0 .. 9 -> 23 -> 2C
-; Wins! -> 30,..,34
 
     .org $E000
 palette:
+    ;;background palette
     ;   lava              wall              letters           unused
-    .db $0F,$16,$28,$22,  $14,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;background palette
-    ;   ball              unused            unused            unused
-    .db $0F,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29,  $29,$29,$29,$29   ;;sprites palette
+    .db $0F,$16,$28,$22,  $14,$16,$28,$22,  $29,$29,$29,$29,  $29,$29,$29,$29
+    ;;sprites palette
+    ;   ball              press start       player wins       unused
+    .db $0F,$16,$28,$22,  $0F,$30,$30,$30,  $0F,$29,$29,$29,  $0F,$29,$29,$29
 
 sprites:
        ;vert tile attr horiz
-    .db $90, $16, $00, $80   ;bola
-    .db $90, $37, $00, $0A   ;bar player 1
-    .db $90, $36, $00, $F0   ;bar player 2
+    .db $90, $14, $00, $80   ;bola
+    .db $90, $1F, $00, $0A   ;bar player 1
+    .db $90, $1E, $00, $F0   ;bar player 2
 scores:
-    .db $30, $23, $00, $30   ;score player 1
-    .db $30, $23, $00, $D0   ;score player 2
+    .db $30, $23, $00, $28   ;score player 1
+    .db $30, $23, $00, $C8   ;score player 2
 
 sprites_press:
-    .db $90, $19, $00, $70   ;P
-    .db $90, $1E, $00, $78   ;R
-    .db $90, $1D, $00, $80   ;E
-    .db $90, $33, $00, $88   ;S
-    .db $90, $33, $00, $90   ;S
+    .db $90, $30, $01, $70   ;"Press"
+    .db $90, $31, $01, $78
+    .db $90, $32, $01, $80
+    .db $90, $33, $01, $88
+
 
 sprites_start:
-    .db $98, $33, $00, $70   ;S
-    .db $98, $35, $00, $78   ;T
-    .db $98, $1B, $00, $80   ;A
-    .db $98, $1E, $00, $88   ;R
-    .db $98, $35, $00, $90   ;T
+    .db $98, $34, $01, $70   ;"Start"
+    .db $98, $35, $01, $78
+    .db $98, $36, $01, $80
+    .db $98, $37, $01, $88
 
 sprites_player1:
-    .db $68, $19, $00, $68   ;P
-    .db $68, $1A, $00, $70   ;L
-    .db $68, $1B, $00, $78   ;A
-    .db $68, $1C, $00, $80   ;Y
-    .db $68, $1D, $00, $88   ;E
-    .db $68, $1E, $00, $90   ;R
-    .db $68, $24, $00, $9D   ;1
+    .db $68, $15, $02, $68   ;"Player 1"
+    .db $68, $16, $02, $70
+    .db $68, $17, $02, $78
+    .db $68, $18, $02, $80
+    .db $68, $19, $02, $88
+    .db $68, $24, $02, $90
 
 sprites_player2:
-    .db $68, $19, $00, $68   ;P
-    .db $68, $1A, $00, $70   ;L
-    .db $68, $1B, $00, $78   ;A
-    .db $68, $1C, $00, $80   ;Y
-    .db $68, $1D, $00, $88   ;E
-    .db $68, $1E, $00, $90   ;R
-    .db $68, $25, $00, $9D   ;2
+    .db $68, $15, $02, $68   ;"Player 2"
+    .db $68, $16, $02, $70
+    .db $68, $17, $02, $78
+    .db $68, $18, $02, $80
+    .db $68, $19, $02, $88
+    .db $68, $25, $02, $90
 sprites_wins:
-    .db $70, $30, $00, $70   ;W
-    .db $70, $31, $00, $78   ;I
-    .db $70, $32, $00, $80   ;N
-    .db $70, $33, $00, $88   ;S
-    .db $70, $34, $00, $90   ;!
+    .db $70, $1A, $02, $70   ;"Wins!"
+    .db $70, $1B, $02, $78
+    .db $70, $1C, $02, $80
+    .db $70, $1D, $02, $88
 
 blank_sprite:
     .db $00, $00, $00, $00   ;Blank piece of background
@@ -1282,16 +1274,16 @@ background_hwall:          ; Horizontal wall row
     .db $13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13,$13
 
 background_header:        ; Writes "player 1" and "player 2" on header
-    .db $14,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40
-    .db $40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$14
+    .db $13,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40
+    .db $40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$13
 
-    .db $14,$40,$40,$19,$1A,$1B,$1C,$1D,$1E,$1F,$24,$40,$40,$40,$40,$40
-    .db $40,$40,$40,$40,$40,$19,$1A,$1B,$1C,$1D,$1E,$1F,$25,$40,$40,$14
+    .db $13,$40,$40,$15,$16,$17,$18,$19,$24,$40,$40,$40,$40,$40,$40,$40
+    .db $40,$40,$40,$40,$40,$40,$40,$15,$16,$17,$18,$19,$25,$40,$40,$13
 
 background_vwall:         ; Background with simple wall on the sides
 
-    .db $14,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40
-    .db $40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$14
+    .db $13,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40
+    .db $40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$13
 
 background_lava:          ; Background with lava on the sides (2 types of lava)
     .db $10,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40,$40
