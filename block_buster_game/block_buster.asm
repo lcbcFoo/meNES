@@ -73,6 +73,8 @@ GOAL_FLAG = 0
     ; 2 -> move down
     move_p1_bar_direction .dsb 1
     move_p2_bar_direction .dsb 1
+    start_button_p1 .dsb 1
+    start_button_p2 .dsb 1
 
     ball_x .dsb 1
     ball_y .dsb 1
@@ -205,7 +207,8 @@ LoadPalettesLoop:
 ;---------------------------------------------------------------------
 
 ; ----------- LOAD SPRITES -------------------------------------------
-LoadSprites:
+
+LoadSpritesGame:
     ldx #$00              ; start at 0
 LoadSpritesLoop:
     lda sprites, x        ; load from (sprites +  x)
@@ -213,6 +216,24 @@ LoadSpritesLoop:
     inx
     cpx #$14              ; loads 5 sprites
     bne LoadSpritesLoop
+
+LoadPress:
+    ldx #$00
+LoadPressLoop:
+    lda sprites_press, x
+    sta $0214, x
+    inx
+    cpx #$14
+    bne LoadPressLoop
+
+LoadStart:
+    ldx #$00
+LoadStartLoop:
+    lda sprites_start, x
+    sta $0228, x
+    inx
+    cpx #$14
+    bne LoadStartLoop
 ;----------------------------------------------------------------------
 
 ; ------------ LOAD BACKGROUND ----------------------------------------
@@ -311,6 +332,30 @@ LoadAttributeLoop:
     sta $2001
 
 ; ------- END OF BACKGROUND --------------------------------------------------
+
+;------------------------------- WAIT START------------------------------------
+WaitForStart:
+      jsr read_p1_input
+      lda start_button_p1
+      cmp #$01
+      beq WaitForStartEnd
+      jsr read_p2_input
+      lda start_button_p2
+      cmp #$01
+      bne WaitForStart
+WaitForStartEnd:
+
+;------------- ERASE SPRITES FOR START OF THE GAME -----------------------------
+
+EraseOtherSprites:
+    ldx #$00
+EraseSpritesLoop:
+    lda blank_sprite
+    sta $0214, x
+    inx
+    cpx #$28
+    bne EraseSpritesLoop
+;------------------------------------------------------------------------------
 
 ; ------------------------------ SOUND ----------------------------------------
 ; ---------------------- ENABLE SOUNDS ----------------------------
@@ -936,12 +981,23 @@ read_p1_input:
     ; Set P1 bar to not move (Could not validate. Possible issue)
     lda #$00
     sta move_p1_bar_direction
+    sta start_button_p1
 
-    ; Ignore A, B, Select and Start buttons
+    ; Ignore A, B and Select buttons
     lda $4016
     lda $4016
     lda $4016
+
+;------ READ PLAYER 1 START BUTTOM ----
+READ_START_P1:
     lda $4016
+    and #%00000001
+    beq READ_START_END_P1
+
+    ; Set p1 direction up
+    lda #$01
+    sta start_button_p1
+READ_START_END_P1:
 
 ;------ READ PLAYER 1 UP BUTTOM ----
 READ_UP_P1:
@@ -978,12 +1034,23 @@ read_p2_input:
     ; Set P2 bar to not move (Could not validate. Possible issue)
     lda #$00
     sta move_p2_bar_direction
+    sta start_button_p2
 
     ; Ignore A, B, Select and Start buttons
     lda $4017
     lda $4017
     lda $4017
+
+;------ READ PLAYER 2 START BUTTOM ----
+READ_START_P2:
     lda $4017
+    and #%00000001
+    beq READ_START_END_P2
+
+    ; Set p1 direction up
+    lda #$01
+    sta start_button_p2
+READ_START_END_P2:
 
 ;------ READ PLAYER 2 UP BUTTOM ----
 READ_UP_P2:
@@ -1063,11 +1130,28 @@ palette:
 sprites:
        ;vert tile attr horiz
     .db $90, $16, $00, $80   ;bola
-    .db $90, $18, $00, $0A   ;bar player 1
-    .db $90, $18, $00, $F0   ;bar player 2
+    .db $90, $37, $00, $0A   ;bar player 1
+    .db $90, $36, $00, $F0   ;bar player 2
 scores:
     .db $30, $23, $00, $30   ;score player 1
     .db $30, $23, $00, $D0   ;score player 2
+
+sprites_press:
+    .db $90, $19, $00, $70   ;P
+    .db $90, $1E, $00, $78   ;R
+    .db $90, $1D, $00, $80   ;E
+    .db $90, $33, $00, $88   ;S
+    .db $90, $33, $00, $90   ;S
+
+sprites_start:
+    .db $98, $33, $00, $70   ;S
+    .db $98, $35, $00, $78   ;T
+    .db $98, $1B, $00, $80   ;A
+    .db $98, $1E, $00, $88   ;R
+    .db $98, $35, $00, $90   ;T
+
+blank_sprite:
+    .db $00, $00, $00, $00   ;Blank piece of background
 
 
 background_hwall:          ; Horizontal wall row
