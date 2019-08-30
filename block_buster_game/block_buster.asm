@@ -207,33 +207,10 @@ LoadPalettesLoop:
 ;---------------------------------------------------------------------
 
 ; ----------- LOAD SPRITES -------------------------------------------
+    jsr LoadSpritesGame
+    jsr LoadPress
+    jsr LoadStart
 
-LoadSpritesGame:
-    ldx #$00              ; start at 0
-LoadSpritesLoop:
-    lda sprites, x        ; load from (sprites +  x)
-    sta $0200, x          ; store into RAM address ($0200 + x)
-    inx
-    cpx #$14              ; loads 5 sprites
-    bne LoadSpritesLoop
-
-LoadPress:
-    ldx #$00
-LoadPressLoop:
-    lda sprites_press, x
-    sta $0214, x
-    inx
-    cpx #$14
-    bne LoadPressLoop
-
-LoadStart:
-    ldx #$00
-LoadStartLoop:
-    lda sprites_start, x
-    sta $0228, x
-    inx
-    cpx #$14
-    bne LoadStartLoop
 ;----------------------------------------------------------------------
 
 ; ------------ LOAD BACKGROUND ----------------------------------------
@@ -333,6 +310,8 @@ LoadAttributeLoop:
 
 ; ------- END OF BACKGROUND --------------------------------------------------
 
+    jmp     before_main_loop
+
 ;------------------------------- WAIT START------------------------------------
 WaitForStart:
       jsr read_p1_input
@@ -344,9 +323,45 @@ WaitForStart:
       cmp #$01
       bne WaitForStart
 WaitForStartEnd:
+      rts
 
-;------------- ERASE SPRITES FOR START OF THE GAME -----------------------------
 
+;---------------------- PRINT SPRITES ON THE SCREEN ---------------------------
+
+; ------ LOAD BALL, SCORES AND PEDDLES -----
+LoadSpritesGame:
+    ldx #$00              ; start at 0
+LoadSpritesLoop:
+    lda sprites, x        ; load from (sprites +  x)
+    sta $0200, x          ; store into RAM address ($0200 + x)
+    inx
+    cpx #$14              ; loads 5 sprites
+    bne LoadSpritesLoop
+    rts
+
+; ------- LOAD THE WORD "PRESS" -----------
+LoadPress:
+    ldx #$00
+LoadPressLoop:
+    lda sprites_press, x
+    sta $0214, x
+    inx
+    cpx #$14
+    bne LoadPressLoop
+    rts
+
+; ------- LOAD THE WORD "START" ------------
+LoadStart:
+    ldx #$00
+LoadStartLoop:
+    lda sprites_start, x
+    sta $0228, x
+    inx
+    cpx #$14
+    bne LoadStartLoop
+    rts
+
+; ----- ERASE "PRESS START" ---------------
 EraseOtherSprites:
     ldx #$00
 EraseSpritesLoop:
@@ -355,19 +370,22 @@ EraseSpritesLoop:
     inx
     cpx #$28
     bne EraseSpritesLoop
+    rts
 ;------------------------------------------------------------------------------
 
 ; ------------------------------ SOUND ----------------------------------------
 ; ---------------------- ENABLE SOUNDS ----------------------------
+EnableSound:
     jsr sound_init
 
     lda #$01
     jsr sound_load
+
+    rts
 ; -----------------------------------------------------------------
 
 ; ------------------------------ END OF SOUND ---------------------------------
 
-    jmp     main_loop
 
 NMI:
 
@@ -492,7 +510,24 @@ SETUP_Y:
     rts
 ; end setup_game
 
+; ----- RESET MATCH -------
+BasicReset:
+    jsr     LoadSpritesGame
+    jsr     LoadPress
+    jsr     LoadStart
+    jsr     WaitForStart
+    jsr     EraseOtherSprites
+    jsr     EnableSound
+    lda     #0
+    sta     score_right
+    sta     score_left
+    rts
 
+
+before_main_loop:
+    jsr     WaitForStart
+    jsr     EraseOtherSprites
+    jsr     EnableSound
 main_loop:
     jsr     avoid_multiple_hits
     jsr     move_ball
@@ -630,8 +665,7 @@ right_scored:
     cmp     #10
     bne     R_SCORED_L1
     jsr     makes_sound_game_over
-    lda     #0
-    sta     score_right
+    jsr     BasicReset
 R_SCORED_L1:
     lda     #1
     sta     goal_flag               ; store 1 in goal_flag
@@ -644,8 +678,7 @@ left_scored:
     cmp     #10
     bne     L_SCORED_L1
     jsr     makes_sound_game_over
-    lda     #0
-    sta     score_left
+    jsr     BasicReset
 L_SCORED_L1:
     lda     #2
     sta     goal_flag               ; store 2 in goal_flag
