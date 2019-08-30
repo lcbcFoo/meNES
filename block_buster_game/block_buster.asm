@@ -86,6 +86,7 @@ GOAL_FLAG = 0
     score_right .dsb 1
     goal_flag .dsb 1
     last_start .dsb 1
+    winner .dsb 1
 
     sleeping .dsb 1
     hit_bar_flag .dsb 1
@@ -210,6 +211,7 @@ LoadPalettesLoop:
     jsr LoadSpritesGame
     jsr LoadPress
     jsr LoadStart
+
 
 ;----------------------------------------------------------------------
 
@@ -361,6 +363,39 @@ LoadStartLoop:
     bne LoadStartLoop
     rts
 
+; ------LOAD THE WORD "PLAYER 1"--------
+LoadPlayer1:
+    ldx #$00
+LoadPlayer1Loop:
+    lda sprites_player1, x
+    sta $0248, x
+    inx
+    cpx #$28
+    bne LoadPlayer1Loop
+    rts
+
+; ------LOAD THE WORD "PLAYER 2"--------
+LoadPlayer2:
+    ldx #$00
+LoadPlayer2Loop:
+    lda sprites_player2, x
+    sta $0248, x
+    inx
+    cpx #$28
+    bne LoadPlayer2Loop
+    rts
+
+; ----- LOAD THE WORD "WINS!" ----------
+LoadWins:
+    ldx #$00
+LoadWinsLoop:
+    lda sprites_wins, x
+    sta $0264, x
+    inx
+    cpx #$14
+    bne LoadWinsLoop
+    rts
+
 ; ----- ERASE "PRESS START" ---------------
 EraseOtherSprites:
     ldx #$00
@@ -370,6 +405,18 @@ EraseSpritesLoop:
     inx
     cpx #$28
     bne EraseSpritesLoop
+    rts
+
+; -----ERASE "PLAYER X WINS" --------------
+
+EraseVictorySprites:
+    ldx #$00
+EraseVictorySpritesLoop:
+    lda blank_sprite
+    sta $0248, x
+    inx
+    cpx #$3C
+    bne EraseVictorySpritesLoop
     rts
 ;------------------------------------------------------------------------------
 
@@ -510,13 +557,28 @@ SETUP_Y:
     rts
 ; end setup_game
 
+PrintWinner:
+    lda winner
+    cmp #$01
+    bne winner2
+    jsr LoadPlayer1
+    jmp PrintWinnerEnd
+winner2:
+    jsr LoadPlayer2
+PrintWinnerEnd:
+    rts
+
+
 ; ----- RESET MATCH -------
 BasicReset:
     jsr     LoadSpritesGame
     jsr     LoadPress
     jsr     LoadStart
+    jsr     PrintWinner
+    jsr     LoadWins
     jsr     WaitForStart
     jsr     EraseOtherSprites
+    jsr     EraseVictorySprites
     jsr     EnableSound
     lda     #0
     sta     score_right
@@ -665,6 +727,8 @@ right_scored:
     cmp     #10
     bne     R_SCORED_L1
     jsr     makes_sound_game_over
+    lda     #$02
+    sta     winner
     jsr     BasicReset
 R_SCORED_L1:
     lda     #1
@@ -678,6 +742,8 @@ left_scored:
     cmp     #10
     bne     L_SCORED_L1
     jsr     makes_sound_game_over
+    lda     #$01
+    sta     winner
     jsr     BasicReset
 L_SCORED_L1:
     lda     #2
@@ -1182,6 +1248,30 @@ sprites_start:
     .db $98, $1B, $00, $80   ;A
     .db $98, $1E, $00, $88   ;R
     .db $98, $35, $00, $90   ;T
+
+sprites_player1:
+    .db $68, $19, $00, $68   ;P
+    .db $68, $1A, $00, $70   ;L
+    .db $68, $1B, $00, $78   ;A
+    .db $68, $1C, $00, $80   ;Y
+    .db $68, $1D, $00, $88   ;E
+    .db $68, $1E, $00, $90   ;R
+    .db $68, $24, $00, $9D   ;1
+
+sprites_player2:
+    .db $68, $19, $00, $68   ;P
+    .db $68, $1A, $00, $70   ;L
+    .db $68, $1B, $00, $78   ;A
+    .db $68, $1C, $00, $80   ;Y
+    .db $68, $1D, $00, $88   ;E
+    .db $68, $1E, $00, $90   ;R
+    .db $68, $25, $00, $9D   ;2
+sprites_wins:
+    .db $70, $30, $00, $70   ;W
+    .db $70, $31, $00, $78   ;I
+    .db $70, $32, $00, $80   ;N
+    .db $70, $33, $00, $88   ;S
+    .db $70, $34, $00, $90   ;!
 
 blank_sprite:
     .db $00, $00, $00, $00   ;Blank piece of background
