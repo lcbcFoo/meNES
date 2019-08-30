@@ -95,17 +95,8 @@ GOAL_FLAG = 0
     ;SOUND POINTERS
     sound_ptr:    .dsb 2
     sound_ptr2:   .dsb 2
-    ;jmp_ptr:      .dsb 2 Possible problem. Check later
 
    .ende
-
-   ;NOTE: you can also split the variable declarations into individual pages, like this:
-
-   ;.enum $0100
-   ;.ende
-
-   ;.enum $0200
-   ;.ende
 
 
 ;----------------------------------------------------------------
@@ -475,8 +466,6 @@ IRQ:
 
 
 ; -----------------------------------------------------------------------------
-; begin foooooo
-
 
 
 ; Utilities
@@ -505,7 +494,7 @@ invert:
 ; Set A to the module of the value in A. A = |A|
 module:
 	jsr     is_negative
-    cpy     #0
+  cpy     #0
 	bne     MODULE_NEG_LABEL
 	rts
 MODULE_NEG_LABEL:
@@ -556,6 +545,7 @@ SETUP_Y:
     sta     goal_flag
     rts
 ; end setup_game
+
 
 PrintWinner:
     lda winner
@@ -674,8 +664,6 @@ END_MOVE_BALL:
 
 
 
-
-
 change_ball_vy:
     jsr     makes_sound_brick
     lda     ball_vy                 ; load ball vy into A
@@ -697,7 +685,6 @@ check_hits_something:
     ; this is now done in move_ball so to not allow ball to pass walls
     jsr     check_hit_bars          ; check if hit bars (this order is not
                                     ; intuitive but may make sense in math)
-    jsr     check_hit_mid_bar       ; check if ball hit middle bar
     rts
 ;end check_hits_something
 
@@ -912,7 +899,7 @@ RAISE_SPEED_VX
     lda     ball_vx
     jsr     is_negative
     cpy     #0
-	bne     HIT_BAR_INC_NEG_VX      ; if ball_vx is positive -> increment 1
+	  bne     HIT_BAR_INC_NEG_VX      ; if ball_vx is positive -> increment 1
     clc
     adc     #1
     cmp     #MAX_POSITIVE_SPEED
@@ -939,12 +926,6 @@ INVERT_VX:
 ; end ball_hit_bar
 
 
-check_hit_mid_bar:
-    ; TODO: implement
-    rts
-;end check_hit_mid_bar
-
-
 wait:
     inc     sleeping
 SLEEP:
@@ -953,7 +934,6 @@ SLEEP:
     rts
 ; end wait
 
-; end foooooo
 ;-----------------------------------------------------------------------------
 
 ; Makes sound when ball hits a brick.
@@ -962,8 +942,6 @@ makes_sound_brick:
     jsr sound_load
     rts
 
-; Makes sound when ball hits the lava.
-makes_sound_lava:
 
 ; Makes sound when the game ends.
 makes_sound_game_over:
@@ -973,11 +951,6 @@ makes_sound_game_over:
     jsr sound_load
     rts
 
-; Prints start message and waits for user input to start game.
-game_start:
-
-; Prints message at end of game and waits for user input to restart game.
-game_over:
 
 ;------------------------------------------------------------------------------
 ;------------------- MOVE PLAYER BARS (PADDLES) -------------------------------
