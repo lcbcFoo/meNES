@@ -1,22 +1,22 @@
 ;; Silence song. Disables all streams
 
 song0_header:
-  .byte $06           ;6 streams
+  .db $06           ;6 streams
 
-  .byte MUSIC_SQ1     ;which stream
-  .byte $00           ;status byte (stream disabled)
+  .db MUSIC_SQ1     ;which stream
+  .db $00           ;status byte (stream disabled)
 
-  .byte MUSIC_SQ2     ;which stream
-  .byte $00           ;status byte (stream disabled)
+  .db MUSIC_SQ2     ;which stream
+  .db $00           ;status byte (stream disabled)
 
-  .byte MUSIC_TRI     ;which stream
-  .byte $00           ;status byte (stream disabled)
+  .db MUSIC_TRI     ;which stream
+  .db $00           ;status byte (stream disabled)
 
-  .byte MUSIC_NOI     ;which stream
-  .byte $00           ;disabled.
+  .db MUSIC_NOI     ;which stream
+  .db $00           ;disabled.
 
-  .byte SFX_1         ;which stream
-  .byte $00           ;disabled
+  .db SFX_1         ;which stream
+  .db $00           ;disabled
 
-  .byte SFX_2         ;which stream
-  .byte $00           ;disabled
+  .db SFX_2         ;which stream
+  .db $00           ;disabled

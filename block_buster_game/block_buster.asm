@@ -129,8 +129,8 @@ GOAL_FLAG = 0
 
 Reset:
 
-    sei			; Disable IRQs
-    cld			; Disable decimal mode
+    ;sei			; Disable IRQs
+    ;cld			; Disable decimal mode
     ldx	#$ff		; Set up stack
     txs			;  .
     inx			; Now X = 0
@@ -584,6 +584,7 @@ right_scored:
     lda     score_right             ; limit scores to 9
     cmp     #10
     bne     R_SCORED_L1
+    jsr     makes_sound_game_over
     lda     #0
     sta     score_right
 R_SCORED_L1:
@@ -597,6 +598,7 @@ left_scored:
     lda     score_left              ; limit scores to 9
     cmp     #10
     bne     L_SCORED_L1
+    jsr     makes_sound_game_over
     lda     #0
     sta     score_left
 L_SCORED_L1:
@@ -812,15 +814,20 @@ SLEEP:
 
 ; Makes sound when ball hits a brick.
 makes_sound_brick:
-lda #$02
-jsr sound_load
-rts
+    lda #$02
+    jsr sound_load
+    rts
 
 ; Makes sound when ball hits the lava.
 makes_sound_lava:
 
 ; Makes sound when the game ends.
 makes_sound_game_over:
+    lda #$00
+    jsr sound_load
+    lda #$03
+    jsr sound_load
+    rts
 
 ; Prints start message and waits for user input to start game.
 game_start:

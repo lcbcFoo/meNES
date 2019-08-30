@@ -439,15 +439,6 @@ se_set_apu:
 
 ;-----------------------------------------------------------------------------
 
-NUM_SONGS = $03 ;if you add a new song, change this number.
-                ;the main asm file checks this number in its song_up and song_down subroutines
-                ;to determine when to wrap around.
-
-song_headers:
-    .dw song0_header
-    .dw song1_header
-    .dw song2_header
-
     .include "sound_opcodes.asm"
     .include "note_table.i"
     .include "note_length_table.i"
@@ -455,3 +446,10 @@ song_headers:
     .include "song0.i"
     .include "song1.i"
     .include "song2.i"
+    .include "song3.i"
+
+song_headers:
+    .dw song0_header
+    .dw song1_header
+    .dw song2_header
+    .dw song3_header
