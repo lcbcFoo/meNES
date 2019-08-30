@@ -46,7 +46,7 @@ BALL_VX = 1
 BALL_VY = 1
 MAX_POSITIVE_SPEED = 5
 MAX_NEGATIVE_SPEED = $f0
-
+MAX_SCORE = 5
 BAR_LEFT_Y = 140
 BAR_RIGHT_Y = 140
 MOVE_BAR_DIRECTION = 0
@@ -711,7 +711,7 @@ CHECK_HIT_END:
 right_scored:
     inc     score_right             ; increment score right
     lda     score_right             ; limit scores to 9
-    cmp     #10
+    cmp     #MAX_SCORE
     bne     R_SCORED_L1
     jsr     makes_sound_game_over
     lda     #$02
@@ -726,7 +726,7 @@ R_SCORED_L1:
 left_scored:
     inc     score_left              ; increment score left
     lda     score_left              ; limit scores to 9
-    cmp     #10
+    cmp     #MAX_SCORE
     bne     L_SCORED_L1
     jsr     makes_sound_game_over
     lda     #$01
