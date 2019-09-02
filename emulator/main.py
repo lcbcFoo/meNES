@@ -1,5 +1,8 @@
 import sys
 import argparse
+import os
+import subprocess
+import binascii
 from cpu import *
 
 def main():
@@ -12,12 +15,20 @@ def main():
     args = argParser.parse_args()
     input_file = args.input_file_path
 
-    # Read all lines in the input file
-    with open(input_file, 'r') as i:
-        lines = i.readlines()
+    # Generates binary
+    asmDirectory = os.path.dirname(os.path.realpath(input_file))
+    status = subprocess.call(["asm6f", input_file],cwd=asmDirectory)
 
+    # Read all lines in the binary file
+    
+    input_file = input_file.replace(".asm", ".bin")
+    print(input_file)
+    with open(input_file, 'rb') as i:
+        data = i.read()
+        hexa = binascii.hexlify(data)
+    
     # Emulate binary
-    cpu(lines)
+    cpu(data)
 
     # Show on stdout if requested to
     # if args.display:
