@@ -28,7 +28,7 @@ def main():
         hexa = binascii.hexlify(data)
     
     # Emulate binary
-    cpu(data)
+    cpu(hexa)
 
     # Show on stdout if requested to
     # if args.display:
