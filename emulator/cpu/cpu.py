@@ -1,5 +1,6 @@
 import sys
 
+print('oi')
 def cpu(lines, output_file):
     # Writes txt file if output_file is set
     if output_file is not None:
