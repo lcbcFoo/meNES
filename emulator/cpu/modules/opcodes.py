@@ -2,6 +2,7 @@
 # {"opc": Instr(method=class_name.method_name(oper), bytes=, cycles=)}
 
 from collections import namedtuple
+from zero_page import ZeroPage
 
 Instr = namedtuple('Instr', 'method bytes cycles')
 
@@ -21,51 +22,51 @@ immediate_opcodes = {
 }
 
 zeropage_opcodes = {
-    '65': Instr(method=zero_page_adc(oper), bytes=2, cycles=3),     #ADC
-    '25': Instr(method=zero_page_and(oper), bytes=2, cycles=3),     #AND
-    '06': Instr(method=zero_page_asl(oper), bytes=2, cycles=5),     #ASL
-    '24': Instr(method=zero_page_bit(oper), bytes=2, cycles=3),     #BIT
-    'C5': Instr(method=zero_page_cmp(oper), bytes=2, cycles=3),     #CMP
-    'E4': Instr(method=zero_page_cpx(oper), bytes=2, cycles=3),     #CPX
-    'C4': Instr(method=zero_page_cpy(oper), bytes=2, cycles=3),     #CPY
-    'C6': Instr(method=zero_page_dec(oper), bytes=2, cycles=5),     #DEC
-    '45': Instr(method=zero_page_eor(oper), bytes=2, cycles=3),     #EOR
-    'E6': Instr(method=zero_page_inc(oper), bytes=2, cycles=5),     #INC
-    'A5': Instr(method=zero_page_lda(oper), bytes=2, cycles=3),     #LDA
-    'A6': Instr(method=zero_page_ldx(oper), bytes=2, cycles=3),     #LDX
-    'A4': Instr(method=zero_page_ldy(oper), bytes=2, cycles=3),     #LDY
-    '46': Instr(method=zero_page_lsr(oper), bytes=2, cycles=5),     #LSR
-    '05': Instr(method=zero_page_ora(oper), bytes=2, cycles=3),     #ORA
-    '26': Instr(method=zero_page_rol(oper), bytes=2, cycles=5),     #ROL
-    '66': Instr(method=zero_page_ror(oper), bytes=2, cycles=5),     #ROR
-    'E5': Instr(method=zero_page_sbc(oper), bytes=2, cycles=3),     #SBC
-    '85': Instr(method=zero_page_sta(oper), bytes=2, cycles=3),     #STA
-    '86': Instr(method=zero_page_stx(oper), bytes=2, cycles=3),     #STX
-    '84': Instr(method=zero_page_sty(oper), bytes=2, cycles=3),     #STY
+    '65': Instr(method=ZeroPage.zero_page_adc, bytes=2, cycles=3),     #ADC
+    '25': Instr(method=ZeroPage.zero_page_and, bytes=2, cycles=3),     #AND
+    '06': Instr(method=ZeroPage.zero_page_asl, bytes=2, cycles=5),     #ASL
+    '24': Instr(method=ZeroPage.zero_page_bit, bytes=2, cycles=3),     #BIT
+    'C5': Instr(method=ZeroPage.zero_page_cmp, bytes=2, cycles=3),     #CMP
+    'E4': Instr(method=ZeroPage.zero_page_cpx, bytes=2, cycles=3),     #CPX
+    'C4': Instr(method=ZeroPage.zero_page_cpy, bytes=2, cycles=3),     #CPY
+    'C6': Instr(method=ZeroPage.zero_page_dec, bytes=2, cycles=5),     #DEC
+    '45': Instr(method=ZeroPage.zero_page_eor, bytes=2, cycles=3),     #EOR
+    'E6': Instr(method=ZeroPage.zero_page_inc, bytes=2, cycles=5),     #INC
+    'A5': Instr(method=ZeroPage.zero_page_lda, bytes=2, cycles=3),     #LDA
+    'A6': Instr(method=ZeroPage.zero_page_ldx, bytes=2, cycles=3),     #LDX
+    'A4': Instr(method=ZeroPage.zero_page_ldy, bytes=2, cycles=3),     #LDY
+    '46': Instr(method=ZeroPage.zero_page_lsr, bytes=2, cycles=5),     #LSR
+    '05': Instr(method=ZeroPage.zero_page_ora, bytes=2, cycles=3),     #ORA
+    '26': Instr(method=ZeroPage.zero_page_rol, bytes=2, cycles=5),     #ROL
+    '66': Instr(method=ZeroPage.zero_page_ror, bytes=2, cycles=5),     #ROR
+    'E5': Instr(method=ZeroPage.zero_page_sbc, bytes=2, cycles=3),     #SBC
+    '85': Instr(method=ZeroPage.zero_page_sta, bytes=2, cycles=3),     #STA
+    '86': Instr(method=ZeroPage.zero_page_stx, bytes=2, cycles=3),     #STX
+    '84': Instr(method=ZeroPage.zero_page_sty, bytes=2, cycles=3),     #STY
 }
 
 zeropagex_opcodes = {
-    'D6': Instr(method=zpx_dec(oper, X), bytes=2, cycles=6),        #DEC
-    '55': Instr(method=zpx_eor(oper, X), bytes=2, cycles=4),        #EOR
-    '75': Instr(method=zpx_adc(oper, X), bytes=2, cycles=4),        #ADC
-    '35': Instr(method=zpx_and(oper, X), bytes=2, cycles=4),        #AND
-    '16': Instr(method=zpx_asl(oper, X), bytes=2, cycles=6),        #ASL
-    'D5': Instr(method=zpx_cmp(oper, X), bytes=2, cycles=4),        #CMP
-    'F6': Instr(method=zpx_inc(oper, X), bytes=2, cycles=6),        #INC
-    'B5': Instr(method=zpx_lda(oper, X), bytes=2, cycles=4),        #LDA
-    'B4': Instr(method=zpx_ldy(oper, X), bytes=2, cycles=4),        #LDY
-    '56': Instr(method=zpx_lsr(oper, X), bytes=2, cycles=6),        #LSR
-    '15': Instr(method=zpx_ora(oper, X), bytes=2, cycles=4),        #ORA
-    '36': Instr(method=zpx_rol(oper, X), bytes=2, cycles=6),        #ROL
-    '76': Instr(method=zpx_ror(oper, X), bytes=2, cycles=6),        #ROR
-    'F5': Instr(method=zpx_sbc(oper, X), bytes=2, cycles=4),        #SBC
-    '95': Instr(method=zpx_sta(oper, X), bytes=2, cycles=4),        #STA
-    '94': Instr(method=zpx_sty(oper, X), bytes=2, cycles=4),        #STY
+    'D6': Instr(method=ZeroPage.zpx_dec, bytes=2, cycles=6),        #DEC
+    '55': Instr(method=ZeroPage.zpx_eor, bytes=2, cycles=4),        #EOR
+    '75': Instr(method=ZeroPage.zpx_adc, bytes=2, cycles=4),        #ADC
+    '35': Instr(method=ZeroPage.zpx_and, bytes=2, cycles=4),        #AND
+    '16': Instr(method=ZeroPage.zpx_asl, bytes=2, cycles=6),        #ASL
+    'D5': Instr(method=ZeroPage.zpx_cmp, bytes=2, cycles=4),        #CMP
+    'F6': Instr(method=ZeroPage.zpx_inc, bytes=2, cycles=6),        #INC
+    'B5': Instr(method=ZeroPage.zpx_lda, bytes=2, cycles=4),        #LDA
+    'B4': Instr(method=ZeroPage.zpx_ldy, bytes=2, cycles=4),        #LDY
+    '56': Instr(method=ZeroPage.zpx_lsr, bytes=2, cycles=6),        #LSR
+    '15': Instr(method=ZeroPage.zpx_ora, bytes=2, cycles=4),        #ORA
+    '36': Instr(method=ZeroPage.zpx_rol, bytes=2, cycles=6),        #ROL
+    '76': Instr(method=ZeroPage.zpx_ror, bytes=2, cycles=6),        #ROR
+    'F5': Instr(method=ZeroPage.zpx_sbc, bytes=2, cycles=4),        #SBC
+    '95': Instr(method=ZeroPage.zpx_sta, bytes=2, cycles=4),        #STA
+    '94': Instr(method=ZeroPage.zpx_sty, bytes=2, cycles=4),        #STY
 }
 
 zeropagey_opodes = {
-    'B6': Instr(method=zpy_ldx(oper, Y), bytes=2, cycles=4),        #LDX
-    '96': Instr(method=zpy_stx(oper, Y), bytes=2, cycles=4),        #STX
+    'B6': Instr(method=ZeroPage.zpy_ldx, bytes=2, cycles=4),        #LDX
+    '96': Instr(method=ZeroPage.zpy_stx, bytes=2, cycles=4),        #STX
 }
 
 absolute_opcodes = {
