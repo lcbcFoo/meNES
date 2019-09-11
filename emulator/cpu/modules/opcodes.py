@@ -3,6 +3,7 @@
 
 from collections import namedtuple
 from zero_page import ZeroPage
+from absolute import Absolute
 
 Instr = namedtuple('Instr', 'method bytes cycles')
 
@@ -70,29 +71,29 @@ zeropagey_opodes = {
 }
 
 absolute_opcodes = {
-    '6D': ,                         #ADC
-    '2D': ,                         #AND
-    '0E': ,                         #ASL
-    '2C': ,                         #BIT
-    'CD': ,                         #CMP
-    'EC': ,                         #CPX
-    'CC': ,                         #CPY
-    'CE': ,                         #DEC
-    '4D': ,                         #EOR
-    'EE': ,                         #INC
-    '4C': ,                         #JMP
-    '20': ,                         #JSR
-    'AD': ,                         #LDA
-    'AE': ,                         #LDX
-    'AC': ,                         #LDY
-    '4E': ,                         #LSR
-    '0D': ,                         #ORA
-    '2E': ,                         #ROL
-    '6E': ,                         #ROR
-    'ED': ,                         #SBC
-    '8D': ,                         #STA
-    '8E': ,                         #STX
-    '8C': ,                         #STY
+    '6D': Instr(method=Absolute.abs_adc, bytes=, cycles=),                         #ADC
+    '2D': Instr(method=Absolute.abs_and, bytes=, cycles=),                         #AND
+    '0E': Instr(method=Absolute.abs_asl, bytes=, cycles=),                         #ASL
+    '2C': Instr(method=Absolute.abs_bit, bytes=, cycles=),                         #BIT
+    'CD': Instr(method=Absolute.abs_cmp, bytes=, cycles=),                         #CMP
+    'EC': Instr(method=Absolute.abs_cpx, bytes=, cycles=),                         #CPX
+    'CC': Instr(method=Absolute.abs_cpy, bytes=, cycles=),                         #CPY
+    'CE': Instr(method=Absolute.abs_dec, bytes=, cycles=),                         #DEC
+    '4D': Instr(method=Absolute.abs_eor, bytes=, cycles=),                         #EOR
+    'EE': Instr(method=Absolute.abs_inc, bytes=, cycles=),                         #INC
+    '4C': Instr(method=Absolute.abs_jmp, bytes=, cycles=),                         #JMP
+    '20': Instr(method=Absolute.abs_jsr, bytes=, cycles=),                         #JSR
+    'AD': Instr(method=Absolute.abs_lda, bytes=, cycles=),                         #LDA
+    'AE': Instr(method=Absolute.abs_ldx, bytes=, cycles=),                         #LDX
+    'AC': Instr(method=Absolute.abs_ldy, bytes=, cycles=),                         #LDY
+    '4E': Instr(method=Absolute.abs_lsr, bytes=, cycles=),                         #LSR
+    '0D': Instr(method=Absolute.abs_ora, bytes=, cycles=),                         #ORA
+    '2E': Instr(method=Absolute.abs_rol, bytes=, cycles=),                         #ROL
+    '6E': Instr(method=Absolute.abs_ror, bytes=, cycles=),                         #ROR
+    'ED': Instr(method=Absolute.abs_sbc, bytes=, cycles=),                         #SBC
+    '8D': Instr(method=Absolute.abs_sta, bytes=, cycles=),                         #STA
+    '8E': Instr(method=Absolute.abs_stx, bytes=, cycles=),                         #STX
+    '8C': Instr(method=Absolute.abs_sty, bytes=, cycles=),                         #STY
 }
 
 absolutex_opcodes = {

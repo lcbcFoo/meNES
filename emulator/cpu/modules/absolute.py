@@ -1,73 +1,70 @@
-from collections import namedtuple
+class Absolute(self):
 
-#Se pc + 1 for maior ou igual ao tamanho da pagina, passamos
-class Absolute():
-
-    def absolute_adc(self, oper):
+    def abs_adc(self, oper):
         pass
 
-    def absolute_and(self, oper):
+    def abs_and(self, oper):
         pass
 
-    def absolute_asl(self, oper):
+    def abs_asl(self, oper):
         pass
 
-    def absolute_bit(self, oper):
+    def abs_bit(self, oper):
         pass
 
-    def absolute_cmp(self, oper):
+    def abs_cmp(self, oper):
         pass
 
-    def absolute_cpx(self, oper):
+    def abs_cpx(self, oper):
         pass
 
-    def absolute_cpy(self, oper):
+    def abs_cpy(self, oper):
         pass
 
-    def absolute_dec(self, oper):
+    def abs_dec(self, oper):
         pass
 
-    def absolute_eor(self, oper):
+    def abs_eor(self, oper):
         pass
 
-    def absolute_inc(self, oper):
+    def abs_inc(self, oper):
         pass
 
-    def absolute_jmp(self, oper):
+    def abs_jmp(self, oper):
         pass
 
-    def absolute_jsr(self, oper):
+    def abs_jsr(self, oper):
         pass
 
-    def absolute_lda(self, oper):
+    def abs_lda(self, oper):
         pass
 
-    def absolute_ldx(self, oper):
+    def abs_ldx(self, oper):
         pass
 
-    def absolute_ldy(self, oper):
+    def abs_ldy(self, oper):
         pass
 
-    def absolute_lsr(self, oper):
+    def abs_lsr(self, oper):
         pass
 
-    def absolute_ora(self, oper):
+    def abs_ora(self, oper):
         pass
 
-    def absolute_rol(self, oper):
+    def abs_rol(self, oper):
         pass
 
-    def absolute_ror(self, oper):
+    def abs_ror(self, oper):
         pass
 
-    def absolute_sbc(self, oper):
+    def abs_sbc(self, oper):
         pass
 
-    def absolute_sta(self, oper):
+    def abs_sta(self, oper):
         pass
 
-    def absolute_stx(self, oper):
+    def abs_stx(self, oper):
         pass
 
-    def absolute_sty(self, oper):
+    def abs_sty(self, oper):
         pass
