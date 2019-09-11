@@ -45,27 +45,27 @@ zeropage_opcodes = {
 }
 
 zeropagex_opcodes = {
-    '75': Instr(method=zpx_adc(oper, X), bytes=2, cycles=4),                         #ADC
-    '35': Instr(method=zpx_and(oper, X), bytes=2, cycles=4),                         #AND
-    '16': Instr(method=zpx_asl(oper, X), bytes=2, cycles=6),                         #ASL
-    'D5': Instr(method=zpx_cmp(oper, X), bytes=2, cycles=4),                         #CMP
-    'D6': Instr(method=zpx_dec(oper, X), bytes=2, cycles=6),                         #DEC
-    '55': Instr(method=zpx_eor(oper, X), bytes=2, cycles=4),                         #EOR
-    'F6': Instr(method=zpx_inc(oper, X), bytes=2, cycles=6),                         #INC
-    'B5': Instr(method=zpx_lda(oper, X), bytes=2, cycles=4),                         #LDA
-    'B4': Instr(method=zpx_ldy(oper, X), bytes=2, cycles=4),                         #LDY
-    '56': Instr(method=zpx_lsr(oper, X), bytes=2, cycles=6),                         #LSR
-    '15': Instr(method=zpx_ora(oper, X), bytes=2, cycles=4),                         #ORA
-    '36': Instr(method=zpx_rol(oper, X), bytes=2, cycles=6),                         #ROL
-    '76': Instr(method=zpx_ror(oper, X), bytes=2, cycles=6),                         #ROR
-    'F5': Instr(method=zpx_sbc(oper, X), bytes=2, cycles=4),                         #SBC
-    '95': Instr(method=zpx_sta(oper, X), bytes=2, cycles=4),                         #STA
-    '94': Instr(method=zpx_sty(oper, X), bytes=2, cycles=4),                         #STY
+    'D6': Instr(method=zpx_dec(oper, X), bytes=2, cycles=6),        #DEC
+    '55': Instr(method=zpx_eor(oper, X), bytes=2, cycles=4),        #EOR
+    '75': Instr(method=zpx_adc(oper, X), bytes=2, cycles=4),        #ADC
+    '35': Instr(method=zpx_and(oper, X), bytes=2, cycles=4),        #AND
+    '16': Instr(method=zpx_asl(oper, X), bytes=2, cycles=6),        #ASL
+    'D5': Instr(method=zpx_cmp(oper, X), bytes=2, cycles=4),        #CMP
+    'F6': Instr(method=zpx_inc(oper, X), bytes=2, cycles=6),        #INC
+    'B5': Instr(method=zpx_lda(oper, X), bytes=2, cycles=4),        #LDA
+    'B4': Instr(method=zpx_ldy(oper, X), bytes=2, cycles=4),        #LDY
+    '56': Instr(method=zpx_lsr(oper, X), bytes=2, cycles=6),        #LSR
+    '15': Instr(method=zpx_ora(oper, X), bytes=2, cycles=4),        #ORA
+    '36': Instr(method=zpx_rol(oper, X), bytes=2, cycles=6),        #ROL
+    '76': Instr(method=zpx_ror(oper, X), bytes=2, cycles=6),        #ROR
+    'F5': Instr(method=zpx_sbc(oper, X), bytes=2, cycles=4),        #SBC
+    '95': Instr(method=zpx_sta(oper, X), bytes=2, cycles=4),        #STA
+    '94': Instr(method=zpx_sty(oper, X), bytes=2, cycles=4),        #STY
 }
 
 zeropagey_opodes = {
-    'B6': Instr(method=zpy_ldx(oper, Y), bytes=2, cycles=4),                           #LDX
-    '96': Instr(method=zpy_stx(oper, Y), bytes=2, cycles=4),                           #STX
+    'B6': Instr(method=zpy_ldx(oper, Y), bytes=2, cycles=4),        #LDX
+    '96': Instr(method=zpy_stx(oper, Y), bytes=2, cycles=4),        #STX
 }
 
 absolute_opcodes = {
