@@ -1,3 +1,10 @@
+# Dict structure:
+# {"opc": Instr(method=method_name(oper), bytes=, cycles=)}
+
+from collections import namedtuple
+
+Instr = namedtuple('Instr', 'method bytes cycles')
+
 
 immediate_opcodes = {
     '69': ,                         #ADC
@@ -8,33 +15,33 @@ immediate_opcodes = {
     '49': ,                         #EOR
     'A9': ,                         #LDA
     'A2': ,                         #LDX
-    'A0': ,                         #LDY 
+    'A0': ,                         #LDY
     '09': ,                         #ORA
     'E9':                           #SBC
 }
 
 zeropage_opcodes = {
-    '65': ,                         #ADC
-    '25': ,                         #AND
-    '06': ,                         #ASL
-    '24': ,                         #BIT
-    'C5': ,                         #CMP
-    'E4': ,                         #CPX
-    'C4': ,                         #CPY
-    'C6': ,                         #DEC
-    '45': ,                         #EOR
-    'E6': ,                         #INC
-    'A5': ,                         #LDA
-    'A6': ,                         #LDX
-    'A4': ,                         #LDY
-    '46': ,                         #LSR
-    '05': ,                         #ORA
-    '26': ,                         #ROL
-    '66': ,                         #ROR
-    'E5': ,                         #SBC
-    '85': ,                         #STA
-    '86': ,                         #STX
-    '84': ,                         #STY
+    '65': Instr(method=zero_page_adc(oper), bytes=2, cycles=3),     #ADC
+    '25': Instr(method=zero_page_and(oper), bytes=2, cycles=3),     #AND
+    '06': Instr(method=zero_page_asl(oper), bytes=2, cycles=5),     #ASL
+    '24': Instr(method=zero_page_bit(oper), bytes=2, cycles=3),     #BIT
+    'C5': Instr(method=zero_page_cmp(oper), bytes=2, cycles=3),     #CMP
+    'E4': Instr(method=zero_page_cpx(oper), bytes=2, cycles=3),     #CPX
+    'C4': Instr(method=zero_page_cpy(oper), bytes=2, cycles=3),     #CPY
+    'C6': Instr(method=zero_page_dec(oper), bytes=2, cycles=5),     #DEC
+    '45': Instr(method=zero_page_eor(oper), bytes=2, cycles=3),     #EOR
+    'E6': Instr(method=zero_page_inc(oper), bytes=2, cycles=5),     #INC
+    'A5': Instr(method=zero_page_lda(oper), bytes=2, cycles=3),     #LDA
+    'A6': Instr(method=zero_page_ldx(oper), bytes=2, cycles=3),     #LDX
+    'A4': Instr(method=zero_page_ldy(oper), bytes=2, cycles=3),     #LDY
+    '46': Instr(method=zero_page_lsr(oper), bytes=2, cycles=5),     #LSR
+    '05': Instr(method=zero_page_ora(oper), bytes=2, cycles=3),     #ORA
+    '26': Instr(method=zero_page_rol(oper), bytes=2, cycles=5),     #ROL
+    '66': Instr(method=zero_page_ror(oper), bytes=2, cycles=5),     #ROR
+    'E5': Instr(method=zero_page_sbc(oper), bytes=2, cycles=3),     #SBC
+    '85': Instr(method=zero_page_sta(oper), bytes=2, cycles=3),     #STA
+    '86': Instr(method=zero_page_stx(oper), bytes=2, cycles=3),     #STX
+    '84': Instr(method=zero_page_sty(oper), bytes=2, cycles=3),     #STY
 }
 
 zeropagex_opcodes = {
@@ -130,7 +137,7 @@ indirectx_opcodes = {
     '01': ,                         #ORA
     'E1': ,                         #SBC
     '81': ,                         #STA
-    
+
 }
 
 indirecty_opcodes = {
@@ -149,7 +156,7 @@ implied_opcodes = {
     'EA': ,                         #NOP
     '40': ,                         #RTI
     '60': ,                         #RTS
-    
+
     '18': ,                         #CLC
     '38': ,                         #SEC
     '58': ,                         #CLI
