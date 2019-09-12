@@ -71,7 +71,7 @@ zeropagey_opodes = {
 }
 
 absolute_opcodes = {
-    '6D': Instr(method=Absolute.abs_adc, bytes=, cycles=),                         #ADC
+    '6D': Instr(method=Absolute.abs_adc, bytes=3, cycles=4),                         #ADC
     '2D': Instr(method=Absolute.abs_and, bytes=, cycles=),                         #AND
     '0E': Instr(method=Absolute.abs_asl, bytes=, cycles=),                         #ASL
     '2C': Instr(method=Absolute.abs_bit, bytes=, cycles=),                         #BIT
@@ -97,33 +97,33 @@ absolute_opcodes = {
 }
 
 absolutex_opcodes = {
-    '7D': ,                         #ADC
-    '3D': ,                         #AND
-    '1E': ,                         #ASL
-    'DD': ,                         #CMP
-    'DE': ,                         #DEC
-    '5D': ,                         #EOR
-    'FE': ,                         #INC
-    'BD': ,                         #LDA
-    'BC': ,                         #LDY
-    '5E': ,                         #LSR
-    '1D': ,                         #ORA
-    '3E': ,                         #ROL
-    '7E': ,                         #ROR
-    'FD': ,                         #SBC
-    '9D': ,                         #STA
+    '7D': Instr(method=Absolute.absX_adc, bytes=, cycles=),                         #ADC
+    '3D': Instr(method=Absolute.absX_and, bytes=, cycles=),                         #AND
+    '1E': Instr(method=Absolute.absX_asl, bytes=, cycles=),                         #ASL
+    'DD': Instr(method=Absolute.absX_cmp, bytes=, cycles=),                         #CMP
+    'DE': Instr(method=Absolute.absX_dec, bytes=, cycles=),                         #DEC
+    '5D': Instr(method=Absolute.absX_eor, bytes=, cycles=),                         #EOR
+    'FE': Instr(method=Absolute.absX_inc, bytes=, cycles=),                         #INC
+    'BD': Instr(method=Absolute.absX_lda, bytes=, cycles=),                         #LDA
+    'BC': Instr(method=Absolute.absX_ldy, bytes=, cycles=),                         #LDY
+    '5E': Instr(method=Absolute.absX_lsr, bytes=, cycles=),                         #LSR
+    '1D': Instr(method=Absolute.absX_ora, bytes=, cycles=),                         #ORA
+    '3E': Instr(method=Absolute.absX_rol, bytes=, cycles=),                         #ROL
+    '7E': Instr(method=Absolute.absX_ror, bytes=, cycles=),                         #ROR
+    'FD': Instr(method=Absolute.absX_sbc, bytes=, cycles=),                         #SBC
+    '9D': Instr(method=Absolute.absX_sta, bytes=, cycles=),                         #STA
 }
 
 absolutey_opcodes = {
-    '79': ,                         #ADC
-    '39': ,                         #AND
-    'D9': ,                         #CMP
-    '59': ,                         #EOR
-    'B9': ,                         #LDA
-    'BE': ,                         #LDX
-    '19': ,                         #ORA
-    'F9': ,                         #SBC
-    '99': ,                         #STA
+    '79': Instr(method=Absolute.absY_adc, bytes=, cycles=),                         #ADC
+    '39': Instr(method=Absolute.absY_and, bytes=, cycles=),                         #AND
+    'D9': Instr(method=Absolute.absY_cmp, bytes=, cycles=),                         #CMP
+    '59': Instr(method=Absolute.absY_eor, bytes=, cycles=),                         #EOR
+    'B9': Instr(method=Absolute.absY_lda, bytes=, cycles=),                         #LDA
+    'BE': Instr(method=Absolute.absY_ldx, bytes=, cycles=),                         #LDX
+    '19': Instr(method=Absolute.absY_ora, bytes=, cycles=),                         #ORA
+    'F9': Instr(method=Absolute.absY_sbc, bytes=, cycles=),                         #SBC
+    '99': Instr(method=Absolute.absY_sta, bytes=, cycles=),                         #STA
 }
 
 indirect_opcodes = {
