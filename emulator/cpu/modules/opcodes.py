@@ -8,19 +8,19 @@ from absolute import Absolute
 Instr = namedtuple('Instr', 'method bytes cycles')
 
 
-immediate_opcodes = {
-    '69': ,                         #ADC
-    '29': ,                         #AND
-    'C9': ,                         #CMP
-    'E0': ,                         #CPX
-    'C0': ,                         #CPY
-    '49': ,                         #EOR
-    'A9': ,                         #LDA
-    'A2': ,                         #LDX
-    'A0': ,                         #LDY
-    '09': ,                         #ORA
-    'E9':                           #SBC
-}
+# immediate_opcodes = {
+#     '69': ,                         #ADC
+#     '29': ,                         #AND
+#     'C9': ,                         #CMP
+#     'E0': ,                         #CPX
+#     'C0': ,                         #CPY
+#     '49': ,                         #EOR
+#     'A9': ,                         #LDA
+#     'A2': ,                         #LDX
+#     'A0': ,                         #LDY
+#     '09': ,                         #ORA
+#     'E9':                           #SBC
+# }
 
 zeropage_opcodes = {
     '65': Instr(method=ZeroPage.zero_page_adc, bytes=2, cycles=3),     #ADC
@@ -126,78 +126,78 @@ absolutey_opcodes = {
     '99': Instr(method=Absolute.absY_sta, bytes=3, cycles=5),                         #STA
 }
 
-indirect_opcodes = {
-    '6C': ,                         #JMP
-}
+# indirect_opcodes = {
+#     '6C': ,                         #JMP
+# }
 
-indirectx_opcodes = {
-    '61': ,                         #ADC
-    '21': ,                         #AND
-    'C1': ,                         #CMP
-    '41': ,                         #EOR
-    'A1': ,                         #LDA
-    '01': ,                         #ORA
-    'E1': ,                         #SBC
-    '81': ,                         #STA
+# indirectx_opcodes = {
+#     '61': ,                         #ADC
+#     '21': ,                         #AND
+#     'C1': ,                         #CMP
+#     '41': ,                         #EOR
+#     'A1': ,                         #LDA
+#     '01': ,                         #ORA
+#     'E1': ,                         #SBC
+#     '81': ,                         #STA
 
-}
+# }
 
-indirecty_opcodes = {
-    '71': ,                         #ADC
-    '31': ,                         #AND
-    'D1': ,                         #CMP
-    '51': ,                         #EOR
-    'B1': ,                         #LDA
-    '11': ,                         #ORA
-    'F1': ,                         #SBC
-    '91': ,                         #STA
-}
+# indirecty_opcodes = {
+#     '71': ,                         #ADC
+#     '31': ,                         #AND
+#     'D1': ,                         #CMP
+#     '51': ,                         #EOR
+#     'B1': ,                         #LDA
+#     '11': ,                         #ORA
+#     'F1': ,                         #SBC
+#     '91': ,                         #STA
+# }
 
-implied_opcodes = {
-    '00': ,                         #BRK
-    'EA': ,                         #NOP
-    '40': ,                         #RTI
-    '60': ,                         #RTS
+# implied_opcodes = {
+#     '00': ,                         #BRK
+#     'EA': ,                         #NOP
+#     '40': ,                         #RTI
+#     '60': ,                         #RTS
 
-    '18': ,                         #CLC
-    '38': ,                         #SEC
-    '58': ,                         #CLI
-    '78': ,                         #SEI
-    'B8': ,                         #CLV
-    'D8': ,                         #CLD
-    'F8': ,                         #SED
+#     '18': ,                         #CLC
+#     '38': ,                         #SEC
+#     '58': ,                         #CLI
+#     '78': ,                         #SEI
+#     'B8': ,                         #CLV
+#     'D8': ,                         #CLD
+#     'F8': ,                         #SED
 
-    '9A': ,                         #TXS
-    'BA': ,                         #TSX
-    '48': ,                         #PHA
-    '68': ,                         #PLA
-    '08': ,                         #PHP
-    '28': ,                         #PLP
+#     '9A': ,                         #TXS
+#     'BA': ,                         #TSX
+#     '48': ,                         #PHA
+#     '68': ,                         #PLA
+#     '08': ,                         #PHP
+#     '28': ,                         #PLP
 
-    'AA': ,                         #TAX
-    '8A': ,                         #TXA
-    'CA': ,                         #DEX
-    'E8': ,                         #INX
-    'A8': ,                         #TAY
-    '98': ,                         #TYA
-    '88': ,                         #DEY
-    'C8': ,                         #INY
-}
+#     'AA': ,                         #TAX
+#     '8A': ,                         #TXA
+#     'CA': ,                         #DEX
+#     'E8': ,                         #INX
+#     'A8': ,                         #TAY
+#     '98': ,                         #TYA
+#     '88': ,                         #DEY
+#     'C8': ,                         #INY
+# }
 
-relative_opcodes = {
-    '10': ,                         #BPL
-    '30': ,                         #BMI
-    '50': ,                         #BVC
-    '70': ,                         #BVS
-    '90': ,                         #BCC
-    'B0': ,                         #BCS
-    'D0': ,                         #BNE
-    'F0': ,                         #BEQ
-}
+# relative_opcodes = {
+#     '10': ,                         #BPL
+#     '30': ,                         #BMI
+#     '50': ,                         #BVC
+#     '70': ,                         #BVS
+#     '90': ,                         #BCC
+#     'B0': ,                         #BCS
+#     'D0': ,                         #BNE
+#     'F0': ,                         #BEQ
+# }
 
-accumulator_opcodes = {
-    '0A': ,                         #ASL
-    '4A': ,                         #LSR
-    '2A': ,                         #ROL
-    '6A': ,                         #ROR
-}
+# accumulator_opcodes = {
+#     '0A': ,                         #ASL
+#     '4A': ,                         #LSR
+#     '2A': ,                         #ROL
+#     '6A': ,                         #ROR
+# }

@@ -1,12 +1,15 @@
 import sys
 from collections import namedtuple
+from mem import *
+from modules.absolute import *
+from modules.opcodes import *
 
 class CPU:
     
-    def __init__(self):
+    def __init__(self, mem):
         # TODO: change to mem[0xFFA0]
         self.pc = 0xC000
-       
+        self.mem = mem
         # Registers
         self.a = 0x00
         self.x = 0x00
@@ -25,11 +28,14 @@ class CPU:
         self.c = 0
 
     def run(self):
-        
+
         while True:
             # TODO: change to read mem[pc]
-            opcode = 0x00
-            
+            # opcode = 0x00
+            abs = Absolute(self, self.mem)
+            opcode = mem.data[0]
+            op = absolute_opcodes[opcode].method
+            op(abs)
             # TODO: search for opcode in dictionary and execute instruction
             exit(0)
 
@@ -71,5 +77,6 @@ class CPU:
             print(self.log())
 
 if __name__ == "__main__":
-    cpu = CPU()
+    mem = Mem()
+    cpu = CPU(mem)
     cpu.run()

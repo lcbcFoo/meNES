@@ -1,9 +1,9 @@
-class Absolute(self):
+class Absolute():
     def __init__(self, cpu, mem):
         self.cpu = cpu
         self.mem = mem
 
-    def abs_adc(self, oper):
+    def abs_adc(self):
         print("Adding!")
 
     def abs_and(self, oper):
