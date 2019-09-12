@@ -1,7 +1,10 @@
 class Absolute(self):
+    def __init__(self, cpu, mem):
+        self.cpu = cpu
+        self.mem = mem
 
     def abs_adc(self, oper):
-        pass
+        print("Adding!")
 
     def abs_and(self, oper):
         pass
@@ -71,51 +74,50 @@ class Absolute(self):
 
     ###################################################################################################################
     ############### ABSOLUTE X OPERATIONS #############################################################################
-    ###################################################################################################################
-
-    def absX_adc(self, oper):
+    
+    def absX_adc(self, oper, X):
         pass
 
-    def absX_and(self, oper):
+    def absX_and(self, oper, X):
         pass
 
-    def absX_asl(self, oper):
+    def absX_asl(self, oper, X):
         pass
 
-    def absX_cmp(self, oper):
+    def absX_cmp(self, oper, X):
         pass
 
-    def absX_dec(self, oper):
+    def absX_dec(self, oper, X):
         pass
 
-    def absX_eor(self, oper):
+    def absX_eor(self, oper, X):
         pass
 
-    def absX_inc(self, oper):
+    def absX_inc(self, oper, X):
         pass
 
-    def absX_lda(self, oper):
+    def absX_lda(self, oper, X):
         pass
 
-    def absX_ldy(self, oper):
+    def absX_ldy(self, oper, X):
         pass
 
-    def absX_lsr(self, oper):
+    def absX_lsr(self, oper, X):
         pass
 
-    def absX_ora(self, oper):
+    def absX_ora(self, oper, X):
         pass
 
-    def absX_rol(self, oper):
+    def absX_rol(self, oper, X):
         pass
 
-    def absX_ror(self, oper):
+    def absX_ror(self, oper, X):
         pass
 
-    def absX_sbc(self, oper):
+    def absX_sbc(self, oper, X):
         pass
 
-    def absX_sta(self, oper):
+    def absX_sta(self, oper, X):
         pass
 
 
@@ -123,29 +125,29 @@ class Absolute(self):
     ############### ABSOLUTE Y OPERATIONS #############################################################################
     ###################################################################################################################
 
-    def absY_adc:
+    def absY_adc(self, oper, Y):
         pass
 
-    def absY_and:
+    def absY_and(self, oper, Y):
         pass
 
-    def absY_cmp:
+    def absY_cmp(self, oper, Y):
         pass
 
-    def absY_eor:
+    def absY_eor(self, oper, Y):
         pass
 
-    def absY_lda:
+    def absY_lda(self, oper, Y):
         pass
 
-    def absY_ldx:
+    def absY_ldx(self, oper, Y):
         pass
 
-    def absY_ora:
+    def absY_ora(self, oper, Y):
         pass
 
-    def absY_sbc:
+    def absY_sbc(self, oper, Y):
         pass
 
-    def absY_sta:
+    def absY_sta(self, oper, Y):
         pass
