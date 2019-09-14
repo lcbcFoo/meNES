@@ -6,10 +6,12 @@ from modules.opcodes import *
 
 class CPU:
     
-    def __init__(self, mem):
-        # TODO: change to mem[0xFFA0]
-        self.pc = 0xC000
-        self.mem = mem
+    def __init__(self, bus):
+        self.mem_bus = bus
+
+    def reset(self):
+        self.pc = self.mem_bus.read(0xFFA0)
+
         # Registers
         self.a = 0x00
         self.x = 0x00
@@ -28,6 +30,7 @@ class CPU:
         self.c = 0
 
     def run(self):
+        self.reset()
 
         while True:
             # TODO: change to read mem[pc]
@@ -41,18 +44,16 @@ class CPU:
 
 
 
-    def read_cartridge(self, lines, output_file):
-        # Writes txt file if output_file is set
-        if output_file is not None:
-            print("Writing file:", output_file)
-            with open(output_file, 'w') as f:
-                for element in lines:
-                    f.write("%s\n" % element)
-        else:
-            print("Printing lines on terminal:")
-            for element in lines:
-                print(element)
+    def read_cartridge(self, file_name):
+        f = open(file_name, 'rb')
+        lines = [i for i in f.readlines()][0]
+        lines = lines[16:]
+        self.mem_bus.write(0xC000, lines, len(lines))
 
+    def dump_mem(self):
+        o = open('mem_dump.txt', 'w')
+        data = self.mem_bus.read(0, 0x10000)
+        o.write('\n'.join([hex(i) for i in data]))
 
     # Log
     def log(self):
@@ -75,8 +76,3 @@ class CPU:
             print(self.logls(addr, val))
         else:
             print(self.log())
-
-if __name__ == "__main__":
-    mem = Mem()
-    cpu = CPU(mem)
-    cpu.run()
