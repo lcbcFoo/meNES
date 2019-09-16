@@ -1,9 +1,9 @@
-MAX_NUM = 127
-MIN_NUM = -128
+MAX_NUM = 255
+NEGATIVE = 128
 
 # NOTATION
 # res1: represents the result of an operation in decimal values. Could be any
-#       number. (> MAX_NUM or < MIN_NUM)
+#       number.
 # res2: represents the same result as a two's complement of an 8-bit number.
 #
 # Before using any methods with parameter called "res2", first call the method
@@ -16,23 +16,14 @@ class FlagHandler():
 
     # Transforms a number into the a two's complement 8-bit number that fits
     # inside the register.
-    # Example: 128 -> -128      (in decimal)
-    #          224 -> -32
-    #          -130 -> 126
-    #          -242 -> 14
     def getActualNum(self, res1):
-        if res1 > MAX_NUM:
-            res2 = (res1 % (MAX_NUM + 1)) - (MAX_NUM + 1)
-        elif res1 < MIN_NUM:
-            res2 = res1 % (MAX_NUM + 1)
-        else:
-            res2 = res1
-        return res2
+        return res1 % (MAX_NUM + 1)
+
 
     # If the result of an operation is bigger than MAX_NUM or smaller than
     # MIN_NUM, sets the Carry Flag to 1.
     def SetCarry(self, res1):
-        if res1 > MAX_NUM or res1 < MIN_NUM:
+        if res1 > MAX_NUM:
             self.cpu.c = 1
         else:
             self.cpu.c = 0
@@ -41,8 +32,8 @@ class FlagHandler():
     # is negative, or if the result (after convertion) of two negative numbers
     # is positive, sets Overflow Flag to 1.
     def SetOverflow(self, acc, oper, res2):
-        if (acc > 0 and oper > 0 and res2 < 0) or
-           (acc < 0 and oper < 0 and res2 > 0):
+        if (acc < NEGATIVE and oper < NEGATIVE and res2 >= NEGATIVE) or
+           (acc >= NEGATIVE and oper >= NEGATIVE and res2 < NEGATIVE):
             self.cpu.v = 1
         else:
             self.cpu.v = 0
@@ -50,7 +41,7 @@ class FlagHandler():
     # If the result (after getActualNum convertion) of an operation is less
     # than zero, sets Negative Flag to 1.
     def SetNegative(self, res2):
-        if res2 < 0:
+        if res2 >= NEGATIVE:
             self.cpu.n = 1
         else:
             self.cpu.n = 0
@@ -70,8 +61,14 @@ class FlagHandler():
         else:
             self.cpu.b = 0
 
-    def SetDecimal():
-        pass
+    def SetDecimal(self, isDecimal=False):
+        if isDecimal:
+            self.cpu.d = 1
+        else:
+            self.cpu.d = 0
 
-    def SetInterrupt():
-        pass
+    def SetInterrupt(self, isInterrupt=False):
+        if isInterrupt:
+            self.cpu.i = 1
+        else:
+            self.cpu.i = 0

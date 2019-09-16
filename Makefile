@@ -3,7 +3,7 @@ RES=./res
 BIN=./bin
 LOG=./log
 EXT=./ext
-NES=python ./emulator/cpu/cpu.py
+NES=python3 ./emulator/main.py
 
 TESTS=$(addprefix ${BIN}/, $(notdir $(patsubst %.s,%,$(sort $(wildcard ${TST}/*.s)))))
 CROSS_AS=${EXT}/asm6/asm6
