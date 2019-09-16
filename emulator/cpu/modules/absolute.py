@@ -1,10 +1,21 @@
+from decoder import *
+from flag_handler import *
+
 class Absolute():
-    def __init__(self, cpu, mem):
+    def __init__(self, cpu, mem, decoder):
         self.cpu = cpu
         self.mem = mem
+        self.decoder = decoder
 
     def abs_adc(self):
-        print("Adding!")
+        absolute = decoder.content
+        result = self.cpu.a + absolute + self.cpu.c
+        actualResult = self.decoder.getActualNum(result)
+        self.cpu.a = actualResult
+        self.decoder.SetCarry(actualResult)
+        self.decoder.SetOverflow(self.cpu.a, self.abs, actualResult)
+        self.decoder.SetNegative(actualResult)
+        self.decoder.SetZero(actualResult)
 
     def abs_and(self, oper):
         pass
