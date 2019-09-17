@@ -7,4 +7,4 @@ speedpong_3000_game/a.out
 bin
 log
 ext/asm6/asm6
-
+.vscode*
