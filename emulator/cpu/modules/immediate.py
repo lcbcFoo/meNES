@@ -46,7 +46,7 @@ class Immediate(self):
         self.fh.SetNegative(result_8b)
         self.fh.SetZero(result_8b)
 
-    def imd_cpy(self, oper):
+    def imd_cpy(self):
         reg_y = self.cpu.y
         immediate = self.decoder.immediate
         result = reg_y - immediate
@@ -55,7 +55,7 @@ class Immediate(self):
         self.fh.SetNegative(result_8b)
         self.fh.SetZero(result_8b)
 
-    def imd_eor(self, oper):
+    def imd_eor(self):
         reg_a = self.cpu.a
         immediate = self.decoder.immediate
         result = reg_a ^ immediate
@@ -64,28 +64,28 @@ class Immediate(self):
         self.fh.SetNegative(result_8b)
         self.fh.SetZero(result_8b)
 
-    def imd_lda(self, oper):
+    def imd_lda(self):
         immediate = self.decoder.immediate
         result_8b = self.fh.getActualNum(immediate)
         self.cpu.a = result_8b
         self.fh.SetNegative(result_8b)
         self.fh.SetZero(result_8b)
 
-    def imd_ldx(self, oper):
+    def imd_ldx(self):
         immediate = self.decoder.immediate
         result_8b = self.fh.getActualNum(immediate)
         self.cpu.x = result_8b
         self.fh.SetNegative(result_8b)
         self.fh.SetZero(result_8b)
 
-    def imd_ldy(self, oper):
+    def imd_ldy(self):
         immediate = self.decoder.immediate
         result_8b = self.fh.getActualNum(immediate)
         self.cpu.y = result_8b
         self.fh.SetNegative(result_8b)
         self.fh.SetZero(result_8b)
 
-    def imd_ora(self, oper):
+    def imd_ora(self):
         reg_a = self.cpu.a
         immediate = self.decoder.immediate
         result = reg_a | immediate
@@ -94,7 +94,7 @@ class Immediate(self):
         self.fh.SetNegative(result_8b)
         self.fh.SetZero(result_8b)
 
-    def imd_sbc(self, oper):
+    def imd_sbc(self):
         reg_a = self.cpu.a
         immediate = self.decoder.immediate
         carry = self.cpu.c
