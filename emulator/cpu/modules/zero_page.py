@@ -1,119 +1,198 @@
+from flag_handler import *
 
-class ZeroPage(self):
+class ZeroPage():
 
-        def zero_page_adc(self, oper):
+        def __init__(self, cpu, mem, decoder):
+            self.cpu = cpu
+            self.mem = mem
+            self.decoder = decoder
+            self.fh = FlagHandler(cpu)
+
+        def zp_adc(self):
+            oper = self.decoder.cont_zp
+            reg_a = self.cpu.a
+            carry = self.cpu.c
+            res = reg_a + oper + carry
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setCarry(res)
+            self.fh.setOverflow(reg_a, oper, res_8b)
+            self.setNegative(res_8b)
+            self.setZero(res_8b)
+            self.cpu.a = res_8b
+
+        def zp_and(self):
+            oper = self.decoder.cont_zp
+            reg_a = self.cpu.a
+            res = reg_a & oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.a = res_8b
+
+        def zp_asl(self):
+            oper = self.decoder.cont_zp
+            res = oper << 1
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setCarry(res)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.a = res_8b
+
+        def zp_bit(self):
             pass
 
-        def zero_page_and(self, oper):
+        def zp_cmp(self):
+            oper = self.decoder.cont_zp
+            reg_a = self.cpu.a
+            res = reg_a - oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.SetCarry(res)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+
+        def zp_cpx(self):
+            oper = self.decoder.cont_zp
+            reg_x = self.cpu.x
+            res = reg_x - oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.SetCarry(res)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+
+        def zp_cpy(self):
+            oper = self.decoder.cont_zp
+            reg_y = self.cpu.y
+            res = reg_y - oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.SetCarry(res)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+
+        def zp_dec(self):
             pass
 
-        def zero_page_asl(self, oper):
+        def zp_eor(self):
+            oper = self.decoder.cont_zp
+            reg_a = self.cpu.a
+            res = reg_a ^ oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+            self.cpu.a = res_8b
+
+        def zp_inc(self):
             pass
 
-        def zero_page_bit(self, oper):
+        def zp_lda(self):
+            oper = self.decoder.cont_zp
+            res_8b = self.fh.getActualNum(oper)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+            self.cpu.a = res_8b
+
+        def zp_ldx(self):
+            oper = self.decoder.cont_zp
+            res_8b = self.fh.getActualNum(oper)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+            self.cpu.x = res_8b
+
+        def zp_ldy(self):
+            oper = self.decoder.cont_zp
+            res_8b = self.fh.getActualNum(oper)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+            self.cpu.y = res_8b
+
+        def zp_lsr(self):
             pass
 
-        def zero_page_cmp(self, oper):
+        def zp_ora(self):
+            oper = self.decoder.cont_zp
+            reg_a = self.cpu.a
+            res = reg_a | oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+            self.cpu.a = res_8b
+
+        def zp_rol(self):
             pass
 
-        def zero_page_cpx(self, oper):
+        def zp_ror(self):
             pass
 
-        def zero_page_cpy(self, oper):
+        def zp_sbc(self):
+            oper = self.decoder.cont_zp
+            reg_a = self.cpu.a
+            carry = self.cpu.c
+            res = reg_a + ~immediate + ~carry
+            res_8b = self.fh.getActualNum(res)
+            self.fh.SetCarry(res)
+            self.fh.SetOverflow(reg_a, oper, res_8b)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+            self.cpu.a = res_8b
+
+        def zp_sta(self):
             pass
 
-        def zero_page_dec(self, oper):
+        def zp_stx(self):
             pass
 
-        def zero_page_eor(self, oper):
+        def zp_sty(self):
             pass
 
-        def zero_page_inc(self, oper):
+        def zpx_adc(self, X):
             pass
 
-        def zero_page_lda(self, oper):
+        def zpx_and(self, X):
             pass
 
-        def zero_page_ldx(self, oper):
+        def zpx_asl(self, X):
             pass
 
-        def zero_page_ldy(self, oper):
+        def zpx_cmp(self, X):
             pass
 
-        def zero_page_lsr(self, oper):
+        def zpx_dec(self, X):
             pass
 
-        def zero_page_ora(self, oper):
+        def zpx_eor(self, X):
             pass
 
-        def zero_page_rol(self, oper):
+        def zpx_inc(self, X):
             pass
 
-        def zero_page_ror(self, oper):
+        def zpx_lda(self, X):
             pass
 
-        def zero_page_sbc(self, oper):
+        def zpx_ldy(self, X):
             pass
 
-        def zero_page_sta(self, oper):
+        def zpx_lsr(self, X):
             pass
 
-        def zero_page_stx(self, oper):
+        def zpx_ora(self, X):
             pass
 
-        def zero_page_sty(self, oper):
+        def zpx_rol(self, X):
             pass
 
-        def zpx_adc(self, oper, X):
+        def zpx_ror(self, X):
             pass
 
-        def zpx_and(self, oper, X):
+        def zpx_sbc(self, X):
             pass
 
-        def zpx_asl(self, oper, X):
+        def zpx_sta(self, X):
             pass
 
-        def zpx_cmp(self, oper, X):
+        def zpx_sty(self, X):
             pass
 
-        def zpx_dec(self, oper, X):
+        def zpy_ldx(self, Y):
             pass
 
-        def zpx_eor(self, oper, X):
-            pass
-
-        def zpx_inc(self, oper, X):
-            pass
-
-        def zpx_lda(self, oper, X):
-            pass
-
-        def zpx_ldy(self, oper, X):
-            pass
-
-        def zpx_lsr(self, oper, X):
-            pass
-
-        def zpx_ora(self, oper, X):
-            pass
-
-        def zpx_rol(self, oper, X):
-            pass
-
-        def zpx_ror(self, oper, X):
-            pass
-
-        def zpx_sbc(self, oper, X):
-            pass
-
-        def zpx_sta(self, oper, X):
-            pass
-
-        def zpx_sty(self, oper, X):
-            pass
-
-        def zpy_ldx(self, oper, Y):
-            pass
-
-        def zpy_stx(self, oper, Y):
+        def zpy_stx(self, Y):
             pass
