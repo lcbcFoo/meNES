@@ -2,12 +2,12 @@ MAX_NUM = 255
 NEGATIVE = 128
 
 # NOTATION
-# res1: represents the result of an operation in decimal values. Could be any
+# res: represents the result of an operation in decimal values. Could be any
 #       number.
-# res2: represents the same result as a two's complement of an 8-bit number.
+# res_8b: represents the same result as a two's complement of an 8-bit number.
 #
-# Before using any methods with parameter called "res2", first call the method
-# getActualNum() to convert res1 into an res2 format number.
+# Before using any methods with parameter called "res_8b", first call the method
+# getActualNum() to convert res into an res_8b format number.
 
 class FlagHandler():
 
@@ -16,14 +16,14 @@ class FlagHandler():
 
     # Transforms a number into the a two's complement 8-bit number that fits
     # inside the register.
-    def getActualNum(self, res1):
-        return res1 % (MAX_NUM + 1)
+    def getActualNum(self, res):
+        return res % (MAX_NUM + 1)
 
 
     # If the result of an operation is bigger than MAX_NUM or smaller than
     # MIN_NUM, sets the Carry Flag to 1.
-    def SetCarry(self, res1):
-        if res1 > MAX_NUM:
+    def SetCarry(self, res):
+        if res > MAX_NUM:
             self.cpu.c = 1
         else:
             self.cpu.c = 0
@@ -31,25 +31,25 @@ class FlagHandler():
     # If the result (after getActualNum convertion) of two positive numbers
     # is negative, or if the result (after convertion) of two negative numbers
     # is positive, sets Overflow Flag to 1.
-    def SetOverflow(self, acc, oper, res2):
-        if (acc < NEGATIVE and oper < NEGATIVE and res2 >= NEGATIVE) or
-           (acc >= NEGATIVE and oper >= NEGATIVE and res2 < NEGATIVE):
+    def SetOverflow(self, acc, oper, res_8b):
+        if (acc < NEGATIVE and oper < NEGATIVE and res_8b >= NEGATIVE) or
+           (acc >= NEGATIVE and oper >= NEGATIVE and res_8b < NEGATIVE):
             self.cpu.v = 1
         else:
             self.cpu.v = 0
 
     # If the result (after getActualNum convertion) of an operation is less
     # than zero, sets Negative Flag to 1.
-    def SetNegative(self, res2):
-        if res2 >= NEGATIVE:
+    def SetNegative(self, res_8b):
+        if res_8b >= NEGATIVE:
             self.cpu.n = 1
         else:
             self.cpu.n = 0
 
     # If the result (after getActualNum convertion) of an operation equals
     # zero, set Zero Flag to 1.
-    def SetZero(self, res2):
-        if res2 == 0:
+    def SetZero(self, res_8b):
+        if res_8b == 0:
             self.cpu.z = 1
         else:
             self.cpu.z = 0
