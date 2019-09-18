@@ -144,22 +144,55 @@ class ZeroPage():
             pass
 
         def zpx_adc(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            reg_a = self.cpu.a
+            carry = self.cpu.c
+            res = reg_a + oper + carry
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setCarry(res)
+            self.fh.setOverflow(reg_a, oper, res_8b)
+            self.setNegative(res_8b)
+            self.setZero(res_8b)
+            self.cpu.a = res_8b
 
         def zpx_and(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            reg_a = self.cpu.a
+            res = reg_a & oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.a = res_8b
 
         def zpx_asl(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            res = oper << 1
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setCarry(res)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.a = res_8b
 
         def zpx_cmp(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            reg_a = self.cpu.a
+            res = reg_a - oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.SetCarry(res)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
 
         def zpx_dec(self, X):
             pass
 
         def zpx_eor(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            reg_a = self.cpu.a
+            res = reg_a ^ oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
+            self.cpu.a = res_8b
 
         def zpx_inc(self, X):
             pass
