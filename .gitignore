@@ -1,7 +1,10 @@
 speedpong_3000_game/speedpong_3000.bin
 speedpong_3000_game/a.out
-.DS_Store
+.DS*
+.ds*
+.Ds*
 **.pyc
 bin
 log
 ext/asm6/asm6
+.vscode*

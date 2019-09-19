@@ -1,6 +1,6 @@
-from flag_handler import *
+from .flag_handler import FlagHandler
 
-class Immediate(self):
+class Immediate():
     def __init__(self, cpu, mem, decoder):
         self.cpu = cpu
         self.mem = mem

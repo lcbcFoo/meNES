@@ -1,5 +1,4 @@
 class Decoder():
-
     def __init__(self, cpu, mem_bus):
         # Read 3 bytes starting from address PC (cpu variable).
         self.opcode, low, high = mem_bus.read(cpu.pc, 3)

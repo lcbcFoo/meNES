@@ -1,5 +1,4 @@
-MAX_NUM = 255
-NEGATIVE = 128
+
 
 # NOTATION
 # res: represents the result of an operation in decimal values. Could be any
@@ -8,22 +7,22 @@ NEGATIVE = 128
 #
 # Before using any methods with parameter called "res_8b", first call the method
 # getActualNum() to convert res into an res_8b format number.
-
 class FlagHandler():
-
+    MAX_NUM = 255
+    NEGATIVE = 128
     def __init__(self, cpu):
         self.cpu = cpu
 
     # Transforms a number into the a two's complement 8-bit number that fits
     # inside the register.
     def getActualNum(self, res):
-        return res % (MAX_NUM + 1)
+        return res % (self.MAX_NUM + 1)
 
 
     # If the result of an operation is bigger than MAX_NUM or smaller than
     # MIN_NUM, sets the Carry Flag to 1.
     def SetCarry(self, res):
-        if res > MAX_NUM:
+        if res > self.MAX_NUM:
             self.cpu.c = 1
         else:
             self.cpu.c = 0
@@ -32,8 +31,8 @@ class FlagHandler():
     # is negative, or if the result (after convertion) of two negative numbers
     # is positive, sets Overflow Flag to 1.
     def SetOverflow(self, acc, oper, res_8b):
-        if (acc < NEGATIVE and oper < NEGATIVE and res_8b >= NEGATIVE) or
-           (acc >= NEGATIVE and oper >= NEGATIVE and res_8b < NEGATIVE):
+        if ((acc < self.NEGATIVE and oper < self.NEGATIVE and res_8b >= self.NEGATIVE)
+         or (acc >= self.NEGATIVE and oper >= self.NEGATIVE and res_8b < self.NEGATIVE)):
             self.cpu.v = 1
         else:
             self.cpu.v = 0
@@ -41,7 +40,7 @@ class FlagHandler():
     # If the result (after getActualNum convertion) of an operation is less
     # than zero, sets Negative Flag to 1.
     def SetNegative(self, res_8b):
-        if res_8b >= NEGATIVE:
+        if res_8b >= self.NEGATIVE:
             self.cpu.n = 1
         else:
             self.cpu.n = 0
