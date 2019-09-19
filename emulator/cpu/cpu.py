@@ -2,12 +2,13 @@ import sys
 from collections import namedtuple
 from ..memory import Memory
 from .modules.absolute import Absolute
+from .modules.flag_handler import FlagHandler
 from .modules.opcodes import *
 
 class CPU:
-    
     def __init__(self, bus):
         self.mem_bus = bus
+        self.flag_handler = FlagHandler(self)
 
     def reset(self):
         self.pc = self.mem_bus.read(0xFFA0)
