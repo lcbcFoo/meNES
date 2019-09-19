@@ -8,6 +8,9 @@ from cpu.modules.zero_page import ZeroPage
 from cpu.modules.absolute import Absolute
 from cpu.modules.immediate import Immediate
 from cpu.modules.implied import Implied
+from cpu.modules.indirect import Indirect
+from cpu.modules.relative import Relative
+from cpu.modules.accumulator import Accumulator
 
 class CPU:
 
@@ -21,19 +24,19 @@ class CPU:
         self.imm = Immediate(self, self.mem_bus, self.decoder)
         self.zp = ZeroPage(self, self.mem_bus, self.decoder)
         self.abs = Absolute(self, self.mem_bus, self.decoder)
-        # self.idr = Indirect(self, self.mem_bus, self.decoder)
-        # self.impl = Implied(self, self.mem_bus, self.decoder)
-        # self.rel = Relative(self, self.mem_bus, self.decoder)
-        # self.acc = Accumulator(self, self.mem_bus, self.decoder)
+        self.idr = Indirect(self, self.mem_bus, self.decoder)
+        self.impl = Implied(self, self.mem_bus, self.decoder)
+        self.rel = Relative(self, self.mem_bus, self.decoder)
+        self.acc = Accumulator(self, self.mem_bus, self.decoder)
 
         self.types_dict = {
             'immediate': self.imm,
             'zeropage': self.zp,
             'absolute': self.abs,
-            # 'indirect': self.idr,
-            # 'implied': self.impl,
-            # 'relative': self.rel,
-            # 'accumulator': self.acc,
+            'indirect': self.idr,
+            'implied': self.impl,
+            'relative': self.rel,
+            'accumulator': self.acc,
         }
 
     def reset(self):
@@ -71,8 +74,7 @@ class CPU:
             op_instance = self.types_dict[opcodes_dict[opcode].type]
             # call method associated with opcode
             opcodes_dict[opcode].method(op_instance)
-            # update pc
-            self.pc += opcodes_dict[opcode].bytes  #TODO: deal with jumps.
+            # TODO: update pc
             # dont know what else needs to be done :D
             exit(0)
 

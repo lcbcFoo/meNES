@@ -2,10 +2,14 @@
 # {"opc": Instr(type=instruction_type, method=class_name.method_name(oper), bytes=, cycles=)}
 
 from collections import namedtuple
+
 from cpu.modules.zero_page import ZeroPage
 from cpu.modules.absolute import Absolute
 from cpu.modules.immediate import Immediate
 from cpu.modules.implied import Implied
+from cpu.modules.indirect import Indirect
+from cpu.modules.accumulator import Accumulator
+from cpu.modules.relative import Relative
 
 Instr = namedtuple('Instr', 'type method bytes cycles')
 
@@ -122,28 +126,28 @@ opcodes_dict = {
     'F9': Instr(type='absolute', method=Absolute.absY_sbc, bytes=3, cycles=4),   #SBC
     '99': Instr(type='absolute', method=Absolute.absY_sta, bytes=3, cycles=5),   #STA
 
-    # # Indirect
-    # '6C': ,   #JMP
+    # Indirect
+    '6C': Instr(type='indirect', method=Indirect.ind_jmp, bytes=3, cycles=5),    #JMP
 
-#     # Indirect X
-#     '61': ,   #ADC
-#     '21': ,   #AND
-#     'C1': ,   #CMP
-#     '41': ,   #EOR
-#     'A1': ,   #LDA
-#     '01': ,   #ORA
-#     'E1': ,   #SBC
-#     '81': ,   #STA
+    # Indirect X
+    '61': Instr(type='indirect', method=Indirect.indx_adc, bytes=2, cycles=6),   #ADC
+    '21': Instr(type='indirect', method=Indirect.indx_and, bytes=2, cycles=6),   #AND
+    'C1': Instr(type='indirect', method=Indirect.indx_cmp, bytes=2, cycles=6),   #CMP
+    '41': Instr(type='indirect', method=Indirect.indx_eor, bytes=2, cycles=6),   #EOR
+    'A1': Instr(type='indirect', method=Indirect.indx_lda, bytes=2, cycles=6),   #LDA
+    '01': Instr(type='indirect', method=Indirect.indx_ora, bytes=2, cycles=6),   #ORA
+    'E1': Instr(type='indirect', method=Indirect.indx_sbc, bytes=2, cycles=6),   #SBC
+    '81': Instr(type='indirect', method=Indirect.indx_sta, bytes=2, cycles=6),   #STA
 
-#     # Indirect Y
-#     '71': ,   #ADC
-#     '31': ,   #AND
-#     'D1': ,   #CMP
-#     '51': ,   #EOR
-#     'B1': ,   #LDA
-#     '11': ,   #ORA
-#     'F1': ,   #SBC
-#     '91': ,   #STA
+    # Indirect Y
+    '71': Instr(type='indirect', method=Indirect.indy_adc, bytes=2, cycles=5),   #ADC
+    '31': Instr(type='indirect', method=Indirect.indy_and, bytes=2, cycles=5),   #AND
+    'D1': Instr(type='indirect', method=Indirect.indy_cmp, bytes=2, cycles=5),   #CMP
+    '51': Instr(type='indirect', method=Indirect.indy_eor, bytes=2, cycles=5),   #EOR
+    'B1': Instr(type='indirect', method=Indirect.indy_lda, bytes=2, cycles=5),   #LDA
+    '11': Instr(type='indirect', method=Indirect.indy_ora, bytes=2, cycles=5),   #ORA
+    'F1': Instr(type='indirect', method=Indirect.indy_sbc, bytes=2, cycles=5),   #SBC
+    '91': Instr(type='indirect', method=Indirect.indy_sta, bytes=2, cycles=5),   #STA
 
     # Implied
     '00': Instr(type='implied', method=Implied.imp_brk, bytes=1, cycles=7),     #BRK
@@ -175,20 +179,20 @@ opcodes_dict = {
     '88': Instr(type='implied', method=Implied.imp_dey, bytes=1, cycles=2),     #DEY
     'C8': Instr(type='implied', method=Implied.imp_iny, bytes=1, cycles=2),     #INY
 
-#     # Relative
-#     '10': ,   #BPL
-#     '30': ,   #BMI
-#     '50': ,   #BVC
-#     '70': ,   #BVS
-#     '90': ,   #BCC
-#     'B0': ,   #BCS
-#     'D0': ,   #BNE
-#     'F0': ,   #BEQ
+    # Relative
+    '10': Instr(type='relative', method=Relative.rel_bpl, bytes=2, cycles=2),   #BPL
+    '30': Instr(type='relative', method=Relative.rel_bmi, bytes=2, cycles=2),   #BMI
+    '50': Instr(type='relative', method=Relative.rel_bvc, bytes=2, cycles=2),   #BVC
+    '70': Instr(type='relative', method=Relative.rel_bvs, bytes=2, cycles=2),   #BVS
+    '90': Instr(type='relative', method=Relative.rel_bcc, bytes=2, cycles=2),   #BCC
+    'B0': Instr(type='relative', method=Relative.rel_bcs, bytes=2, cycles=2),   #BCS
+    'D0': Instr(type='relative', method=Relative.rel_bne, bytes=2, cycles=2),   #BNE
+    'F0': Instr(type='relative', method=Relative.rel_beq, bytes=2, cycles=2),   #BEQ
 
-#     # Accumulator
-#     '0A': ,   #ASL
-#     '4A': ,   #LSR
-#     '2A': ,   #ROL
-#     '6A': ,   #ROR
+    # Accumulator
+    '0A': Instr(type='accumulator', method=Accumulator.acc_asl, bytes=1, cycles=2),   #ASL
+    '4A': Instr(type='accumulator', method=Accumulator.acc_lsr, bytes=1, cycles=2),   #LSR
+    '2A': Instr(type='accumulator', method=Accumulator.acc_rol, bytes=1, cycles=2),   #ROL
+    '6A': Instr(type='accumulator', method=Accumulator.acc_ror, bytes=1, cycles=2),   #ROR
 
 }
