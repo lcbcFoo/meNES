@@ -7,26 +7,46 @@ class Relative():
         self.decoder = decoder
         self.fh = FlagHandler(cpu)
 
+    def branch(self):
+        npc = self.cpu.pc
+        imm = self.decoder.immediate
+
+        if imm >= 0x80:
+            npc = npc + (~imm + 1)
+        else:
+            npc = npc + imm
+        
+        self.cpu.pc = npc
+        self.cpu.update_pc = False
+
     def rel_bpl(self):
-        pass
+        if self.cpu.n == 0:
+            self.branch()
 
     def rel_bmi(self):
-        pass
+        if self.cpu.n == 1:
+            self.branch()
 
     def rel_bvc(self):
-        pass
+        if self.cpu.v == 0:
+            self.branch()
 
     def rel_bvs(self):
-        pass
+        if self.cpu.v == 1:
+            self.branch()
 
     def rel_bcc(self):
-        pass
+        if self.cpu.c == 0:
+            self.branch()
 
     def rel_bcs(self):
-        pass
+        if self.cpu.c == 1:
+            self.branch()
 
     def rel_bne(self):
-        pass
+        if self.cpu.z == 0:
+            self.branch()
 
     def rel_beq(self):
-        pass
+        if self.cpu.z == 1:
+            self.branch()
