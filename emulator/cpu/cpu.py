@@ -85,7 +85,7 @@ class CPU:
             opcodes_dict[opcode].method(op_instance)
 
             # Update pc if no branch/jump occured
-            if update_pc:
+            if self.update_pc:
                 self.pc += opcodes_dict[opcode].bytes
 
             # Set a sleep proportional to the number of cycles to simulate
