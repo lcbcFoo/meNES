@@ -1,8 +1,8 @@
 import sys
 from collections import namedtuple
-import mem
-import modules.absolute
-import modules.opcodes
+from ..memory import Memory
+from .modules.absolute import Absolute
+from .modules.opcodes import *
 
 class CPU:
     
@@ -35,10 +35,10 @@ class CPU:
         while True:
             # TODO: change to read mem[pc]
             # opcode = 0x00
-            abs = Absolute(self, self.mem)
-            opcode = mem.data[0]
-            op = absolute_opcodes[opcode].method
-            op(abs)
+            # abs = Absolute(self, self.mem)
+            # opcode = self.mem_bus.data[0]
+            # op = absolute_opcodes[opcode].method
+            # op(abs)
             # TODO: search for opcode in dictionary and execute instruction
             exit(0)
 

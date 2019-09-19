@@ -17,11 +17,18 @@ class Absolute():
         self.decoder.SetNegative(actualResult)
         self.decoder.SetZero(actualResult)
 
-    def abs_and(self, oper):
-        pass
+    def abs_and(self):
+        oper = self.decoder.content
+        result = self.cpu.a & oper
+        self.decoder.SetNegative(result)
+        self.decoder.SetZero(result)
 
-    def abs_asl(self, oper):
-        pass
+    def abs_asl(self):
+        oper = self.decoder.content
+        result = oper << 1
+        self.decoder.SetNegative(result)
+        self.decoder.SetZero(result)
+        self.decoder.SetCarry(result)
 
     def abs_bit(self, oper):
         pass
