@@ -1,5 +1,5 @@
-from decoder import *
-from flag_handler import *
+from .decoder import Decoder
+from .flag_handler import FlagHandler
 
 class Absolute():
     def __init__(self, cpu, mem, decoder):
@@ -8,12 +8,12 @@ class Absolute():
         self.decoder = decoder
 
     def abs_adc(self):
-        absolute = decoder.content
+        absolute = self.decoder.content
         result = self.cpu.a + absolute + self.cpu.c
         actualResult = self.decoder.getActualNum(result)
         self.cpu.a = actualResult
         self.decoder.SetCarry(actualResult)
-        self.decoder.SetOverflow(self.cpu.a, self.abs, actualResult)
+        self.decoder.SetOverflow(self.cpu.a, absolute, actualResult)
         self.decoder.SetNegative(actualResult)
         self.decoder.SetZero(actualResult)
 

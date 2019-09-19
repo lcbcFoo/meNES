@@ -1,8 +1,8 @@
 import sys
 from collections import namedtuple
-from mem import *
-from modules.absolute import *
-from modules.opcodes import *
+import mem
+import modules.absolute
+import modules.opcodes
 
 class CPU:
     
