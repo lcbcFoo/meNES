@@ -77,7 +77,7 @@ class CPU:
         while True:
             self.update_pc = True
             self.decoder.update()   #read instructions from memory
-            opcode = '65'  # replace line just for testing
+            opcode = 0x65  # replace line just for testing
             # opcode = self.decoder.opcode  # get instruction opcode
             # get instance for the correct class
             op_instance = self.types_dict[opcodes_dict[opcode].type]
