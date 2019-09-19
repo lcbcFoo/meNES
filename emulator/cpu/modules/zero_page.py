@@ -14,10 +14,10 @@ class ZeroPage():
             carry = self.cpu.c
             res = reg_a + oper + carry
             res_8b = self.fh.getActualNum(res)
-            self.fh.setCarry(res)
-            self.fh.setOverflow(reg_a, oper, res_8b)
-            self.setNegative(res_8b)
-            self.setZero(res_8b)
+            self.fh.SetCarry(res)
+            self.fh.SetOverflow(reg_a, oper, res_8b)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
             self.cpu.a = res_8b
 
         def zp_and(self):
@@ -25,17 +25,17 @@ class ZeroPage():
             reg_a = self.cpu.a
             res = reg_a & oper
             res_8b = self.fh.getActualNum(res)
-            self.fh.setNegative(res_8b)
-            self.fh.setZero(res_8b)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
             self.cpu.a = res_8b
 
         def zp_asl(self):
             oper = self.decoder.cont_zp
             res = oper << 1
             res_8b = self.fh.getActualNum(res)
-            self.fh.setCarry(res)
-            self.fh.setNegative(res_8b)
-            self.fh.setZero(res_8b)
+            self.fh.SetCarry(res)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
             self.cpu.a = res_8b
 
         def zp_bit(self):
@@ -149,10 +149,10 @@ class ZeroPage():
             carry = self.cpu.c
             res = reg_a + oper + carry
             res_8b = self.fh.getActualNum(res)
-            self.fh.setCarry(res)
-            self.fh.setOverflow(reg_a, oper, res_8b)
-            self.setNegative(res_8b)
-            self.setZero(res_8b)
+            self.fh.SetCarry(res)
+            self.fh.SetOverflow(reg_a, oper, res_8b)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
             self.cpu.a = res_8b
 
         def zpx_and(self, X):
@@ -160,17 +160,17 @@ class ZeroPage():
             reg_a = self.cpu.a
             res = reg_a & oper
             res_8b = self.fh.getActualNum(res)
-            self.fh.setNegative(res_8b)
-            self.fh.setZero(res_8b)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
             self.cpu.a = res_8b
 
         def zpx_asl(self, X):
             oper = self.decoder.cont_zp_x
             res = oper << 1
             res_8b = self.fh.getActualNum(res)
-            self.fh.setCarry(res)
-            self.fh.setNegative(res_8b)
-            self.fh.setZero(res_8b)
+            self.fh.SetCarry(res)
+            self.fh.SetNegative(res_8b)
+            self.fh.SetZero(res_8b)
             self.cpu.a = res_8b
 
         def zpx_cmp(self, X):
