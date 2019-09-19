@@ -20,8 +20,10 @@ class MemoryBus():
             return self.exp_rom, bus_addr - 0x4020
         elif bus_addr < 0x8000:
             return self.sram, bus_addr - 0x6000
-        else:
+        elif bus_addr < 0x10000:
             return self.prg_rom, bus_addr - 0x8000
+        else:
+            return 0xFFFF
 
     # Write n bytes starting at start_addr
     # Assumes data is a list with at least n elements

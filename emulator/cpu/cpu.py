@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 from collections import namedtuple
 
 from cpu.modules.opcodes import opcodes_dict
@@ -39,6 +40,9 @@ class CPU:
             'accumulator': self.acc,
         }
 
+        # Clock of 1.7897725 MHz
+        self.clock = 1.7897725e6
+
     def reset(self):
 
         # Resets PC to address specified at position 0xFFFC
@@ -51,7 +55,7 @@ class CPU:
         self.y = 0x00
 
         # Stack pointer
-        self.sp = 0x00
+        self.sp = 0x0100
 
         # Control flags
         self.n = 0
@@ -62,21 +66,38 @@ class CPU:
         self.z = 0
         self.c = 0
 
+        # Flag to indicate that PC has to be updated, it will be false if
+        # a branch or jump were performed
+        self.update_pc = True
+
     def run(self):
         self.reset()
 
         # TODO: change while control.
         while True:
+            self.update_pc = True
             self.decoder.update()   #read instructions from memory
-            opcode = '65'  # replace line just for testing
-            # opcode = self.decoder.opcode  # get instruction opcode
+            opcode = self.decoder.opcode  # get instruction opcode
+            
+            if opcode == 0:
+                exit(0)
+
             # get instance for the correct class
             op_instance = self.types_dict[opcodes_dict[opcode].type]
             # call method associated with opcode
             opcodes_dict[opcode].method(op_instance)
-            # TODO: update pc
-            # dont know what else needs to be done :D
-            exit(0)
+
+            # Update pc if no branch/jump occured
+            if self.update_pc:
+                self.pc += opcodes_dict[opcode].bytes
+
+            
+            # Show log for this instruction
+            self.print_log()
+
+            # Set a sleep proportional to the number of cycles to simulate
+            # 6502 clock rate
+            sleep(opcodes_dict[opcode].cycles * (1 / self.clock))
 
     def read_cartridge(self, file_name):
         f = open(file_name, 'rb')

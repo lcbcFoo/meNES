@@ -12,10 +12,10 @@ class Absolute():
         result = self.cpu.a + absolute + self.cpu.c
         actualResult = self.decoder.getActualNum(result)
         self.cpu.a = actualResult
-        self.decoder.SetCarry(actualResult)
-        self.decoder.SetOverflow(self.cpu.a, absolute, actualResult)
-        self.decoder.SetNegative(actualResult)
-        self.decoder.SetZero(actualResult)
+        self.decoder.setCarry(actualResult)
+        self.decoder.setOverflow(self.cpu.a, absolute, actualResult)
+        self.decoder.setNegative(actualResult)
+        self.decoder.setZero(actualResult)
 
     def abs_and(self, oper):
         pass
