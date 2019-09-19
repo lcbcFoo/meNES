@@ -78,7 +78,6 @@ class CPU:
             self.update_pc = True
             self.decoder.update()   #read instructions from memory
             opcode = self.decoder.opcode  # get instruction opcode
-            print(opcode)
             
             if opcode == 0:
                 exit(0)
@@ -94,7 +93,7 @@ class CPU:
 
             
             # Show log for this instruction
-            self.log()
+            self.print_log()
 
             # Set a sleep proportional to the number of cycles to simulate
             # 6502 clock rate
