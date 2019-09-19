@@ -55,7 +55,7 @@ class CPU:
         self.y = 0x00
 
         # Stack pointer
-        self.sp = 0x00
+        self.sp = 0x0100
 
         # Control flags
         self.n = 0
@@ -77,16 +77,24 @@ class CPU:
         while True:
             self.update_pc = True
             self.decoder.update()   #read instructions from memory
-            opcode = '65'  # replace line just for testing
-            # opcode = self.decoder.opcode  # get instruction opcode
+            opcode = self.decoder.opcode  # get instruction opcode
+            print(opcode)
+            
+            if opcode == 0:
+                exit(0)
+
             # get instance for the correct class
             op_instance = self.types_dict[opcodes_dict[opcode].type]
             # call method associated with opcode
             opcodes_dict[opcode].method(op_instance)
 
             # Update pc if no branch/jump occured
-            if update_pc:
+            if self.update_pc:
                 self.pc += opcodes_dict[opcode].bytes
+
+            
+            # Show log for this instruction
+            self.log()
 
             # Set a sleep proportional to the number of cycles to simulate
             # 6502 clock rate
