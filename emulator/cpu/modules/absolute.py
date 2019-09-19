@@ -1,5 +1,5 @@
-from .decoder import Decoder
-from .flag_handler import FlagHandler
+from cpu.modules.decoder import Decoder
+from cpu.modules.flag_handler import FlagHandler
 
 class Absolute():
     def __init__(self, cpu, mem, decoder):
@@ -85,7 +85,7 @@ class Absolute():
 
     ###################################################################################################################
     ############### ABSOLUTE X OPERATIONS #############################################################################
-    
+
     def absX_adc(self, oper, X):
         pass
 

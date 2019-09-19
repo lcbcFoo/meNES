@@ -1,16 +1,44 @@
 import sys
 from collections import namedtuple
-import mem
-import modules.absolute
-import modules.opcodes
+
+from cpu.modules.opcodes import opcodes_dict
+from cpu.modules.decoder import Decoder
+
+from cpu.modules.zero_page import ZeroPage
+from cpu.modules.absolute import Absolute
+from cpu.modules.immediate import Immediate
+from cpu.modules.implied import Implied
 
 class CPU:
-    
+
     def __init__(self, bus):
         self.mem_bus = bus
+        self.decoder = Decoder(self, self.mem_bus)
+
+        # Create instances of the classes
+        # I did it separetely because I dont know if this can be done directly
+        # inside types_dict. But change it later if it can.
+        self.imm = Immediate(self, self.mem_bus, self.decoder)
+        self.zp = ZeroPage(self, self.mem_bus, self.decoder)
+        self.abs = Absolute(self, self.mem_bus, self.decoder)
+        # self.idr = Indirect(self, self.mem_bus, self.decoder)
+        # self.impl = Implied(self, self.mem_bus, self.decoder)
+        # self.rel = Relative(self, self.mem_bus, self.decoder)
+        # self.acc = Accumulator(self, self.mem_bus, self.decoder)
+
+        self.types_dict = {
+            'immediate': self.imm,
+            'zeropage': self.zp,
+            'absolute': self.abs,
+            # 'indirect': self.idr,
+            # 'implied': self.impl,
+            # 'relative': self.rel,
+            # 'accumulator': self.acc,
+        }
 
     def reset(self):
-        self.pc = self.mem_bus.read(0xFFA0)
+        self.pc = 0x00
+        # self.pc = self.mem_bus.read(0xFFA0)
 
         # Registers
         self.a = 0x00
@@ -32,17 +60,19 @@ class CPU:
     def run(self):
         self.reset()
 
+        # TODO: change while control.
         while True:
-            # TODO: change to read mem[pc]
-            # opcode = 0x00
-            abs = Absolute(self, self.mem)
-            opcode = mem.data[0]
-            op = absolute_opcodes[opcode].method
-            op(abs)
-            # TODO: search for opcode in dictionary and execute instruction
+            self.decoder.update()   #read instructions from memory
+            opcode = '65'  # replace line just for testing
+            # opcode = self.decoder.opcode  # get instruction opcode
+            # get instance for the correct class
+            op_instance = self.types_dict[opcodes_dict[opcode].type]
+            # call method associated with opcode
+            opcodes_dict[opcode].method(op_instance)
+            # update pc
+            self.pc += opcodes_dict[opcode].bytes  #TODO: deal with jumps.
+            # dont know what else needs to be done :D
             exit(0)
-
-
 
     def read_cartridge(self, file_name):
         f = open(file_name, 'rb')
@@ -62,7 +92,7 @@ class CPU:
         s += ' | x = ' + format(self.x, '#04x')
         s += ' | y = ' + format(self.y, '#04x')
         s += ' | sp = ' + format(self.a, '#06x')
-        s += ' | p[NV-BDIZC] = ' + str(self.n) + str(self.v) + str(0) + str(self.b) 
+        s += ' | p[NV-BDIZC] = ' + str(self.n) + str(self.v) + str(0) + str(self.b)
         s += str(self.d) + str(self.i) + str(self.z) + str(self.c) + ' |'
         return s
 

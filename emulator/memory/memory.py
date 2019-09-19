@@ -35,7 +35,7 @@ class MemoryBus():
 
     # Read n bytes starting at start_addr
     # Return a list with the n elements read
-    def read(self, start_addr, n = 1):
+    def read(self, start_addr, n=1):
         data = [0] * n
 
         for i in range(0, n):

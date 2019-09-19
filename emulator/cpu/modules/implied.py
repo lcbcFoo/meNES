@@ -1,4 +1,4 @@
-class Implied(self):
+class Implied():
     def imp_brk(self, oper):
         pass
     def imp_nop(self, oper):

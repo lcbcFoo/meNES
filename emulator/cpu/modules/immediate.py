@@ -1,4 +1,4 @@
-from .flag_handler import FlagHandler
+from cpu.modules.flag_handler import FlagHandler
 
 class Immediate():
     def __init__(self, cpu, mem, decoder):

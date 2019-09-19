@@ -1,4 +1,4 @@
-from flag_handler import *
+from cpu.modules.flag_handler import FlagHandler
 
 class ZeroPage():
 
