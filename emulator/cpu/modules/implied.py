@@ -1,4 +1,12 @@
+from cpu.modules.flag_handler import FlagHandler
+
 class Implied():
+    def __init__(self, cpu, mem, decoder):
+        self.cpu = cpu
+        self.mem = mem
+        self.decoder = decoder
+        self.fh = FlagHandler(cpu)
+
     def imp_brk(self, oper):
         pass
     def imp_nop(self, oper):

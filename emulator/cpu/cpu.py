@@ -8,6 +8,9 @@ from cpu.modules.zero_page import ZeroPage
 from cpu.modules.absolute import Absolute
 from cpu.modules.immediate import Immediate
 from cpu.modules.implied import Implied
+from cpu.modules.indirect import Indirect
+from cpu.modules.relative import Relative
+from cpu.modules.accumulator import Accumulator
 
 class CPU:
 
@@ -21,19 +24,19 @@ class CPU:
         self.imm = Immediate(self, self.mem_bus, self.decoder)
         self.zp = ZeroPage(self, self.mem_bus, self.decoder)
         self.abs = Absolute(self, self.mem_bus, self.decoder)
-        # self.idr = Indirect(self, self.mem_bus, self.decoder)
-        # self.impl = Implied(self, self.mem_bus, self.decoder)
-        # self.rel = Relative(self, self.mem_bus, self.decoder)
-        # self.acc = Accumulator(self, self.mem_bus, self.decoder)
+        self.idr = Indirect(self, self.mem_bus, self.decoder)
+        self.impl = Implied(self, self.mem_bus, self.decoder)
+        self.rel = Relative(self, self.mem_bus, self.decoder)
+        self.acc = Accumulator(self, self.mem_bus, self.decoder)
 
         self.types_dict = {
             'immediate': self.imm,
             'zeropage': self.zp,
             'absolute': self.abs,
-            # 'indirect': self.idr,
-            # 'implied': self.impl,
-            # 'relative': self.rel,
-            # 'accumulator': self.acc,
+            'indirect': self.idr,
+            'implied': self.impl,
+            'relative': self.rel,
+            'accumulator': self.acc,
         }
 
     def reset(self):
