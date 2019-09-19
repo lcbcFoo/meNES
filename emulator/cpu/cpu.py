@@ -72,8 +72,7 @@ class CPU:
             op_instance = self.types_dict[opcodes_dict[opcode].type]
             # call method associated with opcode
             opcodes_dict[opcode].method(op_instance)
-            # update pc
-            self.pc += opcodes_dict[opcode].bytes  #TODO: deal with jumps.
+            # TODO: update pc
             # dont know what else needs to be done :D
             exit(0)
 
