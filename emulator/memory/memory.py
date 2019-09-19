@@ -26,18 +26,25 @@ class MemoryBus():
     # Write n bytes starting at start_addr
     # Assumes data is a list with at least n elements
     def write(self, start_addr, data, n = 1):
+        if n == 1:
+            mem_instance, addr = self.addr_mux(start_addr)
+            mem_instance[addr] = data % 256
+            return
+
         for i in range(0, n):
             mem_instance, addr = self.addr_mux(start_addr + i)
 
             # limit memory value to 1 byte
             mem_instance[addr] = data[i] % 256
 
-
     # Read n bytes starting at start_addr
     # Return a list with the n elements read
-    def read(self, start_addr, n=1):
-        data = [0] * n
+    def read(self, start_addr, n = 1):
+        if n == 1:
+            mem_instance, addr = self.addr_mux(start_addr)
+            return mem_instance[addr]
 
+        data = [0] * n
         for i in range(0, n):
             mem_instance, addr = self.addr_mux(start_addr + i)
             data[i] = mem_instance[addr]

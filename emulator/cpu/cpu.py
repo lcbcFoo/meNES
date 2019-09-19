@@ -37,8 +37,10 @@ class CPU:
         }
 
     def reset(self):
-        self.pc = 0x00
-        # self.pc = self.mem_bus.read(0xFFA0)
+
+        # Resets PC to address specified at position 0xFFFC
+        self.pc = self.mem_bus.read(0xFFFC)
+        self.pc += self.mem_bus.read(0xFFFD) << 8
 
         # Registers
         self.a = 0x00
