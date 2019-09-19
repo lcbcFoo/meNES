@@ -15,9 +15,7 @@ class Relative():
             npc = npc + (~imm + 1)
         else:
             npc = npc + imm
-        
         self.cpu.pc = npc
-        self.cpu.update_pc = False
 
     def rel_bpl(self):
         if self.cpu.n == 0:
