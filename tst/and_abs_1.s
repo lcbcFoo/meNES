@@ -45,7 +45,8 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ;Increments once test variable, loads into acc
 ; Makes AND between variable and acc (should be 1, since they are the same)
 Reset:
-   inc test_variable
+   lda #00
+   sta test_variable
    inc test_variable
    lda test_variable
    and test_variable

@@ -24,6 +24,7 @@ class Absolute():
     # "AND" between value (inside given address) and reg_a, puts result in
     # reg_a.
     # Flags: N, Z (from result)
+    # Tested
     def abs_and(self):
         oper = self.decoder.content
         reg_a = self.cpu.a
