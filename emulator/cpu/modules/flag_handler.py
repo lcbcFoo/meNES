@@ -1,5 +1,3 @@
-
-
 # NOTATION
 # res: represents the result of an operation in decimal values. Could be any
 #       number.
@@ -7,6 +5,7 @@
 #
 # Before using any methods with parameter called "res_8b", first call the method
 # getActualNum() to convert res into an res_8b format number.
+
 class FlagHandler():
     MAX_NUM = 255
     NEGATIVE = 128
@@ -53,11 +52,11 @@ class FlagHandler():
 
     # The overflow flag is set when the result exceeds +127 or -127, otherwise
     # it is reset.
-    # def setOverflowSbc(self, res):
-    #     if res < 0 or res > self.MAX_NUM:
-    #         self.cpu.v = 1
-    #     else:
-    #         self.cpu.v = 0
+    def setOverflowSbc(self, res):
+        if res < 0 or res > self.MAX_NUM:
+            self.cpu.v = 1
+        else:
+            self.cpu.v = 0
 
     # Force overflow flag to be a given value, as long as the value is 0 or 1.
     def forceOverflowFlag(self, value):
