@@ -219,7 +219,7 @@ class Absolute():
 
     def absX_asl(self):
         absolute_x = self.decoder.content_x
-        oper_addr = self.decoder.full_addr
+        oper_addr = self.decoder.full_addr + self.cpu.x
         result = absolute_x << 1
         result = self.handler.getActualNum(result)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
@@ -237,7 +237,7 @@ class Absolute():
 
     def absX_dec(self):
         absolute_x = self.decoder.content_x
-        oper_addr = self.decoder.full_addr
+        oper_addr = self.decoder.full_addr + self.cpu.x
         result = self.handler.getActualNum(absolute_x-1)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
 
@@ -252,7 +252,7 @@ class Absolute():
 
     def absX_inc(self):
         absolute_x = self.decoder.content_x
-        oper_addr = self.decoder.full_addr
+        oper_addr = self.decoder.full_addr + self.cpu.x
         result = self.handler.getActualNum(absolute_x+1)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
 
@@ -273,7 +273,7 @@ class Absolute():
 
     def absX_lsr(self):
         absolute_x = self.decoder.content_x
-        oper_addr = self.decoder.full_addr
+        oper_addr = self.decoder.full_addr + self.cpu.x
         result = absolute_x >> 1
         result = self.handler.getActualNum(result)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
