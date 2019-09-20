@@ -9,7 +9,7 @@ class ZeroPage():
             self.fh = FlagHandler(cpu)
 
         # Adds value (inside given address) to reg_a, puts result in reg_a.
-        # Flags: N, Z, C, V (from result)
+        # Flags: N, Z, C, V (from result).
         def zp_adc(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
@@ -24,7 +24,7 @@ class ZeroPage():
 
         # "AND" between value (inside given address) and reg_a, puts result in
         # reg_a.
-        # Flags: N, Z (from result)
+        # Flags: N, Z (from result).
         def zp_and(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
@@ -37,7 +37,7 @@ class ZeroPage():
         # Shifts value (inside given address) 1 bit to the left, with bit 0 set
         # to 0. Result is stored in given address.
         # Flags: C -> bit 7 from initial value.
-        #        N, Z (from result)
+        #        N, Z (from result).
         def zp_asl(self):   #tested
             oper = self.decoder.cont_zp
             res = oper << 1
@@ -230,7 +230,7 @@ class ZeroPage():
             res = reg_a + (~oper + 1) + (~carry + 1)
             res_8b = self.fh.getActualNum(res)
             self.fh.setCarrySbc(res)
-            self.fh.setOverflow(reg_a, oper, res_8b)
+            self.fh.setOverflowSbc(res_8b)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
             self.cpu.a = res
@@ -253,6 +253,9 @@ class ZeroPage():
             addr = self.decoder.immediate
             self.cpu.mem_bus.write(addr, self.cpu.y)
 
+        # Adds value (inside given [address + reg_x]) to reg_a, puts result in
+        # reg_a.
+        # Flags: N, Z, C, V (from result).
         def zpx_adc(self, X):
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
@@ -265,6 +268,9 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
+        # "AND" between value (inside given address + reg_x) and reg_a, puts
+        # result in reg_a.
+        # Flags: N, Z (from result).
         def zpx_and(self, X):
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
@@ -274,6 +280,10 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
+        # Shifts value (inside given address + reg_x) 1 bit to the left, with
+        # bit 0 set to 0. Result is stored in [given address + reg_x].
+        # Flags: C -> bit 7 from initial value.
+        #        N, Z (from result).
         def zpx_asl(self, X):
             oper = self.decoder.cont_zp_x
             res = oper << 1
@@ -283,6 +293,10 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
+        # Subtracts the value (inside given address + reg_x) from reg_a
+        # (reg_a - value).
+        # Does NOT put result in reg_a or anywhere else.
+        # Flags: Z, N, C (from result).
         def zpx_cmp(self, X):
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
@@ -292,12 +306,19 @@ class ZeroPage():
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
 
+        # Subtracts 1 from value (inside given address + reg_x)
+        # (result = value - 1) and stores the result back in the given address.
+        # Does NOT affect any register.
+        # Flags: N, Z (from result).
         def zpx_dec(self, X):
             oper = self.decoder.cont_zp_x
             addr = self.decoder.immediate + self.cpu.x
             res_8b = self.fh.getActualNum(oper-1)
             self.cpu.mem_bus.write(addr, res_8b)
 
+        # "XOR" between value (inside given address + reg_x) and reg_a, puts
+        # result in reg_a.
+        # Flags: N, Z (from result).
         def zpx_eor(self, X):
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
@@ -307,6 +328,9 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
+        # Adds 1 to value (inside given address + reg_x), stores result in given
+        # [address + reg_x]. Does NOT affect any register.
+        # Flags: N, Z (from result).
         def zpx_inc(self, X):
             oper = self.decoder.cont_zp_x
             addr = self.decoder.immediate + self.cpu.x
@@ -315,6 +339,8 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.mem_bus.write(addr, res_8b)
 
+        # Puts value (from given address + reg_x) inside reg_a.
+        # Flags: N, Z (from value).
         def zpx_lda(self, X):
             oper = self.decoder.cont_zp_x
             res_8b = self.fh.getActualNum(oper)
@@ -322,6 +348,8 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
+        # Puts value (from given address + reg_x) inside reg_y.
+        # Flags: N, Z (from value).
         def zpx_ldy(self, X):
             oper = self.decoder.cont_zp_x
             res_8b = self.fh.getActualNum(oper)
@@ -329,6 +357,11 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.y = res_8b
 
+        # Shifts value (inside given address + reg_x) 1 bit to the right, with
+        # bit 7 set to 0. Result is stored in given [address + reg_x].
+        # Flags: C -> bit 0 from initial value.
+        #        M -> 0
+        #        N, Z (from result)
         def zpx_lsr(self, X):
             oper = self.decoder.cont_zp_x
             addr = self.decoder.immediate + self.cpu.x
@@ -339,6 +372,9 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.mem_bus.write(addr, res_8b)
 
+        # "OR" between value (from given address + reg_x) and reg_a, puts
+        # result in reg_a.
+        # Flags: N, Z (from result).
         def zpx_ora(self, X):
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
@@ -348,6 +384,11 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
+        # Rotates value (from given address + reg_x) 1 bit to the left, with
+        # initial carry becoming bit 0. Stores result in [given address + reg_x].
+        # Does NOT affect any register.
+        # Flags: C -> bit 7 from inicial value.
+        #        N, Z (from result).
         def zpx_rol(self, X):
             oper = self.decoder.cont_zp_x
             addr = self.decoder.immediate + self.cpu.x
@@ -359,6 +400,11 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.mem_bus.write(addr, res_8b)
 
+        # Rotates value (from given address + reg_x) 1 bit to the right, with
+        # initial carry becoming bit 7. Stores result in [given address + reg_x].
+        # Does NOT affect any register.
+        # Flags: C -> bit 0 from inicial value.
+        #        N, Z (from result).
         def zpx_ror(self, X):
             oper = self.decoder.cont_zp_x
             addr = self.decoder.immediate + self.cpu.x
@@ -370,6 +416,12 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.mem_bus.write(addr, res_8b)
 
+        # Subtracts the value (inside given address + reg_x) and borrow from
+        # reg_a (result = reg_a - value - borrow), puts result in reg_a.
+        # Borrow is the carry flag complemented.
+        # Flags: C -> is set if result is >= 0.
+        #        V -> is set when result > 127 ou result < -127.
+        #        N, Z (from result)
         def zpx_sbc(self, X):
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
@@ -382,14 +434,20 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res
 
+        # Transfers content of reg_a to [given address + reg_x].
+        # Does not affect any register or flags.
         def zpx_sta(self, X):
             addr = self.decoder.immediate + self.cpu.x
             self.cpu.mem_bus.write(addr, self.cpu.a)
 
+        # Transfers content of reg_y to [given address + reg_x].
+        # Does not affect any register or flags.
         def zpx_sty(self, X):
             addr = self.decoder.immediate + self.cpu.x
             self.cpu.mem_bus.write(addr, self.cpu.y)
 
+        # Puts value (from given address + reg_y) inside reg_x.
+        # Flags: N, Z (from value).
         def zpy_ldx(self, Y):
             oper = self.decoder.cont_zp_y
             res_8b = self.fh.getActualNum(oper)
@@ -397,6 +455,8 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.x = res_8b
 
+        # Transfers content of reg_x to [given address + reg_y].
+        # Does not affect any register or flags.
         def zpy_stx(self, Y):
             addr = self.decoder.immediate + self.cpu.y
             self.cpu.mem_bus.write(addr, self.cpu.x)
