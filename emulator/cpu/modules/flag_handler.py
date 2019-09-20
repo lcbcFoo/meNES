@@ -36,6 +36,10 @@ class FlagHandler():
         else:
             self.cpu.c = 0
 
+    def forceCarryFlag(self, value):
+        if value == 0 or value == 1:
+            self.cpu.c = value
+
     # If the result (after getActualNum convertion) of two positive numbers
     # is negative, or if the result (after convertion) of two negative numbers
     # is positive, sets Overflow Flag to 1.
@@ -54,6 +58,10 @@ class FlagHandler():
     #     else:
     #         self.cpu.v = 0
 
+    def forceOverflowFlag(self, value):
+        if value == 0 or value == 1:
+            self.cpu.v = value
+
     # If the result (after getActualNum convertion) of an operation is less
     # than zero, sets Negative Flag to 1.
     def setNegative(self, res_8b):
@@ -62,6 +70,10 @@ class FlagHandler():
         else:
             self.cpu.n = 0
 
+    def forceNegativeFlag(self, value):
+        if value == 0 or value == 1:
+            self.cpu.n = value
+
     # If the result (after getActualNum convertion) of an operation equals
     # zero, set Zero Flag to 1.
     def setZero(self, res_8b):
@@ -69,6 +81,10 @@ class FlagHandler():
             self.cpu.z = 1
         else:
             self.cpu.z = 0
+
+    def forceZeroFlag(self, value):
+        if value == 0 or value == 1:
+            self.cpu.z = value
 
     # If the isBreak argument is set to True, set Break Flag to 1.
     def setBreak(self, isBreak=False):
