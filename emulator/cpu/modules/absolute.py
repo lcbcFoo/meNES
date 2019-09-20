@@ -1,5 +1,5 @@
-from .decoder import Decoder
-from .flag_handler import FlagHandler
+from cpu.modules.decoder import Decoder
+from cpu.modules.flag_handler import FlagHandler
 
 class Absolute():
     def __init__(self, cpu, mem, decoder):
