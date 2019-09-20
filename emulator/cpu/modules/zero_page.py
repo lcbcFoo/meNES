@@ -8,7 +8,7 @@ class ZeroPage():
             self.decoder = decoder
             self.fh = FlagHandler(cpu)
 
-        def zp_adc(self):
+        def zp_adc(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             carry = self.cpu.c
@@ -20,7 +20,7 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
-        def zp_and(self):
+        def zp_and(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             res = reg_a & oper
@@ -29,7 +29,7 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
-        def zp_asl(self):
+        def zp_asl(self):   #tested
             oper = self.decoder.cont_zp
             res = oper << 1
             res_8b = self.fh.getActualNum(res)
@@ -41,7 +41,7 @@ class ZeroPage():
         def zp_bit(self):
             pass
 
-        def zp_cmp(self):
+        def zp_cmp(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             res = reg_a - oper
@@ -50,7 +50,7 @@ class ZeroPage():
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
 
-        def zp_cpx(self):
+        def zp_cpx(self):   #tested
             oper = self.decoder.cont_zp
             reg_x = self.cpu.x
             res = reg_x - oper
@@ -59,7 +59,7 @@ class ZeroPage():
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
 
-        def zp_cpy(self):
+        def zp_cpy(self):   #tested
             oper = self.decoder.cont_zp
             reg_y = self.cpu.y
             res = reg_y - oper
@@ -69,7 +69,10 @@ class ZeroPage():
             self.fh.setZero(res_8b)
 
         def zp_dec(self):
-            pass
+            oper = self.decoder.cont_zp
+            addr = self.decoder.immediate
+            res_8b = self.fh.getActualNum(oper-1)
+            self.cpu.mem_bus.write(addr, res_8b)
 
         def zp_eor(self):
             oper = self.decoder.cont_zp
@@ -80,24 +83,29 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
-        def zp_inc(self):
-            pass
+        def zp_inc(self):   #tested
+            oper = self.decoder.cont_zp
+            addr = self.decoder.immediate
+            res_8b = self.fh.getActualNum(oper+1)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.mem_bus.write(addr, res_8b)
 
-        def zp_lda(self):
+        def zp_lda(self):   #tested
             oper = self.decoder.cont_zp
             res_8b = self.fh.getActualNum(oper)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
-        def zp_ldx(self):
+        def zp_ldx(self):   #tested
             oper = self.decoder.cont_zp
             res_8b = self.fh.getActualNum(oper)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
             self.cpu.x = res_8b
 
-        def zp_ldy(self):
+        def zp_ldy(self):   #tested
             oper = self.decoder.cont_zp
             res_8b = self.fh.getActualNum(oper)
             self.fh.setNegative(res_8b)
@@ -105,7 +113,14 @@ class ZeroPage():
             self.cpu.y = res_8b
 
         def zp_lsr(self):
-            pass
+            oper = self.decoder.cont_zp
+            addr = self.decoder.immediate
+            res = oper >> 1
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setCarry(res)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.mem_bus.write(addr, res_8b)
 
         def zp_ora(self):
             oper = self.decoder.cont_zp
@@ -126,22 +141,25 @@ class ZeroPage():
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             carry = self.cpu.c
-            res = reg_a + ~immediate + ~carry
+            res = reg_a + (~oper + 1) + (~carry + 1)
             res_8b = self.fh.getActualNum(res)
-            self.fh.setCarry(res)
+            self.fh.setCarrySbc(res)
             self.fh.setOverflow(reg_a, oper, res_8b)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
-            self.cpu.a = res_8b
+            self.cpu.a = res
 
-        def zp_sta(self):
-            pass
+        def zp_sta(self):   #tested
+            addr = self.decoder.immediate
+            self.cpu.mem_bus.write(addr, self.cpu.a)
 
         def zp_stx(self):
-            pass
+            addr = self.decoder.immediate
+            self.cpu.mem_bus.write(addr, self.cpu.x)
 
         def zp_sty(self):
-            pass
+            addr = self.decoder.immediate
+            self.cpu.mem_bus.write(addr, self.cpu.y)
 
         def zpx_adc(self, X):
             oper = self.decoder.cont_zp_x
@@ -183,7 +201,10 @@ class ZeroPage():
             self.fh.setZero(res_8b)
 
         def zpx_dec(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            addr = self.decoder.immediate + self.cpu.x
+            res_8b = self.fh.getActualNum(oper-1)
+            self.cpu.mem_bus.write(addr, res_8b)
 
         def zpx_eor(self, X):
             oper = self.decoder.cont_zp_x
@@ -195,19 +216,45 @@ class ZeroPage():
             self.cpu.a = res_8b
 
         def zpx_inc(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            addr = self.decoder.immediate + self.cpu.x
+            res_8b = self.fh.getActualNum(oper+1)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.mem_bus.write(addr, res_8b)
 
         def zpx_lda(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            res_8b = self.fh.getActualNum(oper)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.a = res_8b
 
         def zpx_ldy(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            res_8b = self.fh.getActualNum(oper)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.y = res_8b
 
         def zpx_lsr(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            addr = self.decoder.immediate + self.cpu.x
+            res = oper >> 1
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setCarry(res)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.mem_bus.write(addr, res_8b)
 
         def zpx_ora(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            reg_a = self.cpu.a
+            res = reg_a | oper
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.a = res_8b
 
         def zpx_rol(self, X):
             pass
@@ -216,16 +263,32 @@ class ZeroPage():
             pass
 
         def zpx_sbc(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            reg_a = self.cpu.a
+            carry = self.cpu.c
+            res = reg_a + (~oper + 1) + (~carry + 1)
+            res_8b = self.fh.getActualNum(res)
+            self.fh.setCarrySbc(res)
+            self.fh.setOverflow(reg_a, oper, res_8b)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.a = res
 
         def zpx_sta(self, X):
-            pass
+            addr = self.decoder.immediate + self.cpu.x
+            self.cpu.mem_bus.write(addr, self.cpu.a)
 
         def zpx_sty(self, X):
-            pass
+            addr = self.decoder.immediate + self.cpu.x
+            self.cpu.mem_bus.write(addr, self.cpu.y)
 
         def zpy_ldx(self, Y):
-            pass
+            oper = self.decoder.cont_zp_y
+            res_8b = self.fh.getActualNum(oper)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.x = res_8b
 
         def zpy_stx(self, Y):
-            pass
+            addr = self.decoder.immediate + self.cpu.y
+            self.cpu.mem_bus.write(addr, self.cpu.x)
