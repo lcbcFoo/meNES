@@ -1,6 +1,7 @@
 import sys
 from time import sleep
 from collections import namedtuple
+from array import array
 
 from cpu.modules.opcodes import opcodes_dict
 from cpu.modules.decoder import Decoder
@@ -103,9 +104,12 @@ class CPU:
 
     def read_cartridge(self, file_name):
         f = open(file_name, 'rb')
-        lines = [i for i in f.readlines()][0]
-        lines = lines[16:]
-        self.mem_bus.write(0xC000, lines, len(lines))
+        lines = list(f.readlines())
+        data = []
+        for i in lines:
+            data += i
+        data = data[16:]
+        self.mem_bus.write(0xC000, data, len(data))
 
     def dump_mem(self):
         o = open('mem_dump.txt', 'w')
