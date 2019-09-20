@@ -118,7 +118,7 @@ class CPU:
         s += ' | a = ' + format(self.a, '#04x')
         s += ' | x = ' + format(self.x, '#04x')
         s += ' | y = ' + format(self.y, '#04x')
-        s += ' | sp = ' + format(self.sp, '#06x')
+        s += ' | sp = ' + format(self.sp, '#04x')
         s += ' | p[NV-BDIZC] = ' + str(self.n) + str(self.v) + str(0) + str(self.b)
         s += str(self.d) + str(self.i) + str(self.z) + str(self.c) + ' |'
         return s
