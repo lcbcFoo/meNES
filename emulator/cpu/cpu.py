@@ -57,7 +57,7 @@ class CPU:
         self.y = 0x00
 
         # Stack pointer
-        self.sp = 0x0100
+        self.sp = 0x01FF
 
         # Control flags
         self.n = 0
@@ -80,7 +80,7 @@ class CPU:
             self.update_pc = True
             self.decoder.update()   #read instructions from memory
             opcode = self.decoder.opcode  # get instruction opcode
-            
+
             if opcode == 0:
                 exit(0)
 
@@ -93,7 +93,7 @@ class CPU:
             if self.update_pc:
                 self.pc += opcodes_dict[opcode].bytes
 
-            
+
             # Show log for this instruction
             self.print_log()
 
@@ -118,7 +118,7 @@ class CPU:
         s += ' | a = ' + format(self.a, '#04x')
         s += ' | x = ' + format(self.x, '#04x')
         s += ' | y = ' + format(self.y, '#04x')
-        s += ' | sp = ' + format(self.a, '#06x')
+        s += ' | sp = ' + format(self.sp, '#06x')
         s += ' | p[NV-BDIZC] = ' + str(self.n) + str(self.v) + str(0) + str(self.b)
         s += str(self.d) + str(self.i) + str(self.z) + str(self.c) + ' |'
         return s
