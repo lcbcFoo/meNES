@@ -27,6 +27,20 @@ class FlagHandler():
         else:
             self.cpu.c = 0
 
+    # The carry flag is set if the result is greater than or equal to 0.
+    # The carry flag is reset when the result is less than 0, indicating a
+    # borrow.
+    def setCarrySbc(self, res):
+        if res < self.NEGATIVE:   # if res is a positive number
+            self.cpu.c = 1
+        else:
+            self.cpu.c = 0
+
+    # Force carry flag to be a given value, as long as the value is 0 or 1.
+    def forceCarryFlag(self, value):
+        if value == 0 or value == 1:
+            self.cpu.c = value
+
     # If the result (after getActualNum convertion) of two positive numbers
     # is negative, or if the result (after convertion) of two negative numbers
     # is positive, sets Overflow Flag to 1.
@@ -37,6 +51,19 @@ class FlagHandler():
         else:
             self.cpu.v = 0
 
+    # The overflow flag is set when the result exceeds +127 or -127, otherwise
+    # it is reset.
+    # def setOverflowSbc(self, res):
+    #     if res < 0 or res > self.MAX_NUM:
+    #         self.cpu.v = 1
+    #     else:
+    #         self.cpu.v = 0
+
+    # Force overflow flag to be a given value, as long as the value is 0 or 1.
+    def forceOverflowFlag(self, value):
+        if value == 0 or value == 1:
+            self.cpu.v = value
+
     # If the result (after getActualNum convertion) of an operation is less
     # than zero, sets Negative Flag to 1.
     def setNegative(self, res_8b):
@@ -45,6 +72,11 @@ class FlagHandler():
         else:
             self.cpu.n = 0
 
+    # Force negative flag to be a given value, as long as the value is 0 or 1.
+    def forceNegativeFlag(self, value):
+        if value == 0 or value == 1:
+            self.cpu.n = value
+
     # If the result (after getActualNum convertion) of an operation equals
     # zero, set Zero Flag to 1.
     def setZero(self, res_8b):
@@ -52,6 +84,11 @@ class FlagHandler():
             self.cpu.z = 1
         else:
             self.cpu.z = 0
+
+    # Force zero flag to be a given value, as long as the value is 0 or 1.
+    def forceZeroFlag(self, value):
+        if value == 0 or value == 1:
+            self.cpu.z = value
 
     # If the isBreak argument is set to True, set Break Flag to 1.
     def setBreak(self, isBreak=False):
