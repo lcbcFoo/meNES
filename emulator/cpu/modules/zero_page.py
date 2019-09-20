@@ -39,7 +39,13 @@ class ZeroPage():
             self.cpu.a = res_8b
 
         def zp_bit(self):
-            pass
+            oper = self.decoder.cont_zp
+            value_negative = (oper >> 7) & 1
+            value_overflow = (oper >> 6) & 1
+            res = self.cpu.a & oper
+            self.fh.setZero(res)
+            self.fh.forceNegativeFlag(value_negative)
+            self.fh.forceOverflowFlag(value_overflow)
 
         def zp_cmp(self):   #tested
             oper = self.decoder.cont_zp
@@ -132,10 +138,26 @@ class ZeroPage():
             self.cpu.a = res_8b
 
         def zp_rol(self):
-            pass
+            oper = self.decoder.cont_zp
+            addr = self.decoder.immediate
+            leftmost = (oper >> 7) & 1
+            res = oper << 1
+            res_8b = self.fh.getActualNum(res)
+            self.fh.forceCarryFlag(leftmost)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.mem_bus.write(addr, res_8b)
 
         def zp_ror(self):
-            pass
+            oper = self.decoder.cont_zp
+            addr = self.decoder.immediate
+            rightmost = oper & 1
+            res = (self.cpu.c << 7) + oper >> 1
+            res_8b = self.fh.getActualNum(res)
+            self.fh.forceCarryFlag(rightmost)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.mem_bus.write(addr, res_8b)
 
         def zp_sbc(self):
             oper = self.decoder.cont_zp
@@ -257,10 +279,26 @@ class ZeroPage():
             self.cpu.a = res_8b
 
         def zpx_rol(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            addr = self.decoder.immediate + self.cpu.x
+            leftmost = (oper >> 7) & 1
+            res = oper << 1
+            res_8b = self.fh.getActualNum(res)
+            self.fh.forceCarryFlag(leftmost)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.mem_bus.write(addr, res_8b)
 
         def zpx_ror(self, X):
-            pass
+            oper = self.decoder.cont_zp_x
+            addr = self.decoder.immediate + self.cpu.x
+            rightmost = oper & 1
+            res = (self.cpu.c << 7) + oper >> 1
+            res_8b = self.fh.getActualNum(res)
+            self.fh.forceCarryFlag(rightmost)
+            self.fh.setNegative(res_8b)
+            self.fh.setZero(res_8b)
+            self.cpu.mem_bus.write(addr, res_8b)
 
         def zpx_sbc(self, X):
             oper = self.decoder.cont_zp_x
