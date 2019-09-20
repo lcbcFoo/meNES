@@ -8,6 +8,8 @@ class Absolute():
         self.decoder = decoder
         self.handler = self.cpu.flag_handler
 
+    # Adds value (inside given address) to reg_a, puts result in reg_a.
+    # Flags: N, Z, C, V (from result)
     # Tested
     def abs_adc(self):
         absolute = self.decoder.content
@@ -19,11 +21,17 @@ class Absolute():
         self.handler.setNegative(actualResult)
         self.handler.setZero(actualResult)
 
+    # "AND" between value (inside given address) and reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z (from result)
     def abs_and(self):
         oper = self.decoder.content
-        result = self.cpu.a & oper
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        reg_a = self.cpu.a
+        res = reg_a & oper
+        res_8b = self.handler.getActualNum(res)
+        self.handler.setNegative(res_8b)
+        self.handler.setZero(res_8b)
+        self.cpu.a = res_8b
 
     def abs_asl(self):
         oper = self.decoder.content
