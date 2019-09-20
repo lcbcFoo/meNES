@@ -8,6 +8,7 @@ class Absolute():
         self.decoder = decoder
         self.handler = self.cpu.flag_handler
 
+    # Tested
     def abs_adc(self):
         absolute = self.decoder.content
         result = self.cpu.a + absolute + self.cpu.c
@@ -78,6 +79,7 @@ class Absolute():
         self.handler.setNegative(actualResult)
         self.handler.setZero(actualResult)
 
+    # Tested
     def abs_inc(self):
         oper = self.decoder.content
         oper_addr = self.decoder.full_addr
@@ -94,6 +96,7 @@ class Absolute():
     #     oper = self.decoder.content
         pass
 
+    # Tested
     def abs_lda(self):
         oper = self.decoder.content
         result = self.handler.getActualNum(oper)
@@ -101,6 +104,7 @@ class Absolute():
         self.handler.setNegative(result)
         self.handler.setZero(result)
 
+    # Tested
     def abs_ldx(self):
         oper = self.decoder.content
         result = self.handler.getActualNum(oper)
@@ -108,6 +112,7 @@ class Absolute():
         self.handler.setNegative(result)
         self.handler.setZero(result)
 
+    # Tested
     def abs_ldy(self):
         oper = self.decoder.content
         result = self.handler.getActualNum(oper)
@@ -168,6 +173,7 @@ class Absolute():
     #     else:
     #         self.cpu.c = 0
 
+
     #     # set bit 0 to carry bit
         
     #     self.cpu.mem_bus.write(oper_addr, result, n=1)
@@ -183,24 +189,26 @@ class Absolute():
         self.handler.setOverflow(actualResult)
         self.handler.setCarry(actualResult)
 
+    # Tested
     def abs_sta(self):
-        oper = self.decoder.content
-        address = self.handler.getActualNum(oper)
-        self.cpu.mem_bus.write(address, self.cpu.a, n=1)
+        oper = self.decoder.full_addr
+        # address = self.handler.getActualNum(oper)
+        self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
 
     def abs_stx(self):
-        oper = self.decoder.content
+        oper = self.decoder.full_addr
         address = self.handler.getActualNum(oper)
         self.cpu.mem_bus.write(address, self.cpu.x, n=1)
 
     def abs_sty(self):
-        oper = self.decoder.content
+        oper = self.decoder.full_addr
         address = self.handler.getActualNum(oper)
         self.cpu.mem_bus.write(address, self.cpu.y, n=1)
 
     ###################################################################################################################
     ############### ABSOLUTE X OPERATIONS #############################################################################
-    
+    ###################################################################################################################
+
     def absX_adc(self):
         absolute_x = self.decoder.content_x
         result = self.cpu.a + absolute_x + self.cpu.c
@@ -306,10 +314,9 @@ class Absolute():
         self.handler.setCarry(actualResult)
 
     def absX_sta(self):
-        absolute_x = self.decoder.content_x
+        absolute_x = self.decoder.full_addr + self.cpu.x
         address = self.handler.getActualNum(absolute_x)
         self.cpu.mem_bus.write(address, self.cpu.a, n=1)
-
 
 
     ###################################################################################################################
@@ -381,6 +388,6 @@ class Absolute():
         self.handler.setCarry(actualResult)
 
     def absY_sta(self):
-        absolute_y = self.decoder.content_y
+        absolute_y = self.decoder.full_addr + self.cpu.y
         address = self.handler.getActualNum(absolute_y)
         self.cpu.mem_bus.write(address, self.cpu.a, n=1)
