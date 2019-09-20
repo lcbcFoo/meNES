@@ -11,7 +11,7 @@ class Absolute():
     def abs_adc(self):
         absolute = self.decoder.content
         result = self.cpu.a + absolute + self.cpu.c
-        actualResult = self.decoder.getActualNum(result)
+        actualResult = self.handler.getActualNum(result)
         self.cpu.a = actualResult
         self.handler.setCarry(actualResult)
         self.handler.setOverflow(self.cpu.a, absolute, actualResult)
@@ -204,7 +204,7 @@ class Absolute():
     def absX_adc(self):
         absolute_x = self.decoder.content_x
         result = self.cpu.a + absolute_x + self.cpu.c
-        actualResult = self.decoder.getActualNum(result)
+        actualResult = self.handler.getActualNum(result)
         self.cpu.a = actualResult
         self.handler.setCarry(actualResult)
         self.handler.setOverflow(self.cpu.a, absolute_x, actualResult)
@@ -319,7 +319,7 @@ class Absolute():
     def absY_adc(self):
         absolute_y = self.decoder.content_y
         result = self.cpu.a + absolute_y + self.cpu.c
-        actualResult = self.decoder.getActualNum(result)
+        actualResult = self.handler.getActualNum(result)
         self.cpu.a = actualResult
         self.handler.setCarry(actualResult)
         self.handler.setOverflow(self.cpu.a, absolute_y, actualResult)
