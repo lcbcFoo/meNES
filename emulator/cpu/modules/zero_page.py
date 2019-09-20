@@ -8,6 +8,8 @@ class ZeroPage():
             self.decoder = decoder
             self.fh = FlagHandler(cpu)
 
+        # Adds value from given address to reg_a, puts result in reg_a.
+        # Flags: N, Z, C, V (from result)
         def zp_adc(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
@@ -20,6 +22,9 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
+        # "AND" between value from given address and reg_a, puts result in
+        # reg_a.
+        # Flags: N, Z (from result)
         def zp_and(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
@@ -29,6 +34,10 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
+        # Shifts value from given address 1 bit to the left, with bit 0 set to
+        # 0. Result is stored in given address.
+        # Flags: C -> bit 7 from initial value.
+        #        N, Z (from result)
         def zp_asl(self):   #tested
             oper = self.decoder.cont_zp
             res = oper << 1
@@ -38,6 +47,11 @@ class ZeroPage():
             self.fh.setZero(res_8b)
             self.cpu.a = res_8b
 
+        # "AND" between value from given address and reg_a, but does NOT put
+        # result in reg_a.
+        # Flags: N -> bit 7 from initial value.
+        #        V -> bit 6 from initial value.
+        #        Z (from result).
         def zp_bit(self):
             oper = self.decoder.cont_zp
             value_negative = (oper >> 7) & 1
@@ -47,6 +61,9 @@ class ZeroPage():
             self.fh.forceNegativeFlag(value_negative)
             self.fh.forceOverflowFlag(value_overflow)
 
+        # Subtracts the value from reg_a (reg_a - value). Does NOT put result
+        # in reg_a.
+        # Flags: Z, N, C (from result).
         def zp_cmp(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
