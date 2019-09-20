@@ -57,6 +57,7 @@ class CPU:
         self.y = 0x00
 
         # Stack pointer
+        #0100-01FF   RAM used for stack processing and for absolute addressing.
         self.sp = 0xFF
 
         # Control flags

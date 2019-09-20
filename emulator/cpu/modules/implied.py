@@ -16,40 +16,50 @@ class Implied():
     def imp_rts(self):
         pass
 
-    #Flag modify functions
+    # Flag modify functions
+    # Clear the carry flag
     def imp_clc(self):
         self.cpu.c=0
 
+    # Set carry flag to 1
     def imp_sec(self):
         self.cpu.c=1
 
+    # Clear interrupt flag
     def imp_cli(self):
         self.cpu.i=0
 
+    # Set interrupt flag to 1
     def imp_sei(self):
         self.cpu.i=1
 
+    # Clear overflow flag
     def imp_clv(self): #Not tested yet
         self.cpu.v=0
 
+    # Clear decimal flag
     def imp_cld(self):
         self.cpu.d=0
 
+    # Set decimal flag 1
     def imp_sed(self):
         self.cpu.d=1
 
 
-    #Stack functions
+    # Stack functions
+    # Transfer value from reg_x to the stack point
     def imp_txs(self):
         self.cpu.sp = self.cpu.x
 
+    # Transfer the low
     def imp_tsx(self):
         self.cpu.x = self.cpu.sp
         self.fh.setNegative(self.cpu.x)
         self.fh.setZero(self.cpu.x)
 
     def imp_pha(self):
-        self.mem.write(self.cpu.sp, self.cpu.a)
+        stack_addr = 0x01<<8 + self.cpu.sp
+        self.mem.write(stack_addr, self.cpu.a)
         self.cpu.sp -= 1
 
     def imp_pla(self):
