@@ -12,12 +12,14 @@ from cpu.modules.implied import Implied
 from cpu.modules.indirect import Indirect
 from cpu.modules.relative import Relative
 from cpu.modules.accumulator import Accumulator
+from cpu.modules.flag_handler import FlagHandler
 
 class CPU:
 
     def __init__(self, bus):
         self.mem_bus = bus
         self.decoder = Decoder(self, self.mem_bus)
+        self.flag_handler = FlagHandler(self)
 
         # Create instances of the classes
         # I did it separetely because I dont know if this can be done directly
