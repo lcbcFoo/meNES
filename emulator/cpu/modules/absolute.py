@@ -83,7 +83,7 @@ class Absolute():
         oper_addr = self.decoder.full_addr
         result = self.handler.getActualNum(oper+1)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
-    
+
     # Probably is incomplete since doesn't check page
     def abs_jmp(self):
     #     oper = self.decoder.content

@@ -42,6 +42,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
+;Increments once test variable and after that loads it into acc
 Reset:
    inc test_variable
    lda test_variable
