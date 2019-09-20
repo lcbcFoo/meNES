@@ -24,6 +24,8 @@ class FlagHandler():
     def setCarry(self, res):
         if res > self.MAX_NUM:
             self.cpu.c = 1
+        else if res < 0:
+            self.cpu.c = 1
         else:
             self.cpu.c = 0
 
