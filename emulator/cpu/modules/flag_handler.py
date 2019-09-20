@@ -24,7 +24,14 @@ class FlagHandler():
     def setCarry(self, res):
         if res > self.MAX_NUM:
             self.cpu.c = 1
-        elif res < 0:
+        else:
+            self.cpu.c = 0
+
+    # The carry flag is set if the result is greater than or equal to 0.
+    # The carry flag is reset when the result is less than 0, indicating a
+    # borrow.
+    def setCarrySbc(self, res):
+        if res < self.NEGATIVE:   # if res is a positive number
             self.cpu.c = 1
         else:
             self.cpu.c = 0
@@ -38,6 +45,14 @@ class FlagHandler():
             self.cpu.v = 1
         else:
             self.cpu.v = 0
+
+    # The overflow flag is set when the result exceeds +127 or -127, otherwise
+    # it is reset.
+    # def setOverflowSbc(self, res):
+    #     if res < 0 or res > self.MAX_NUM:
+    #         self.cpu.v = 1
+    #     else:
+    #         self.cpu.v = 0
 
     # If the result (after getActualNum convertion) of an operation is less
     # than zero, sets Negative Flag to 1.
