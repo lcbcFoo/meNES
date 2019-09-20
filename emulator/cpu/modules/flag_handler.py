@@ -36,6 +36,7 @@ class FlagHandler():
         else:
             self.cpu.c = 0
 
+    # Force carry flag to be a given value, as long as the value is 0 or 1.
     def forceCarryFlag(self, value):
         if value == 0 or value == 1:
             self.cpu.c = value
@@ -58,6 +59,7 @@ class FlagHandler():
     #     else:
     #         self.cpu.v = 0
 
+    # Force overflow flag to be a given value, as long as the value is 0 or 1.
     def forceOverflowFlag(self, value):
         if value == 0 or value == 1:
             self.cpu.v = value
@@ -70,6 +72,7 @@ class FlagHandler():
         else:
             self.cpu.n = 0
 
+    # Force negative flag to be a given value, as long as the value is 0 or 1.
     def forceNegativeFlag(self, value):
         if value == 0 or value == 1:
             self.cpu.n = value
@@ -82,6 +85,7 @@ class FlagHandler():
         else:
             self.cpu.z = 0
 
+    # Force zero flag to be a given value, as long as the value is 0 or 1.
     def forceZeroFlag(self, value):
         if value == 0 or value == 1:
             self.cpu.z = value
