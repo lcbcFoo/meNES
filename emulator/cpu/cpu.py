@@ -57,7 +57,7 @@ class CPU:
         self.y = 0x00
 
         # Stack pointer
-        self.sp = 0x01FF
+        self.sp = 0xFF
 
         # Control flags
         self.n = 0
