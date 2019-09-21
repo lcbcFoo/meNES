@@ -38,9 +38,9 @@ class Immediate():
     def imd_cmp(self):
         reg_a = self.cpu.a
         immediate = self.decoder.immediate
-        result = reg_a - immediate
+        result = reg_a + (~immediate + 1)
         result_8b = self.fh.getActualNum(result)
-        self.fh.setCarry(result)
+        self.fh.setCarrySbc(result)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
 
@@ -50,9 +50,9 @@ class Immediate():
     def imd_cpx(self):
         reg_x = self.cpu.x
         immediate = self.decoder.immediate
-        result = reg_x - immediate
+        result = reg_x + (~immediate + 1)
         result_8b = self.fh.getActualNum(result)
-        self.fh.setCarry(result)
+        self.fh.setCarrySbc(result)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
 
@@ -62,9 +62,9 @@ class Immediate():
     def imd_cpy(self):
         reg_y = self.cpu.y
         immediate = self.decoder.immediate
-        result = reg_y - immediate
+        result = reg_y + (~immediate + 1)
         result_8b = self.fh.getActualNum(result)
-        self.fh.setCarry(result)
+        self.fh.setCarrySbc(result)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
 
@@ -127,10 +127,10 @@ class Immediate():
         reg_a = self.cpu.a
         immediate = self.decoder.immediate
         carry = self.cpu.c
-        result = reg_a - immediate - carry
+        result = reg_a + (~immediate +1) + (~carry + 1)
         result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
-        self.fh.setCarry(result)
-        self.fh.setOverflow(reg_a, immediate, result_8b)
+        self.fh.setCarrySbc(result)
+        self.fh.setOverflowSbc(reg_a, immediate, result_8b)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
