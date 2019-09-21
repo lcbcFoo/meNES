@@ -10,6 +10,9 @@ CROSS_AS=${EXT}/asm6/asm6
 
 all: ${BIN} ${LOG}
 
+asm6:
+	cd ${EXT}/asm6 && make && cd -
+
 ${BIN}:
 	@mkdir -p ${BIN}
 
@@ -19,7 +22,7 @@ ${BIN}/%: ${TST}/%.s
 ${LOG}:
 	@mkdir -p ${LOG}
 
-test: ${BIN} ${LOG} ${TESTS}
+test: asm6 ${BIN} ${LOG} ${TESTS}
 	@{  echo "************************* Tests ******************************"; \
 		test_failed=0; \
 		test_passed=0; \
@@ -48,3 +51,4 @@ setup:
 
 clean:
 	rm -rf ${BIN}/* ${LOG}/*
+	rm -f ${CROSS_AS}
