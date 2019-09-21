@@ -42,6 +42,9 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
+;Increments once test variable, loads into acc
+;increments once again the variable and adds it with acc
+; the operation (2+1) should store 3 into acc
 Reset:
    inc test_variable
    lda test_variable

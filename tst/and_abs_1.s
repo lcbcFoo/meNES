@@ -14,7 +14,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 
-   test_variable .dw 2
+   test_variable .dsb 1
 
    .ende
 
@@ -42,10 +42,15 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
-; Adds an immediate 1 to the accumulator register
-; Final acc value should be 1.
+;Increments once test variable, loads into acc
+; Makes AND between variable and acc (should be 1, since they are the same)
 Reset:
-   adc #1
+   lda #00
+   sta test_variable
+   inc test_variable
+   lda test_variable
+   and test_variable
+
    brk ; Abort execution
 
 NMI:
