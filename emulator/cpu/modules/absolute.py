@@ -90,8 +90,9 @@ class Absolute():
     def abs_dec(self):
         oper = self.decoder.content
         oper_addr = self.decoder.full_addr
-        result = self.handler.getActualNum(oper-1)
-        self.cpu.mem_bus.write(oper_addr, result, n=1)
+        result = oper + (~1 + 1)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
 
     def abs_eor(self):
         oper = self.decoder.content
@@ -117,7 +118,9 @@ class Absolute():
     def abs_jsr(self):
     #     oper = self.decoder.content
         pass
-
+    
+    # Data is transferred from memory to the accumulator and stored in reg_a
+    # Flags: N, Z (from value).
     # Tested
     def abs_lda(self):
         oper = self.decoder.content
@@ -126,6 +129,8 @@ class Absolute():
         self.handler.setNegative(result)
         self.handler.setZero(result)
 
+    # Data is transferred from memory to the accumulator and stored in reg_x
+    # Flags: N, Z (from value).
     # Tested
     def abs_ldx(self):
         oper = self.decoder.content
@@ -134,6 +139,8 @@ class Absolute():
         self.handler.setNegative(result)
         self.handler.setZero(result)
 
+    # Data is transferred from memory to the accumulator and stored in reg_y
+    # Flags: N, Z (from value).
     # Tested
     def abs_ldy(self):
         oper = self.decoder.content
