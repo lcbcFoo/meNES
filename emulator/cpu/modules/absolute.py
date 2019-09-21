@@ -14,12 +14,12 @@ class Absolute():
     def abs_adc(self):
         absolute = self.decoder.content
         result = self.cpu.a + absolute + self.cpu.c
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setCarry(actualResult)
-        self.handler.setOverflow(self.cpu.a, absolute, actualResult)
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setCarry(result)
+        self.handler.setOverflow(self.cpu.a, absolute, result_8b)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
 
     # "AND" between value (inside given address) and reg_a, puts result in
     # reg_a.
@@ -34,14 +34,15 @@ class Absolute():
         self.handler.setZero(res_8b)
         self.cpu.a = res_8b
 
+    # Tested
     def abs_asl(self):
         oper = self.decoder.content
         oper_addr = self.decoder.full_addr
         result = oper << 1
-        result = self.handler.getActualNum(result)
-        self.cpu.mem_bus.write(oper_addr, result, n=1)
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
         self.handler.setCarry(result)
 
     def abs_bit(self):
@@ -50,29 +51,41 @@ class Absolute():
     #     result = oper & self.cpu.a
         pass
 
+    # Subtracts the value (inside given address) from reg_a (reg_a - value).
+    # Does NOT put result in reg_a or anywhere else.
+    # Flags: Z, N, C (from result).
+    # Tested
     def abs_cmp(self):
         oper = self.decoder.content
-        result = self.cpu.a - oper
-        actualResult = self.handler.getActualNum(result)
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
-        self.handler.setCarry(actualResult)
+        result = self.cpu.a + (~oper + 1)
+        result_8b = self.handler.getActualNum(result)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
+        self.handler.setCarry(result)
 
+    # Subtracts the value (inside given address) from reg_x (reg_x - value).
+    # Does NOT put result in reg_x or anywhere else.
+    # Flags: Z, N, C (from result).
+    # Tested
     def abs_cpx(self):
         oper = self.decoder.content
-        result = self.cpu.x - oper
-        actualResult = self.handler.getActualNum(result)
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
-        self.handler.setCarry(actualResult)
+        result = self.cpu.x + (~oper + 1)
+        result_8b = self.handler.getActualNum(result)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
+        self.handler.setCarry(result)
 
+    # Subtracts the value (inside given address) from reg_y (reg_y - value).
+    # Does NOT put result in reg_y or anywhere else.
+    # Flags: Z, N, C (from result).
+    # Tested
     def abs_cpy(self):
         oper = self.decoder.content
-        result = self.cpu.y - oper
-        actualResult = self.handler.getActualNum(result)
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
-        self.handler.setCarry(actualResult)
+        result = self.cpu.y + (~oper + 1)
+        result_8b = self.handler.getActualNum(result)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
+        self.handler.setCarry(result)
 
     def abs_dec(self):
         oper = self.decoder.content
@@ -83,10 +96,10 @@ class Absolute():
     def abs_eor(self):
         oper = self.decoder.content
         result = self.cpu.a ^ oper
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
 
     # Tested
     def abs_inc(self):
@@ -133,27 +146,27 @@ class Absolute():
         oper = self.decoder.content
         oper_addr = self.decoder.full_addr
         result = oper >> 1
-        result = self.handler.getActualNum(result)
-        self.cpu.mem_bus.write(oper_addr, result, n=1)
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
         self.handler.setCarry(result)
 
     def abs_ora(self):
         oper = self.decoder.content
         result = self.cpu.a | oper
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
 
     def abs_rol(self):
     #     oper = self.decoder.content
     #     oper_addr = self.decoder.full_addr
     #     result = oper << 1
-    #     result = self.handler.getActualNum(result)
-    #     self.handler.setNegative(result)
-    #     self.handler.setZero(result)
+    #     result_8b = self.handler.getActualNum(result)
+    #     self.handler.setNegative(result_8b)
+    #     self.handler.setZero(result_8b)
     #     self.handler.setCarry(result)
 
     #     # sets bit 0 to carry bit
@@ -171,9 +184,9 @@ class Absolute():
     #     new_bit_7 = self.cpu.c
     #     result = oper >> 1
     #     result = new_bit_7 <
-    #     result = self.handler.getActualNum(result)
-    #     self.handler.setNegative(result)
-    #     self.handler.setZero(result)
+    #     result_8b = self.handler.getActualNum(result)
+    #     self.handler.setNegative(result_8b)
+    #     self.handler.setZero(result_8b)
     #     self.handler.setCarry(result)
 
     #     # sets carry bit to bit 7
@@ -191,12 +204,12 @@ class Absolute():
     def abs_sbc(self):
         oper = self.decoder.content
         result = self.cpu.a - oper - self.cpu.c
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
-        self.handler.setOverflow(actualResult)
-        self.handler.setCarry(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
+        self.handler.setOverflow(result_8b)
+        self.handler.setCarry(result)
 
     # Tested
     def abs_sta(self):
@@ -221,12 +234,12 @@ class Absolute():
     def absX_adc(self):
         absolute_x = self.decoder.content_x
         result = self.cpu.a + absolute_x + self.cpu.c
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setCarry(actualResult)
-        self.handler.setOverflow(self.cpu.a, absolute_x, actualResult)
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setCarry(result)
+        self.handler.setOverflow(self.cpu.a, absolute_x, result_8b)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
 
     def absX_and(self):
         absolute_x = self.decoder.content_x
@@ -238,19 +251,19 @@ class Absolute():
         absolute_x = self.decoder.content_x
         oper_addr = self.decoder.full_addr + self.cpu.x
         result = absolute_x << 1
-        result = self.handler.getActualNum(result)
-        self.cpu.mem_bus.write(oper_addr, result, n=1)
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
         self.handler.setCarry(result)
 
     def absX_cmp(self):
         absolute_x = self.decoder.content_x
         result = self.cpu.a - absolute_x
-        actualResult = self.handler.getActualNum(result)
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
-        self.handler.setCarry(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
+        self.handler.setCarry(result)
 
     def absX_dec(self):
         absolute_x = self.decoder.content_x
@@ -262,10 +275,10 @@ class Absolute():
     def absX_eor(self):
         absolute_x = self.decoder.content_x
         result = self.cpu.a ^ absolute_x
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
 
     def absX_inc(self):
         absolute_x = self.decoder.content_x
@@ -292,19 +305,19 @@ class Absolute():
         absolute_x = self.decoder.content_x
         oper_addr = self.decoder.full_addr + self.cpu.x
         result = absolute_x >> 1
-        result = self.handler.getActualNum(result)
-        self.cpu.mem_bus.write(oper_addr, result, n=1)
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
         self.handler.setCarry(result)
 
     def absX_ora(self):
         absolute_x = self.decoder.content_x
         result = self.cpu.a | absolute_x
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
 
     def absX_rol(self):
         pass
@@ -315,12 +328,12 @@ class Absolute():
     def absX_sbc(self):
         absolute_x = self.decoder.content_x
         result = self.cpu.a - absolute_x - self.cpu.c
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
-        self.handler.setOverflow(actualResult)
-        self.handler.setCarry(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
+        self.handler.setOverflow(result_8b)
+        self.handler.setCarry(result)
 
     def absX_sta(self):
         absolute_x = self.decoder.full_addr + self.cpu.x
@@ -335,12 +348,12 @@ class Absolute():
     def absY_adc(self):
         absolute_y = self.decoder.content_y
         result = self.cpu.a + absolute_y + self.cpu.c
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setCarry(actualResult)
-        self.handler.setOverflow(self.cpu.a, absolute_y, actualResult)
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setCarry(result)
+        self.handler.setOverflow(self.cpu.a, absolute_y, result_8b)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
 
     def absY_and(self):
         absolute_y = self.decoder.content_y
@@ -351,18 +364,18 @@ class Absolute():
     def absY_cmp(self):
         absolute_y = self.decoder.content_y
         result = self.cpu.a - absolute_y
-        actualResult = self.handler.getActualNum(result)
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
-        self.handler.setCarry(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
+        self.handler.setCarry(result)
 
     def absY_eor(self):
         absolute_y = self.decoder.content_y
         result = self.cpu.a ^ absolute_y
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
 
     def absY_lda(self):
         absolute_y = self.decoder.content_y
@@ -381,20 +394,20 @@ class Absolute():
     def absY_ora(self):
         absolute_y = self.decoder.content_y
         result = self.cpu.a | absolute_y
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
 
     def absY_sbc(self):
         absolute_y = self.decoder.content_y
         result = self.cpu.a - absolute_y - self.cpu.c
-        actualResult = self.handler.getActualNum(result)
-        self.cpu.a = actualResult
-        self.handler.setNegative(actualResult)
-        self.handler.setZero(actualResult)
-        self.handler.setOverflow(actualResult)
-        self.handler.setCarry(actualResult)
+        result_8b = self.handler.getActualNum(result)
+        self.cpu.a = result_8b
+        self.handler.setNegative(result_8b)
+        self.handler.setZero(result_8b)
+        self.handler.setOverflow(result_8b)
+        self.handler.setCarry(result)
 
     def absY_sta(self):
         absolute_y = self.decoder.full_addr + self.cpu.y
