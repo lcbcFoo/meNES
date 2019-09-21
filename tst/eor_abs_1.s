@@ -44,10 +44,10 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
 ; Increments the test variable 3 times and after that loads it into acc
 Reset:
-   inc test_variable
-   inc test_variable
-   inc test_variable
-   lda test_variable
+   lda #2
+   sta test_variable
+   lda #1
+   eor test_variable
    brk ; Abort execution
 
 NMI:

@@ -87,6 +87,10 @@ class Absolute():
         self.handler.setZero(result_8b)
         self.handler.setCarry(result)
 
+    # Subtracts 1 from value (inside given address) (result = value - 1)
+    # and stores the result back in the given address.
+    # Does NOT affect any register.
+    # Flags: N, Z (from result).
     def abs_dec(self):
         oper = self.decoder.content
         oper_addr = self.decoder.full_addr
@@ -94,6 +98,10 @@ class Absolute():
         result_8b = self.handler.getActualNum(result)
         self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
 
+    # "XOR" between value (inside given address) and reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z (from result).
+    # Tested
     def abs_eor(self):
         oper = self.decoder.content
         result = self.cpu.a ^ oper
@@ -221,18 +229,15 @@ class Absolute():
     # Tested
     def abs_sta(self):
         oper = self.decoder.full_addr
-        # address = self.handler.getActualNum(oper)
         self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
 
     def abs_stx(self):
         oper = self.decoder.full_addr
-        address = self.handler.getActualNum(oper)
-        self.cpu.mem_bus.write(address, self.cpu.x, n=1)
+        self.cpu.mem_bus.write(oper, self.cpu.x, n=1)
 
     def abs_sty(self):
         oper = self.decoder.full_addr
-        address = self.handler.getActualNum(oper)
-        self.cpu.mem_bus.write(address, self.cpu.y, n=1)
+        self.cpu.mem_bus.write(oper, self.cpu.y, n=1)
 
     ###################################################################################################################
     ############### ABSOLUTE X OPERATIONS #############################################################################
