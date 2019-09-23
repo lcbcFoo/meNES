@@ -40,7 +40,10 @@ class Immediate():
         immediate = self.decoder.immediate
         result = reg_a + (~immediate + 1)
         result_8b = self.fh.getActualNum(result)
-        self.fh.setCarrySbc(result)
+        if(immediate <= reg_a):
+            self.fh.forceCarryFlag(1)
+        else:
+            self.fh.forceCarryFlag(0)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
 
@@ -52,7 +55,10 @@ class Immediate():
         immediate = self.decoder.immediate
         result = reg_x + (~immediate + 1)
         result_8b = self.fh.getActualNum(result)
-        self.fh.setCarrySbc(result)
+        if(immediate <= reg_x):
+            self.fh.forceCarryFlag(1)
+        else:
+            self.fh.forceCarryFlag(0)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
 
@@ -64,7 +70,10 @@ class Immediate():
         immediate = self.decoder.immediate
         result = reg_y + (~immediate + 1)
         result_8b = self.fh.getActualNum(result)
-        self.fh.setCarrySbc(result)
+        if(immediate <= reg_y):
+            self.fh.forceCarryFlag(1)
+        else:
+            self.fh.forceCarryFlag(0)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
 
