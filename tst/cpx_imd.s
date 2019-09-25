@@ -10,11 +10,12 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0000
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 
-   test_variable .dw 2
+   ;MyVariable0 .dsb 1
+   ;MyVariable1 .dsb 3
 
    .ende
 
@@ -44,18 +45,16 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
 Reset:
   ;Test if carry flag is set
-  iny
-  cpy #0
+  ldx #1
+  cpx #0
 
   ;Test if zero flag is set
-  cpy #1
+  cpx #1
 
-  ;Test if negative flag sets 1
-  cpy #4
+  ;Test if negative flag is set
+  cpx #4
 
   brk ; Abort execution
-
-
 
 NMI:
 

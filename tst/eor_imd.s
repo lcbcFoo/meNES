@@ -10,11 +10,12 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0000
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 
-   test_variable .dw 2
+   ;MyVariable0 .dsb 1
+   ;MyVariable1 .dsb 3
 
    .ende
 
@@ -42,18 +43,22 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
-; Adds an immediate 1 to the accumulator register
-; Final acc value should be 1.
 Reset:
-   ;Test if the value 1 is loaded
-   ldx #1
+  ;Test if zero flag remains 0
+  lda #1
+  eor #0
 
-   ;Test if the negative flag is set
-   ldx #-1
+  ;Test if zero flag is set
+  eor #1
 
-   ;Test if the zero flag is set
-   ldx #0
-   brk ; Abort execution
+  ;Test if negative flag remains 1
+  lda #128
+  eor #0
+
+  ;Test if negative flag is reset
+  eor #128
+
+  brk ; Abort execution
 
 NMI:
 

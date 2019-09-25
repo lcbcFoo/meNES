@@ -15,31 +15,31 @@ class Decoder():
 
         reg_x = self.cpu.x
         if reg_x >= 0x80:
-            addr_x = low - (~(reg_x - 1) % 256)
+            self.addr_x = low - (~(reg_x - 1) % 256)
         else:
-            addr_x = low + reg_x
+            self.addr_x = low + reg_x
 
         reg_y = self.cpu.y
         if reg_y >= 0x80:
-            addr_y = low - (~(reg_y - 1) % 256)
+            self.addr_y = low - (~(reg_y - 1) % 256)
         else:
-            addr_y = low + reg_y
+            self.addr_y = low + reg_y
 
         # zeropage,X: ADC oper,X
         # -- "cont_zp_x" is the value inside the addres ("oper" + x).
-        self.cont_zp_x = self.mem_bus.read(addr_x)
+        self.cont_zp_x = self.mem_bus.read(self.addr_x)
 
         # zeropage,Y: LDX oper,Y
         # -- "cont_zp_y" is the value inside the addres ("oper" + y).
-        self.cont_zp_y = self.mem_bus.read(addr_y)
+        self.cont_zp_y = self.mem_bus.read(self.addr_y)
         # #####################################################################
 
         # Absolute ############################################################
         # "full_addr" is the address obtained by concatenating "high"|"low" to
         # get the complete 16-bit address.
         self.full_addr = (high << 8) + low
-        self.full_addr_x = (high << 8) + addr_x
-        self.full_addr_y = (high << 8) + addr_y
+        self.full_addr_x = (high << 8) + self.addr_x
+        self.full_addr_y = (high << 8) + self.addr_y
 
         # absolute: ADC oper -- "content" has the value inside the full address.
         self.content = self.mem_bus.read(self.full_addr)
@@ -64,7 +64,7 @@ class Decoder():
         # Indexed indirect
         # (indirect,X): ADC (oper,X)
         # -- "pointer_content_x" is the value used by the instruction.
-        point_low_x, point_high_x = self.mem_bus.read(addr_x, 2)
+        point_low_x, point_high_x = self.mem_bus.read(self.addr_x, 2)
         pointer_addr_x = (point_high_x << 8) + point_low_x
         self.pointer_content_x = self.mem_bus.read(pointer_addr_x)
 
