@@ -42,27 +42,21 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
+;Increments once test variable, loads into acc
+;increments once again the variable and substract acc with it
+; the operation (1-2) should store -1 into acc and set negative flag
 Reset:
-   ;Test if zero flag remains 1
-   adc #0
-   ora #0
-   ; Increments variable
-   inc test_variable
-   bit test_variable
-   ;Test if acc=1
-   lda test_variable
-
-   ; Test acc=-3
-   lda #-3
+   ;test_variable = -1
+   lda #$ff
    sta test_variable
 
-   ; Test acc = 3
-   lda #3
-   ; Test flags NV are set
-   bit test_variable
+   ; acc = 127
+   lda #127
+   ; test if acc=127-(-1)=128 -> overflow is set
+   sec
+   sbc test_variable
+   
    brk ; Abort execution
-
-
 
 NMI:
 

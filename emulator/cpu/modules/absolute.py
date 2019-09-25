@@ -55,6 +55,7 @@ class Absolute():
     # Flags: N -> bit 7 from initial value.
     #        V -> bit 6 from initial value.
     #        Z (from result).
+    #Tested
     def abs_bit(self):
         oper = self.decoder.content
         value_negative = (oper >> 7) & 1
@@ -104,6 +105,7 @@ class Absolute():
     # and stores the result back in the given address.
     # Does NOT affect any register.
     # Flags: N, Z (from result).
+    # Tested
     def abs_dec(self):
         oper = self.decoder.content
         oper_addr = self.decoder.full_addr
@@ -217,18 +219,18 @@ class Absolute():
     # Flags: C -> is set if result is >= 0.  -- CHANGE LATER
     #        V -> is set when result > 127 ou result < -127.
     #        N, Z (from result)
-    # test_made -> check carry influence
+    # Tested
     def abs_sbc(self):
-        oper = self.decoder.content
         reg_a = self.cpu.a
+        oper = self.decoder.content
         carry = self.cpu.c
-        res = reg_a + (~oper + 1) + carry - 1
-        res_8b = self.fh.getActualNum(res)
-        self.fh.setCarrySbc(res)
-        self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)
-        self.fh.setNegative(res_8b)
-        self.fh.setZero(res_8b)
-        self.cpu.a = res_8b
+        result = reg_a + (~oper +1) + carry - 1
+        result_8b = self.fh.getActualNum(result)
+        self.cpu.a = result_8b
+        self.fh.setCarrySbc(result)
+        self.fh.setOverflowSbc(reg_a, oper, carry, result_8b)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
 
     # Transfers content of reg_a to given address.
     # Does not affect any register or flags.

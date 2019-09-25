@@ -44,6 +44,8 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
 ; Increments the test variable 3 times and after that loads it into acc
 Reset:
+   lda #0
+   sta test_variable
    dec test_variable
    dec test_variable
    dec test_variable
