@@ -30,7 +30,7 @@ class FlagHandler():
     # The carry flag is reset when the result is less than 0, indicating a
     # borrow.
     def setCarrySbc(self, res):
-        if res < self.NEGATIVE:   # if res is a positive number
+        if res < self.NEGATIVE and res >= 0:   # if res is a positive number
             self.cpu.c = 1
         else:
             self.cpu.c = 0
@@ -53,12 +53,12 @@ class FlagHandler():
     # The overflow flag is set when the result exceeds +127 or -127, otherwise
     # it is reset.
     def setOverflowSbc(self, acc, oper, carry, res_8b):
-        oper2 = (~oper + 1) + (~carry + 1)
+        oper2 = ((~oper + 1) + carry - 1) % 256
         if ((acc < self.NEGATIVE and oper2 < self.NEGATIVE and res_8b >= self.NEGATIVE)
          or (acc >= self.NEGATIVE and oper2 >= self.NEGATIVE and res_8b < self.NEGATIVE)):
-            self.cpu.v = 0
-        else:
             self.cpu.v = 1
+        else:
+            self.cpu.v = 0
 
     # Force overflow flag to be a given value, as long as the value is 0 or 1.
     def forceOverflowFlag(self, value):
