@@ -26,7 +26,7 @@ class ZeroPage():
         # "AND" between value (inside given address) and reg_a, puts result in
         # reg_a.
         # Flags: N, Z (from result).
-        def zp_and(self):   #tested
+        def zp_and(self):
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             res = reg_a & oper
@@ -67,7 +67,7 @@ class ZeroPage():
         # Subtracts the value (inside given address) from reg_a (reg_a - value).
         # Does NOT put result in reg_a or anywhere else.
         # Flags: Z, N, C (from result).
-        def zp_cmp(self):   #tested
+        def zp_cmp(self):
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             res = reg_a + (~oper + 1)
@@ -128,7 +128,7 @@ class ZeroPage():
         # Adds 1 to value (inside given address), stores result in given
         # address. Does NOT affect any register.
         # Flags: N, Z (from result).
-        def zp_inc(self):   #tested
+        def zp_inc(self):
             oper = self.decoder.cont_zp
             addr = self.decoder.immediate
             res_8b = self.fh.getActualNum(oper+1)
@@ -138,7 +138,7 @@ class ZeroPage():
 
         # Puts value (from given address) inside reg_a.
         # Flags: N, Z (from value).
-        def zp_lda(self):   #tested
+        def zp_lda(self):  #tested
             oper = self.decoder.cont_zp
             res_8b = self.fh.getActualNum(oper)
             self.fh.setNegative(res_8b)
@@ -147,7 +147,7 @@ class ZeroPage():
 
         # Puts value (from given address) inside reg_x.
         # Flags: N, Z (from value).
-        def zp_ldx(self):   #tested
+        def zp_ldx(self):  #tested
             oper = self.decoder.cont_zp
             res_8b = self.fh.getActualNum(oper)
             self.fh.setNegative(res_8b)
@@ -156,7 +156,7 @@ class ZeroPage():
 
         # Puts value (from given address) inside reg_y.
         # Flags: N, Z (from value).
-        def zp_ldy(self):   #tested
+        def zp_ldy(self):  #tested
             oper = self.decoder.cont_zp
             res_8b = self.fh.getActualNum(oper)
             self.fh.setNegative(res_8b)
@@ -232,11 +232,11 @@ class ZeroPage():
         def zp_sbc(self):
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
-            borrow = (~self.cpu.c + 1)
-            res = reg_a + (~oper + 1) + borrow
+            carry = self.cpu.c
+            res = reg_a + (~oper + 1) + (~carry + 1)
             res_8b = self.fh.getActualNum(res)
             self.fh.setCarrySbc(res)
-            self.fh.setOverflowSbc(res_8b)
+            self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
             self.cpu.a = res
@@ -249,20 +249,20 @@ class ZeroPage():
 
         # Transfers content of reg_x to given address.
         # Does not affect any register or flags.
-        def zp_stx(self):
+        def zp_stx(self):   #tested
             addr = self.decoder.immediate
             self.cpu.mem_bus.write(addr, self.cpu.x)
 
         # Transfers content of reg_y to given address.
         # Does not affect any register or flags.
-        def zp_sty(self):
+        def zp_sty(self):   #tested
             addr = self.decoder.immediate
             self.cpu.mem_bus.write(addr, self.cpu.y)
 
         # Adds value (inside given [address + reg_x]) to reg_a, puts result in
         # reg_a.
         # Flags: N, Z, C, V (from result).
-        def zpx_adc(self):
+        def zpx_adc(self):  #tested
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
             carry = self.cpu.c
@@ -351,7 +351,7 @@ class ZeroPage():
 
         # Puts value (from given address + reg_x) inside reg_a.
         # Flags: N, Z (from value).
-        def zpx_lda(self):
+        def zpx_lda(self):  #tested
             oper = self.decoder.cont_zp_x
             res_8b = self.fh.getActualNum(oper)
             self.fh.setNegative(res_8b)
@@ -360,7 +360,7 @@ class ZeroPage():
 
         # Puts value (from given address + reg_x) inside reg_y.
         # Flags: N, Z (from value).
-        def zpx_ldy(self):
+        def zpx_ldy(self):  #tested
             oper = self.decoder.cont_zp_x
             res_8b = self.fh.getActualNum(oper)
             self.fh.setNegative(res_8b)
@@ -436,30 +436,30 @@ class ZeroPage():
         def zpx_sbc(self):
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
-            borrow = (~self.cpu.c + 1)
-            res = reg_a + (~oper + 1) + borrow
+            carry = self.cpu.c
+            res = reg_a + (~oper + 1) + (~carry + 1)
             res_8b = self.fh.getActualNum(res)
             self.fh.setCarrySbc(res)
-            self.fh.setOverflowSbc(res_8b)
+            self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
             self.cpu.a = res
 
         # Transfers content of reg_a to [given address + reg_x].
         # Does not affect any register or flags.
-        def zpx_sta(self):
+        def zpx_sta(self):  #tested
             addr = self.decoder.immediate + self.cpu.x
             self.cpu.mem_bus.write(addr, self.cpu.a)
 
         # Transfers content of reg_y to [given address + reg_x].
         # Does not affect any register or flags.
-        def zpx_sty(self):
+        def zpx_sty(self):  #tested
             addr = self.decoder.immediate + self.cpu.x
             self.cpu.mem_bus.write(addr, self.cpu.y)
 
         # Puts value (from given address + reg_y) inside reg_x.
         # Flags: N, Z (from value).
-        def zpy_ldx(self):
+        def zpy_ldx(self):  #tested
             oper = self.decoder.cont_zp_y
             res_8b = self.fh.getActualNum(oper)
             self.fh.setNegative(res_8b)
@@ -468,6 +468,6 @@ class ZeroPage():
 
         # Transfers content of reg_x to [given address + reg_y].
         # Does not affect any register or flags.
-        def zpy_stx(self):
+        def zpy_stx(self):  #tested
             addr = self.decoder.immediate + self.cpu.y
             self.cpu.mem_bus.write(addr, self.cpu.x)

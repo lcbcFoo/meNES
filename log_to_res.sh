@@ -1,6 +1,14 @@
 # Every current log becomes the standard test solution
-cp -a log/. res/
+if [ $# -eq 0 ]
+then
+  echo "Missing: Argument"
+  echo "Inform the addressing mode abbreviation."
+  echo "Example: log_to_res.sh imd"
+  exit 1
+fi
 
-for x in res/*.log; do 
+cp -a log/*$1* res/
+
+for x in res/*.log; do
     mv "$x" "${x%.log}.r";
 done
