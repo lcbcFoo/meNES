@@ -13,30 +13,44 @@ class Decoder():
         # zeropage: ADC oper -- "cont_zp" is the value inside the addres "oper".
         self.cont_zp = self.mem_bus.read(low)
 
+        reg_x = self.cpu.x
+        if reg_x >= 0x80:
+            addr_x = low - (~(reg_x - 1) % 256)
+        else:
+            addr_x = low + reg_x
+
+        reg_y = self.cpu.y
+        if reg_y >= 0x80:
+            addr_y = low - (~(reg_y - 1) % 256)
+        else:
+            addr_y = low + reg_y
+
         # zeropage,X: ADC oper,X
         # -- "cont_zp_x" is the value inside the addres ("oper" + x).
-        self.cont_zp_x = self.mem_bus.read(low + self.cpu.x)
+        self.cont_zp_x = self.mem_bus.read(addr_x)
 
         # zeropage,Y: LDX oper,Y
         # -- "cont_zp_y" is the value inside the addres ("oper" + y).
-        self.cont_zp_y = self.mem_bus.read(low + self.cpu.y)
+        self.cont_zp_y = self.mem_bus.read(addr_y)
         # #####################################################################
 
         # Absolute ############################################################
         # "full_addr" is the address obtained by concatenating "high"|"low" to
         # get the complete 16-bit address.
         self.full_addr = (high << 8) + low
+        self.full_addr_x = (high << 8) + addr_x
+        self.full_addr_y = (high << 8) + addr_y
 
         # absolute: ADC oper -- "content" has the value inside the full address.
         self.content = self.mem_bus.read(self.full_addr)
 
         # absolute,X: ADC oper,X
         # -- "content_x" has the value inside the address ("full_addr" + x).
-        self.content_x = self.mem_bus.read(self.full_addr + self.cpu.x)
+        self.content_x = self.mem_bus.read(self.full_addr_x)
 
         # absolute,Y: ADC oper,Y
         # -- "content_y" has the value inside the address ("full_addr" + y).
-        self.content_y = self.mem_bus.read(self.full_addr + self.cpu.y)
+        self.content_y = self.mem_bus.read(self.full_addr_y)
 
         # #####################################################################
 
@@ -50,16 +64,21 @@ class Decoder():
         # Indexed indirect
         # (indirect,X): ADC (oper,X)
         # -- "pointer_content_x" is the value used by the instruction.
-        ind_addr_x = low + self.cpu.x
-        point_low_x, point_high_x = self.mem_bus.read(ind_addr_x, 2)
+        point_low_x, point_high_x = self.mem_bus.read(addr_x, 2)
         pointer_addr_x = (point_high_x << 8) + point_low_x
         self.pointer_content_x = self.mem_bus.read(pointer_addr_x)
 
         # Indirect indexed
-        # (indirect),Y  ADC (oper),Y
+        # (indirect),Y:  ADC (oper),Y
         # -- "pointer_content_y" is the value used by the instruction.
         point_low_y, point_high_y = self.mem_bus.read(low, 2)
-        pointer_addr_y = (point_high_y << 8) + point_low_y + self.cpu.y
+
+        if reg_y >= 0x80:
+            np_low_y = point_low_y + (~(reg_y - 1) % 256)
+        else:
+            np_low_y = point_low_y + reg_y
+
+        pointer_addr_y = (point_high_y << 8) + np_low_y
         self.pointer_content_y = self.mem_bus.read(pointer_addr_y)
 
         # #####################################################################
