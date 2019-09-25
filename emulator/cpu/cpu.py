@@ -64,9 +64,9 @@ class CPU:
         # Control flags
         self.n = 0
         self.v = 0
-        self.b = 0
+        self.b = 1
         self.d = 0
-        self.i = 0
+        self.i = 1
         self.z = 0
         self.c = 0
 
@@ -123,7 +123,7 @@ class CPU:
         s += ' | a = ' + format(self.a, '#04x')
         s += ' | x = ' + format(self.x, '#04x')
         s += ' | y = ' + format(self.y, '#04x')
-        s += ' | sp = ' + format(self.sp, '#04x')
+        s += ' | sp = ' + format(self.sp+0x0100, '#06x')
         s += ' | p[NV-BDIZC] = ' + str(self.n) + str(self.v) + str(0) + str(self.b)
         s += str(self.d) + str(self.i) + str(self.z) + str(self.c) + ' |'
         return s
