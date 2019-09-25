@@ -10,11 +10,12 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0500
+   .enum $0000
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 
-   test_variable .dsb 1
+   ;MyVariable0 .dsb 1
+   ;MyVariable1 .dsb 3
 
    .ende
 
@@ -43,26 +44,11 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
    .base $10000-(PRG_COUNT*$4000)
 
 Reset:
-   ;Test if zero flag remains 1
-   adc #0
-   ora #0
-   ; Increments variable
-   inc test_variable
-   bit test_variable
-   ;Test if acc=1
-   lda test_variable
-
-   ; Test acc=-3
-   lda #-3
-   sta test_variable
-
-   ; Test acc = 3
-   lda #3
-   ; Test flag N is set
-   bit test_variable
+   adc #1
+   jmp test
+   adc #2
+test:
    brk ; Abort execution
-
-
 
 NMI:
 

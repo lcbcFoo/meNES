@@ -10,7 +10,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0500
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 

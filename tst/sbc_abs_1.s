@@ -10,7 +10,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0500
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 
@@ -42,28 +42,15 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
-;Increments once test variable, loads into acc
-;increments once again the variable and substract acc with it
-; the operation (1-2) should store -1 into acc and set negative flag
 Reset:
-   inc test_variable
+   lda #$02
+   sta test_variable
    ; test acc = 1
-   lda test_variable
-   inc test_variable
+   lda #$01
    ; Here test_variable should be 2 and acc=1
+   ; Test set carry
+   sec
    ; Test if acc=1-2=-1 and negative flag is set
-   sbc test_variable
-
-   ; acc = 2
-   lda test_variable
-   ; Test if acc=2-2=0 and zero flag is set
-   sbc test_variable
-
-   ; acc = 2
-   lda test_variable
-   ;test_variable = 1
-   dec test_variable
-   ; test if acc=2-1=1
    sbc test_variable
    
    brk ; Abort execution

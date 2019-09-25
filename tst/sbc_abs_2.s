@@ -43,26 +43,15 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
    .base $10000-(PRG_COUNT*$4000)
 
 Reset:
-   ;Test if zero flag remains 1
-   adc #0
-   ora #0
-   ; Increments variable
-   inc test_variable
-   bit test_variable
-   ;Test if acc=1
-   lda test_variable
-
-   ; Test acc=-3
-   lda #-3
+   ; Test acc = 2
+   lda #$02
+   ; test_variable = 2
    sta test_variable
-
-   ; Test acc = 3
-   lda #3
-   ; Test flag N is set
-   bit test_variable
+   ; Test if acc=2-2=0 and zero flag is set
+   sec
+   sbc test_variable
+   
    brk ; Abort execution
-
-
 
 NMI:
 
