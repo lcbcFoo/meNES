@@ -140,6 +140,6 @@ class Immediate():
         result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
         self.fh.setCarrySbc(result)
-        self.fh.setOverflowSbc(reg_a, immediate, result_8b)
+        self.fh.setOverflowSbc(reg_a, immediate, carry, result_8b)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)

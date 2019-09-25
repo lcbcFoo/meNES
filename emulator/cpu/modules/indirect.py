@@ -7,7 +7,7 @@ class Indirect():
         self.decoder = decoder
         self.fh = FlagHandler(cpu)
 
-    # JMP transfers program execution to the location contained in the 
+    # JMP transfers program execution to the location contained in the
     # following address (indirect).
     def ind_jmp(self):
         addr = self.decoder.pointer_addr
@@ -99,7 +99,7 @@ class Indirect():
         result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
         self.fh.setCarrySbc(result)
-        self.fh.setOverflowSbc(reg_a, v, result_8b)
+        self.fh.setOverflowSbc(reg_a, v, carry, result_8b)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
 
@@ -201,7 +201,7 @@ class Indirect():
         result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
         self.fh.setCarrySbc(result)
-        self.fh.setOverflowSbc(reg_a, v, result_8b)
+        self.fh.setOverflowSbc(reg_a, v, carry, result_8b)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
 
