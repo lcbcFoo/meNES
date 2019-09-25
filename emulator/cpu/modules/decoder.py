@@ -74,7 +74,7 @@ class Decoder():
         point_low_y, point_high_y = self.mem_bus.read(low, 2)
 
         if reg_y >= 0x80:
-            np_low_y = point_low_y + (~(reg_y - 1) % 256)
+            np_low_y = point_low_y - (~(reg_y - 1) % 256)
         else:
             np_low_y = point_low_y + reg_y
 
