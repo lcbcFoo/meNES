@@ -10,11 +10,12 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0000
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 
-   test_variable .dw 2
+   ;MyVariable0 .dsb 1
+   ;MyVariable1 .dsb 3
 
    .ende
 
@@ -41,10 +42,37 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ;----------------------------------------------------------------
 
    .base $10000-(PRG_COUNT*$4000)
-;Test if Zero flag is set
+
 Reset:
-   adc #0
-   brk ; Abort execution
+  ;Test only on binary mode
+  cld
+
+  ;Test if A value after the sums is 1
+  clc
+  lda #0
+  adc #1
+
+  ;Test if Carry flag is set after a sum
+  clc
+  lda #255
+  adc #1
+
+  ;Test if Overflow flag is set after a sum
+  clc
+  lda #64
+  adc #64
+
+  ;Test if Negative flag is set after a sum
+  clc
+  lda #0
+  adc #128
+
+  ;Test if Zero flag is set after a sum
+  clc
+  lda #$FF
+  adc #1
+
+  brk ; Abort execution
 
 NMI:
 
