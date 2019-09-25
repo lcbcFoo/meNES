@@ -104,7 +104,7 @@ class ZeroPage():
         # and stores the result back in the given address.
         # Does NOT affect any register.
         # Flags: N, Z (from result).
-        def zp_dec(self):
+        def zp_dec(self):   #tested
             oper = self.decoder.cont_zp
             addr = self.decoder.immediate
             res = oper + (~1 + 1)
@@ -128,7 +128,7 @@ class ZeroPage():
         # Adds 1 to value (inside given address), stores result in given
         # address. Does NOT affect any register.
         # Flags: N, Z (from result).
-        def zp_inc(self):
+        def zp_inc(self):   #tested
             oper = self.decoder.cont_zp
             addr = self.decoder.immediate
             res_8b = self.fh.getActualNum(oper+1)
@@ -318,9 +318,9 @@ class ZeroPage():
         # (result = value - 1) and stores the result back in the given address.
         # Does NOT affect any register.
         # Flags: N, Z (from result).
-        def zpx_dec(self):
+        def zpx_dec(self):  #tested
             oper = self.decoder.cont_zp_x
-            addr = self.decoder.immediate + self.cpu.x
+            addr = self.decoder.addr_x
             res = oper + (~1 + 1)
             res_8b = self.fh.getActualNum(res)
             self.fh.setNegative(res_8b)
@@ -342,9 +342,9 @@ class ZeroPage():
         # Adds 1 to value (inside given address + reg_x), stores result in given
         # [address + reg_x]. Does NOT affect any register.
         # Flags: N, Z (from result).
-        def zpx_inc(self):
+        def zpx_inc(self):  #tested
             oper = self.decoder.cont_zp_x
-            addr = self.decoder.immediate + self.cpu.x
+            addr = self.decoder.addr_x
             res_8b = self.fh.getActualNum(oper+1)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
