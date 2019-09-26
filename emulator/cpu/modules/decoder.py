@@ -15,13 +15,21 @@ class Decoder():
 
         reg_x = self.cpu.x
         if reg_x >= 0x80:
-            self.addr_x = low - (~(reg_x - 1) % 256)
+            new_addr_x = low - (~(reg_x - 1) % 256)
+            if new_addr_x >= 0:
+                self.addr_x = new_addr_x
+            else:
+                self.addr_x = low + reg_x
         else:
             self.addr_x = low + reg_x
 
         reg_y = self.cpu.y
         if reg_y >= 0x80:
-            self.addr_y = low - (~(reg_y - 1) % 256)
+            new_addr_y = low - (~(reg_y - 1) % 256)
+            if new_addr_y >= 0:
+                self.addr_y = new_addr_y
+            else:
+                self.addr_y = low + reg_y
         else:
             self.addr_y = low + reg_y
 
