@@ -8,11 +8,22 @@ class Implied():
         self.fh = FlagHandler(cpu)
 
     def imp_brk(self):
+        #self.cpu.pc += 2
+        #self.cpu.push_stack(self.cpu.pc>>8)
+        #self.cpu.push_stack(self.cpu.pc & 0xFF)
+        #status_reg = self.cpu.create_status_reg()
+        #self.cpu.push_stack(status_reg)
         pass
     def imp_nop(self):
         pass
     def imp_rti(self):
-        pass
+        status_reg = self.cpu.pop_stack()
+        self.cpu.restore_status_reg(status_reg)
+        PCL = self.cpu.pop_stack()
+        PCH = self.cpu.pop_stack()
+        self.cpu.pc = (PCH << 8) + PCL
+        self.cpu.update_pc = False
+
     def imp_rts(self):
         PCL = self.cpu.pop_stack()
         PCH = self.cpu.pop_stack()
