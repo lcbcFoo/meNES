@@ -89,15 +89,18 @@ class CPU:
             # get instance for the correct class
             op_instance = self.types_dict[opcodes_dict[opcode].type]
             # call method associated with opcode
-            opcodes_dict[opcode].method(op_instance)
+            address = opcodes_dict[opcode].method(op_instance)
 
             # Update pc if no branch/jump occured
             if self.update_pc:
                 self.pc += opcodes_dict[opcode].bytes
 
-
             # Show log for this instruction
-            self.print_log()
+            if(address != None):
+                val = self.mem_bus.read(address)
+                self.print_log(True, address, val)
+            else:
+                self.print_log()
 
             # Set a sleep proportional to the number of cycles to simulate
             # 6502 clock rate
