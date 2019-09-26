@@ -10,9 +10,12 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0000
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
+
+   ;MyVariable0 .dsb 1
+   ;MyVariable1 .dsb 3
 
    .ende
 
@@ -40,9 +43,20 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
+;Test if the accumulator value is pulled from the stack
 Reset:
-   sec
-   brk ; Abort execution
+  lda #-1
+  pha
+  lda #0
+  pha
+  lda #1
+
+  ; Test if the zero flag is set
+  pla
+
+  ; Test if the negative flag is set
+  pla
+  brk ; Abort execution
 
 NMI:
 

@@ -10,9 +10,12 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0000
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
+
+   ;MyVariable0 .dsb 1
+   ;MyVariable1 .dsb 3
 
    .ende
 
@@ -41,9 +44,21 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
    .base $10000-(PRG_COUNT*$4000)
 
 Reset:
-   sec
-   clc
-   brk ; Abort execution
+  ; Test if the value from reg_x is transferred to reg_a
+  ldy #1
+  tya
+
+  ; Test if the zero flag is set
+  ldy #0
+  lda #1
+  tya
+
+  ; Test if the negative flag is set
+  ldy #-1
+  lda #1
+  tya
+
+  brk ; Abort execution
 
 NMI:
 
