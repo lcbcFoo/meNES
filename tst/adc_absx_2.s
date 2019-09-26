@@ -57,7 +57,7 @@ Reset:
    ; Test reg_a = BF
    lda #191
    sta $0516
-   ; Test reg_a = 8 + BF = C7
+   ; Test reg_a = BF + BF = 0X17e, set carry and overflow
    adc $0514, X
 
 

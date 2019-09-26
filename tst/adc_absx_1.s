@@ -60,7 +60,7 @@ Reset:
    ; Test reg_a = 81
    lda #81
    sta $0516
-   ; Test reg_a = 81 + 8 = 89
+   ; Test reg_a = 81 + 81 = 0xA2
    adc $0514, X
    brk ; Abort execution
 

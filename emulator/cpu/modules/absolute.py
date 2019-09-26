@@ -212,7 +212,7 @@ class Absolute():
     # Does NOT affect any register.
     # Flags: C -> bit 7 from inicial value.
     #        N, Z (from result).
-    # Test made
+    # Tested
     def abs_rol(self):
         oper = self.decoder.content
         addr = self.decoder.full_addr
@@ -229,7 +229,7 @@ class Absolute():
     # Does NOT affect any register.
     # Flags: C -> bit 0 from inicial value.
     #        N, Z (from result).
-    # Test made
+    # Tested
     def abs_ror(self):
         oper = self.decoder.content
         addr = self.decoder.full_addr
@@ -286,7 +286,7 @@ class Absolute():
     # Adds value (inside given [address + reg_x]) to reg_a, puts result in
     # reg_a.
     # Flags: N, Z, C, V (from result).
-    # test created
+    # Tested
     def absX_adc(self):
         oper = self.decoder.content_x
         reg_a = self.cpu.a
@@ -302,7 +302,7 @@ class Absolute():
     # "AND" between value (inside given address +reg_x) and reg_a, puts result in
     # reg_a.
     # Flags: N, Z (from result)
-    #tests created
+    # Tested
     def absX_and(self):
         oper = self.decoder.content_x
         reg_a = self.cpu.a
@@ -316,7 +316,7 @@ class Absolute():
     # bit 0 set to 0. Result is stored in [given address].
     # Flags: C -> bit 7 from initial value.
     #        N, Z (from result).
-    # Test created
+    # Tested
     def absX_asl(self):
         oper = self.decoder.content_x
         addr = self.decoder.full_addr_x
@@ -331,7 +331,7 @@ class Absolute():
     # Subtracts the value (inside given address + reg_x) from reg_a (reg_a - value).
     # Does NOT put result in reg_a or anywhere else.
     # Flags: Z, N, C (from result).
-    # Tests created
+    # Tested
     def absX_cmp(self):
         oper = self.decoder.content_x
         result = self.cpu.a + (~oper + 1)
@@ -344,7 +344,7 @@ class Absolute():
     # and stores the result back in the given address.
     # Does NOT affect any register.
     # Flags: N, Z (from result).
-    # Tests made
+    # Tested
     def absX_dec(self):
         oper = self.decoder.content_x
         oper_addr = self.decoder.full_addr_x
@@ -355,7 +355,7 @@ class Absolute():
     # "XOR" between value (inside given address + reg_x) and reg_a, puts result in
     # reg_a.
     # Flags: N, Z (from result).
-    # Test made
+    # Tested
     def absX_eor(self):
         oper = self.decoder.content_x
         result = self.cpu.a ^ oper
@@ -367,7 +367,7 @@ class Absolute():
     # Adds 1 to value (inside given address + reg_x), stores result in given
     # address. Does NOT affect any register.
     # Flags: N, Z (from result).
-    # Test made
+    # Tested
     def absX_inc(self):
         oper = self.decoder.content_x
         oper_addr = self.decoder.full_addr_x
@@ -376,7 +376,7 @@ class Absolute():
 
     # Puts value (from given address + reg_x) inside reg_a.
     # Flags: N, Z (from value).
-    # Check test made
+    # Tested
     def absX_lda(self):
         oper = self.decoder.content_x
         result = self.fh.getActualNum(oper)
@@ -386,7 +386,7 @@ class Absolute():
 
     # Puts value (from given address + reg_x) inside reg_y.
     # Flags: N, Z (from value).
-    # Check test made
+    # Tested
     def absX_ldy(self):
         oper = self.decoder.content_x
         result = self.fh.getActualNum(oper)

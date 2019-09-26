@@ -53,7 +53,7 @@ Reset:
    dec $0516
    ; Test reg_a = 2
    lda $0515
-   ; Test reg_a = -2 (FD)
+   ; Test reg_a = -2 (FE)
    lda $0512, X
 
    lda $0515, X

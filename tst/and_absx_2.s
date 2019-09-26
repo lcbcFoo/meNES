@@ -47,7 +47,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; Makes AND between variable and acc
 ;(should be 2, since they have one bit in common)
 Reset:
-   ; Test reg_a = 0
+   ; Test reg_a = 2
    lda #$2
    ; Test $0510 = 2
    sta $0513
