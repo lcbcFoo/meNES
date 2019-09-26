@@ -42,14 +42,22 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
-;Increments twice test variable, 
-;loads into acc (acc  should be = 2 = 10)
-; Compares -> flag z = 1
+;Increments once test variable, loads into acc
+; Makes AND between variable and acc (should be 1, since they are the same)
 Reset:
-   inc test_variable
-   inc test_variable
-   lda test_variable
-   cmp test_variable
+   ; Test reg_a = 0
+   lda #00
+   ; Test store 0 on $0510
+   sta $0513
+   ; Test $0510 = 1
+   inc $0513
+   ; Test reg_a = 1
+   lda $0513
+   ; Test reg_x = 2
+   ldx #$02
+   ; Test reg_a =  1 & 1 = 1
+   and $0511, X
+
    brk ; Abort execution
 
 NMI:

@@ -10,11 +10,12 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0500
+   .enum $0000
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 
-   test_variable .dsb 1
+   ;MyVariable0 .dsb 1
+   ;MyVariable1 .dsb 3
 
    .ende
 
@@ -42,15 +43,23 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
-;Increments twice test variable, 
-;loads into acc (acc  should be = 2 = 10)
-; Compares -> flag z = 1
 Reset:
-   inc test_variable
-   inc test_variable
-   lda test_variable
-   cmp test_variable
-   brk ; Abort execution
+   ; Test reg_a = 5
+   lda #05
+   ; Test reg_x = 2
+   ldy #02
+   sta $0515
+   ; Test reg_a = 3
+   lda #03
+   ; Test reg_a = 3 + 5 = 8
+   adc $0513, Y
+
+   ; Test reg_a = BF
+   lda #191
+   sta $0516
+   ; Test reg_a = 8 + BF = C7
+   adc $0514, Y
+
 
 NMI:
 
