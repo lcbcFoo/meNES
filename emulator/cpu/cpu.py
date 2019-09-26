@@ -122,6 +122,27 @@ class CPU:
         stack_addr = 0x0100 + self.sp
         return self.mem_bus.read(stack_addr)
 
+    def create_status_reg(self):
+        status_reg = 0
+        status_reg += (self.n << 7)
+        status_reg += (self.v << 6)
+        status_reg += (self.b << 4)
+        status_reg += (self.d << 3)
+        status_reg += (self.i << 2)
+        status_reg += (self.z << 1)
+        status_reg += self.c
+        return status_reg
+
+    def restore_status_reg(self, status_reg):
+        self.c = status_reg & (0x01 << 0 )
+        self.z = (status_reg & (0x01 << 1 ))>>1
+        self.i = (status_reg & (0x01 << 2 ))>>2
+        self.d = (status_reg & (0x01 << 3 ))>>3
+        self.b = (status_reg & (0x01 << 4 ))>>4
+        self.v = (status_reg & (0x01 << 6 ))>>6
+        self.n = (status_reg & (0x01 << 7 ))>>7
+
+
     def dump_mem(self):
         o = open('mem_dump.txt', 'w')
         data = self.mem_bus.read(0, 0x10000)
