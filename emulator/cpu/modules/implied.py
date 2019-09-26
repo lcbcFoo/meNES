@@ -14,7 +14,11 @@ class Implied():
     def imp_rti(self):
         pass
     def imp_rts(self):
-        pass
+        PCL = self.cpu.pop_stack()
+        PCH = self.cpu.pop_stack()
+        self.cpu.pc = (PCH << 8) + PCL
+        self.cpu.pc +=1
+        self.cpu.update_pc = False
 
     # Flag modify functions
     # Clear the carry flag
@@ -61,17 +65,13 @@ class Implied():
     # Push the value from reg_a to the stack.
     # Then decrements stack pointer by 1.
     def imp_pha(self):
-        stack_addr = 0x0100 + self.cpu.sp
-        self.mem.write(stack_addr, self.cpu.a)
-        self.cpu.sp -= 1
+        self.cpu.push_stack(self.cpu.a)
 
     # Increments stack pointer by 1. Then pull the first value from the stack to
     # reg_a.
     # Flags: N, Z (from reg_a).
     def imp_pla(self):
-        self.cpu.sp += 1
-        stack_addr = 0x0100 + self.cpu.sp
-        self.cpu.a = self.mem.read(stack_addr)
+        self.cpu.a = self.cpu.pop_stack()
         self.fh.setNegative(self.cpu.a)
         self.fh.setZero(self.cpu.a)
 
@@ -87,17 +87,13 @@ class Implied():
         status_reg += (self.cpu.z << 1)
         status_reg += self.cpu.c
 
-        stack_addr = 0x0100 + self.cpu.sp
-        self.mem.write(stack_addr, status_reg)
-        self.cpu.sp -= 1
+        self.cpu.push_stack(status_reg)
 
     # Increments the stack pointer by 1. Then pull the first value from the
     # stack to status_reg (NV-BDIZC).
     # Then save each bit of the status_reg to the respective flag.
     def imp_plp(self):
-        self.cpu.sp += 1
-        stack_addr = 0x0100 + self.cpu.sp
-        status_reg = self.mem.read(stack_addr)
+        status_reg = self.cpu.pop_stack()
         self.cpu.c = status_reg & (0x01 << 0 )
         self.cpu.z = (status_reg & (0x01 << 1 ))>>1
         self.cpu.i = (status_reg & (0x01 << 2 ))>>2
