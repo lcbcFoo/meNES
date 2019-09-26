@@ -26,7 +26,7 @@ class ZeroPage():
         # "AND" between value (inside given address) and reg_a, puts result in
         # reg_a.
         # Flags: N, Z (from result).
-        def zp_and(self):
+        def zp_and(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             res = reg_a & oper
@@ -39,7 +39,7 @@ class ZeroPage():
         # to 0. Result is stored in given address.
         # Flags: C -> bit 7 from initial value.
         #        N, Z (from result).
-        def zp_asl(self):
+        def zp_asl(self):   #tested
             oper = self.decoder.cont_zp
             addr = self.decoder.immediate
             res = oper << 1
@@ -104,7 +104,7 @@ class ZeroPage():
         # and stores the result back in the given address.
         # Does NOT affect any register.
         # Flags: N, Z (from result).
-        def zp_dec(self):
+        def zp_dec(self):   #tested
             oper = self.decoder.cont_zp
             addr = self.decoder.immediate
             res = oper + (~1 + 1)
@@ -128,7 +128,7 @@ class ZeroPage():
         # Adds 1 to value (inside given address), stores result in given
         # address. Does NOT affect any register.
         # Flags: N, Z (from result).
-        def zp_inc(self):
+        def zp_inc(self):   #tested
             oper = self.decoder.cont_zp
             addr = self.decoder.immediate
             res_8b = self.fh.getActualNum(oper+1)
@@ -226,20 +226,20 @@ class ZeroPage():
         # Subtracts the value (inside given address) and borrow from reg_a
         # (result = reg_a - value - carry), puts result in reg_a. Borrow is the
         # carry flag complemented.
-        # Flags: C -> is set if result is >= 0.  -- CHANGE LATER
+        # Flags: C -> is set if result is >= 0.
         #        V -> is set when result > 127 ou result < -127.
         #        N, Z (from result)
-        def zp_sbc(self):
+        def zp_sbc(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             carry = self.cpu.c
-            res = reg_a + (~oper + 1) + (~carry + 1)
+            res = reg_a + (~oper + 1) + carry - 1
             res_8b = self.fh.getActualNum(res)
             self.fh.setCarrySbc(res)
             self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
-            self.cpu.a = res
+            self.cpu.a = res_8b
 
         # Transfers content of reg_a to given address.
         # Does not affect any register or flags.
@@ -277,7 +277,7 @@ class ZeroPage():
         # "AND" between value (inside given address + reg_x) and reg_a, puts
         # result in reg_a.
         # Flags: N, Z (from result).
-        def zpx_and(self):
+        def zpx_and(self):  #tested
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
             res = reg_a & oper
@@ -290,8 +290,9 @@ class ZeroPage():
         # bit 0 set to 0. Result is stored in [given address + reg_x].
         # Flags: C -> bit 7 from initial value.
         #        N, Z (from result).
-        def zpx_asl(self):
+        def zpx_asl(self):  #tested
             oper = self.decoder.cont_zp_x
+            addr = self.decoder.addr_x
             res = oper << 1
             carry = (oper >> 7) & 1
             res_8b = self.fh.getActualNum(res)
@@ -317,9 +318,9 @@ class ZeroPage():
         # (result = value - 1) and stores the result back in the given address.
         # Does NOT affect any register.
         # Flags: N, Z (from result).
-        def zpx_dec(self):
+        def zpx_dec(self):  #tested
             oper = self.decoder.cont_zp_x
-            addr = self.decoder.immediate + self.cpu.x
+            addr = self.decoder.addr_x
             res = oper + (~1 + 1)
             res_8b = self.fh.getActualNum(res)
             self.fh.setNegative(res_8b)
@@ -341,9 +342,9 @@ class ZeroPage():
         # Adds 1 to value (inside given address + reg_x), stores result in given
         # [address + reg_x]. Does NOT affect any register.
         # Flags: N, Z (from result).
-        def zpx_inc(self):
+        def zpx_inc(self):  #tested
             oper = self.decoder.cont_zp_x
-            addr = self.decoder.immediate + self.cpu.x
+            addr = self.decoder.addr_x
             res_8b = self.fh.getActualNum(oper+1)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
@@ -433,17 +434,17 @@ class ZeroPage():
         # Flags: C -> is set if result is >= 0.
         #        V -> is set when result > 127 ou result < -127.
         #        N, Z (from result)
-        def zpx_sbc(self):
+        def zpx_sbc(self):   #tested
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
             carry = self.cpu.c
-            res = reg_a + (~oper + 1) + (~carry + 1)
+            res = reg_a + (~oper + 1) + carry - 1
             res_8b = self.fh.getActualNum(res)
             self.fh.setCarrySbc(res)
             self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
-            self.cpu.a = res
+            self.cpu.a = res_8b
 
         # Transfers content of reg_a to [given address + reg_x].
         # Does not affect any register or flags.
