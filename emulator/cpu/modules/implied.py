@@ -78,15 +78,7 @@ class Implied():
     # Add all the flags to an 8bit register like follows : NV-BDIZC
     # Then push this register to the stack. Then decrements stack pointer by 1.
     def imp_php(self):
-        status_reg = 0
-        status_reg += (self.cpu.n << 7)
-        status_reg += (self.cpu.v << 6)
-        status_reg += (self.cpu.b << 4)
-        status_reg += (self.cpu.d << 3)
-        status_reg += (self.cpu.i << 2)
-        status_reg += (self.cpu.z << 1)
-        status_reg += self.cpu.c
-
+        status_reg = self.cpu.create_status_reg()
         self.cpu.push_stack(status_reg)
 
     # Increments the stack pointer by 1. Then pull the first value from the
@@ -94,13 +86,7 @@ class Implied():
     # Then save each bit of the status_reg to the respective flag.
     def imp_plp(self):
         status_reg = self.cpu.pop_stack()
-        self.cpu.c = status_reg & (0x01 << 0 )
-        self.cpu.z = (status_reg & (0x01 << 1 ))>>1
-        self.cpu.i = (status_reg & (0x01 << 2 ))>>2
-        self.cpu.d = (status_reg & (0x01 << 3 ))>>3
-        self.cpu.b = (status_reg & (0x01 << 4 ))>>4
-        self.cpu.v = (status_reg & (0x01 << 6 ))>>6
-        self.cpu.n = (status_reg & (0x01 << 7 ))>>7
+        self.cpu.restore_status_reg(status_reg)
 
     # Index registers functions
     # Transfer value from reg_a to reg_x.
