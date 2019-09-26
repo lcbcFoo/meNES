@@ -34,7 +34,7 @@ class Implied():
         self.cpu.i=1
 
     # Clear overflow flag
-    def imp_clv(self): #Not tested yet
+    def imp_clv(self):
         self.cpu.v=0
 
     # Clear decimal flag
@@ -97,14 +97,14 @@ class Implied():
     def imp_plp(self):
         self.cpu.sp += 1
         stack_addr = 0x0100 + self.cpu.sp
-        status_reg = self.mem.read(self.cpu.sp)
+        status_reg = self.mem.read(stack_addr)
         self.cpu.c = status_reg & (0x01 << 0 )
-        self.cpu.z = status_reg & (0x01 << 1 )
-        self.cpu.i = status_reg & (0x01 << 2 )
-        self.cpu.d = status_reg & (0x01 << 3 )
-        self.cpu.b = status_reg & (0x01 << 4 )
-        self.cpu.v = status_reg & (0x01 << 6 )
-        self.cpu.n = status_reg & (0x01 << 7 )
+        self.cpu.z = (status_reg & (0x01 << 1 ))>>1
+        self.cpu.i = (status_reg & (0x01 << 2 ))>>2
+        self.cpu.d = (status_reg & (0x01 << 3 ))>>3
+        self.cpu.b = (status_reg & (0x01 << 4 ))>>4
+        self.cpu.v = (status_reg & (0x01 << 6 ))>>6
+        self.cpu.n = (status_reg & (0x01 << 7 ))>>7
 
     # Index registers functions
     # Transfer value from reg_a to reg_x.
@@ -124,14 +124,18 @@ class Implied():
     # Decrements reg_x by 1.
     # Flags: N, Z (from reg_x).
     def imp_dex(self):
-        self.cpu.x -= 1
+        new_x = self.cpu.x - 1
+        new_x_8b = self.fh.getActualNum(new_x)
+        self.cpu.x = new_x_8b
         self.fh.setNegative(self.cpu.x)
         self.fh.setZero(self.cpu.x)
 
     # Increments reg_x by 1.
     # Flags: N, Z (from reg_x).
     def imp_inx(self):
-        self.cpu.x += 1
+        new_x = self.cpu.x + 1
+        new_x_8b = self.fh.getActualNum(new_x)
+        self.cpu.x = new_x_8b
         self.fh.setNegative(self.cpu.x)
         self.fh.setZero(self.cpu.x)
 
@@ -152,13 +156,17 @@ class Implied():
     # Decrements reg_y by 1.
     # Flags: N, Z (from reg_y).
     def imp_dey(self):
-        self.cpu.y -= 1
+        new_y = self.cpu.y - 1
+        new_y_8b = self.fh.getActualNum(new_y)
+        self.cpu.y = new_y_8b
         self.fh.setNegative(self.cpu.y)
         self.fh.setZero(self.cpu.y)
 
     # Increments reg_y by 1.
     # Flags: N, Z (from reg_y).
     def imp_iny(self):
-        self.cpu.y += 1
+        new_y = self.cpu.y + 1
+        new_y_8b = self.fh.getActualNum(new_y)
+        self.cpu.y = new_y_8b
         self.fh.setNegative(self.cpu.y)
         self.fh.setZero(self.cpu.y)

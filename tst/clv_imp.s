@@ -10,9 +10,12 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0000
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
+
+   ;MyVariable0 .dsb 1
+   ;MyVariable1 .dsb 3
 
    .ende
 
@@ -40,9 +43,14 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
+;Test if the overflow flag is reset
 Reset:
-   sed
-   brk ; Abort execution
+  lda #0
+  clc
+  adc #64
+  adc #64
+  clv
+  brk ; Abort execution
 
 NMI:
 

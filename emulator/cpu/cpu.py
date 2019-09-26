@@ -112,6 +112,16 @@ class CPU:
         data = data[16:]
         self.mem_bus.write(0xC000, data, len(data))
 
+    def push_stack(self, value):
+        stack_addr = 0x0100 + self.sp
+        self.mem_bus.write(stack_addr, value)
+        self.sp -= 1
+
+    def pop_stack(self):
+        self.sp += 1
+        stack_addr = 0x0100 + self.sp
+        return self.mem_bus.read(stack_addr)
+
     def dump_mem(self):
         o = open('mem_dump.txt', 'w')
         data = self.mem_bus.read(0, 0x10000)
