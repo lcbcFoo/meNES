@@ -69,7 +69,7 @@ class Decoder():
         point_low_y = self.mem_bus.read(low)
         point_high_y = self.mem_bus.read((low+1)%256)
 
-        self.pointer_addr_y = (point_high_y << 8) + point_low_y + reg_y
+        self.pointer_addr_y = (point_high_y << 8) + point_low_y + self.cpu.y
         self.pointer_content_y = self.mem_bus.read(self.pointer_addr_y)
 
         # #####################################################################
