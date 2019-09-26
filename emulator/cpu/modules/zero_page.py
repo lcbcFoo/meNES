@@ -168,7 +168,7 @@ class ZeroPage():
         # Flags: C -> bit 0 from initial value.
         #        N -> 0
         #        Z (from result)
-        def zp_lsr(self):
+        def zp_lsr(self):   #tested
             oper = self.decoder.cont_zp
             addr = self.decoder.immediate
             carry = oper & 1
@@ -196,7 +196,7 @@ class ZeroPage():
         # Does NOT affect any register.
         # Flags: C -> bit 7 from inicial value.
         #        N, Z (from result).
-        def zp_rol(self):
+        def zp_rol(self):   #tested
             oper = self.decoder.cont_zp
             addr = self.decoder.immediate
             leftmost = (oper >> 7) & 1
@@ -212,7 +212,7 @@ class ZeroPage():
         # Does NOT affect any register.
         # Flags: C -> bit 0 from inicial value.
         #        N, Z (from result).
-        def zp_ror(self):
+        def zp_ror(self):   #tested
             oper = self.decoder.cont_zp
             addr = self.decoder.immediate
             rightmost = oper & 1
@@ -373,9 +373,9 @@ class ZeroPage():
         # Flags: C -> bit 0 from initial value.
         #        N -> 0
         #        Z (from result)
-        def zpx_lsr(self):
+        def zpx_lsr(self):  #tested
             oper = self.decoder.cont_zp_x
-            addr = self.decoder.immediate + self.cpu.x
+            addr = self.decoder.addr_x
             carry = oper & 1
             res = oper >> 1
             res_8b = self.fh.getActualNum(res)
@@ -401,9 +401,9 @@ class ZeroPage():
         # Does NOT affect any register.
         # Flags: C -> bit 7 from inicial value.
         #        N, Z (from result).
-        def zpx_rol(self):
+        def zpx_rol(self):  #tested
             oper = self.decoder.cont_zp_x
-            addr = self.decoder.immediate + self.cpu.x
+            addr = self.decoder.addr_x
             leftmost = (oper >> 7) & 1
             res = (oper << 1) + self.cpu.c
             res_8b = self.fh.getActualNum(res)
@@ -417,9 +417,9 @@ class ZeroPage():
         # Does NOT affect any register.
         # Flags: C -> bit 0 from inicial value.
         #        N, Z (from result).
-        def zpx_ror(self):
+        def zpx_ror(self):  #tested
             oper = self.decoder.cont_zp_x
-            addr = self.decoder.immediate + self.cpu.x
+            addr = self.decoder.addr_x
             rightmost = oper & 1
             res = (self.cpu.c << 7) + (oper >> 1)
             res_8b = self.fh.getActualNum(res)
@@ -449,13 +449,13 @@ class ZeroPage():
         # Transfers content of reg_a to [given address + reg_x].
         # Does not affect any register or flags.
         def zpx_sta(self):  #tested
-            addr = self.decoder.immediate + self.cpu.x
+            addr = self.decoder.addr_x
             self.cpu.mem_bus.write(addr, self.cpu.a)
 
         # Transfers content of reg_y to [given address + reg_x].
         # Does not affect any register or flags.
         def zpx_sty(self):  #tested
-            addr = self.decoder.immediate + self.cpu.x
+            addr = self.decoder.addr_x
             self.cpu.mem_bus.write(addr, self.cpu.y)
 
         # Puts value (from given address + reg_y) inside reg_x.
@@ -470,5 +470,5 @@ class ZeroPage():
         # Transfers content of reg_x to [given address + reg_y].
         # Does not affect any register or flags.
         def zpy_stx(self):  #tested
-            addr = self.decoder.immediate + self.cpu.y
+            addr = self.decoder.addr_y
             self.cpu.mem_bus.write(addr, self.cpu.x)
