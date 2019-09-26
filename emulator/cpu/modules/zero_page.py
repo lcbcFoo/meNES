@@ -116,7 +116,7 @@ class ZeroPage():
         # "XOR" between value (inside given address) and reg_a, puts result in
         # reg_a.
         # Flags: N, Z (from result).
-        def zp_eor(self):
+        def zp_eor(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             res = reg_a ^ oper
@@ -182,7 +182,7 @@ class ZeroPage():
         # "OR" between value (from given address) and reg_a, puts result in
         # reg_a.
         # Flags: N, Z (from result).
-        def zp_ora(self):
+        def zp_ora(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             res = reg_a | oper
@@ -330,7 +330,7 @@ class ZeroPage():
         # "XOR" between value (inside given address + reg_x) and reg_a, puts
         # result in reg_a.
         # Flags: N, Z (from result).
-        def zpx_eor(self):
+        def zpx_eor(self):  #tested
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
             res = reg_a ^ oper
@@ -387,7 +387,7 @@ class ZeroPage():
         # "OR" between value (from given address + reg_x) and reg_a, puts
         # result in reg_a.
         # Flags: N, Z (from result).
-        def zpx_ora(self):
+        def zpx_ora(self):  #tested
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
             res = reg_a | oper
