@@ -55,7 +55,7 @@ class ZeroPage():
         # Flags: N -> bit 7 from initial value.
         #        V -> bit 6 from initial value.
         #        Z (from result).
-        def zp_bit(self):
+        def zp_bit(self):   #tested
             oper = self.decoder.cont_zp
             value_negative = (oper >> 7) & 1
             value_overflow = (oper >> 6) & 1
@@ -67,7 +67,7 @@ class ZeroPage():
         # Subtracts the value (inside given address) from reg_a (reg_a - value).
         # Does NOT put result in reg_a or anywhere else.
         # Flags: Z, N, C (from result).
-        def zp_cmp(self):
+        def zp_cmp(self):   #tested
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             res = reg_a + (~oper + 1)
@@ -79,7 +79,7 @@ class ZeroPage():
         # Subtracts the value (inside given address) from reg_x (reg_x - value).
         # Does NOT put result in reg_x or anywhere else.
         # Flags: Z, N, C (from result).
-        def zp_cpx(self):
+        def zp_cpx(self):   #tested
             oper = self.decoder.cont_zp
             reg_x = self.cpu.x
             res = reg_x + (~oper + 1)
@@ -91,7 +91,7 @@ class ZeroPage():
         # Subtracts the value (inside given address) from reg_y (reg_y - value).
         # Does NOT put result in reg_y or anywhere else.
         # Flags: Z, N, C (from result).
-        def zp_cpy(self):
+        def zp_cpy(self):   #tested
             oper = self.decoder.cont_zp
             reg_y = self.cpu.y
             res = reg_y + (~oper + 1)
@@ -305,7 +305,7 @@ class ZeroPage():
         # (reg_a - value).
         # Does NOT put result in reg_a or anywhere else.
         # Flags: Z, N, C (from result).
-        def zpx_cmp(self):
+        def zpx_cmp(self):  #tested
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
             res = reg_a - oper
