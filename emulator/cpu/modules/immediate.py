@@ -127,19 +127,18 @@ class Immediate():
         self.fh.setZero(result_8b)
 
     # Subtracts the value of immediate and borrow from reg_a
-    # (result = reg_a - value - borrow), puts result in reg_a. Borrow is the
-    # carry flag complemented.
-    # Flags: C -> is set if result is >= 0.  -- CHANGE LATER
+    # (result = reg_a - value - borrow), puts result in reg_a.
+    # Flags: C -> is set if result is >= 0.
     #        V -> is set when result > 127 ou result < -127.
     #        N, Z (from result)
     def imd_sbc(self):
         reg_a = self.cpu.a
         immediate = self.decoder.immediate
         carry = self.cpu.c
-        result = reg_a + (~immediate +1) + (~carry + 1)
-        result_8b = self.fh.getActualNum(result)
-        self.cpu.a = result_8b
-        self.fh.setCarrySbc(result)
-        self.fh.setOverflowSbc(reg_a, immediate, carry, result_8b)
-        self.fh.setNegative(result_8b)
-        self.fh.setZero(result_8b)
+        res = reg_a + (~immediate + 1) + carry - 1
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setCarrySbc(res)
+        self.fh.setOverflowSbc(reg_a, immediate, carry, res_8b)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
