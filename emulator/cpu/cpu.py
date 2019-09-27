@@ -59,7 +59,7 @@ class CPU:
 
         # Stack pointer
         #0100-01FF   RAM used for stack processing and for absolute addressing.
-        self.sp = 0xFF
+        self.sp = 0xFD
 
         # Control flags
         self.n = 0
@@ -158,7 +158,7 @@ class CPU:
         s += ' | x = ' + format(self.x, '#04x')
         s += ' | y = ' + format(self.y, '#04x')
         s += ' | sp = ' + format(self.sp+0x0100, '#06x')
-        s += ' | p[NV-BDIZC] = ' + str(self.n) + str(self.v) + str(0) + str(self.b)
+        s += ' | p[NV-BDIZC] = ' + str(self.n) + str(self.v) + str(1) + str(self.b)
         s += str(self.d) + str(self.i) + str(self.z) + str(self.c) + ' |'
         return s
 
