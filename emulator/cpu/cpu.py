@@ -113,7 +113,7 @@ class CPU:
         for i in lines:
             data += i
         data = data[16:]
-        self.mem_bus.write(0xC000, data, len(data))
+        self.mem_bus.write(0xC000, data, 16384)
 
     def push_stack(self, value):
         stack_addr = 0x0100 + self.sp
