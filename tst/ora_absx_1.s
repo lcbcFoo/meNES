@@ -49,6 +49,7 @@ Reset:
     ora $0512, X
 
     lda #01
+    sta $0616
     ora $0515
 
     ldx #$FF

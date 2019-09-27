@@ -431,8 +431,7 @@ class Absolute():
     # Flags: C -> bit 0 from initial value.
     #        N -> 0
     #        Z (from result)
-    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
-    # The similar test works for zero page x.
+    # Tested
     def absX_lsr(self):
         oper = self.decoder.content_x
         addr = self.decoder.full_addr_x
@@ -448,15 +447,15 @@ class Absolute():
     # "OR" between value (from given address + reg_x) and reg_a, puts result in
     # reg_a.
     # Flags: N, Z (from result).
-    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
-    # The similar test works for zero page x.
+    # Tested
     def absX_ora(self):
         oper = self.decoder.content_x
-        result = self.cpu.a | oper
-        result_8b = self.fh.getActualNum(result)
-        self.cpu.a = result_8b
-        self.fh.setNegative(result_8b)
-        self.fh.setZero(result_8b)
+        reg_a = self.cpu.a
+        res = reg_a | oper
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
         return self.decoder.full_addr_x
 
     # Rotates value (from given address + reg_x) 1 bit to the left, with
@@ -464,8 +463,7 @@ class Absolute():
     # Does NOT affect any register.
     # Flags: C -> bit 7 from inicial value.
     #        N, Z (from result).
-    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
-    # The similar test works for zero page x.
+    # Tested
     def absX_rol(self):
         oper = self.decoder.content_x
         addr = self.decoder.full_addr_x
@@ -477,14 +475,13 @@ class Absolute():
         self.fh.setZero(res_8b)
         self.cpu.mem_bus.write(addr, res_8b)
         return addr
-
+        
     # Rotates value (from given address + reg_x) 1 bit to the right, with
     # initial carry becoming bit 7. Stores result in [given address + reg_x].
     # Does NOT affect any register.
     # Flags: C -> bit 0 from inicial value.
     #        N, Z (from result).
-    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
-    # The similar test works for zero page x.
+    # Tested
     def absX_ror(self):
         oper = self.decoder.content_x
         addr = self.decoder.full_addr_x
@@ -503,8 +500,7 @@ class Absolute():
     # Flags: C -> is set if result is >= 0.  -- CHANGE LATER
     #        V -> is set when result > 127 ou result < -127.
     #        N, Z (from result)
-    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
-    # The similar test works for zero page x.
+    # Tested
     def absX_sbc(self):
         oper = self.decoder.content_x
         reg_a = self.cpu.a
@@ -534,7 +530,7 @@ class Absolute():
     # Adds value (inside given [address + reg_y]) to reg_a, puts result in
     # reg_a.
     # Flags: N, Z, C, V (from result).
-    # Test made
+    # Tested
     def absY_adc(self):
         oper = self.decoder.content_y
         reg_a = self.cpu.a
@@ -551,7 +547,7 @@ class Absolute():
     # "AND" between value (inside given address +reg_y) and reg_a, puts result in
     # reg_a.
     # Flags: N, Z (from result)
-    #Test made
+    #Tested
     def absY_and(self):
         oper = self.decoder.content_y
         reg_a = self.cpu.a
@@ -565,7 +561,7 @@ class Absolute():
     # Subtracts the value (inside given address + reg_x) from reg_a (reg_a - value).
     # Does NOT put result in reg_a or anywhere else.
     # Flags: Z, N, C (from result).
-    # Test made
+    # Tested
     def absY_cmp(self):
         oper = self.decoder.content_y
         result = self.cpu.a + (~oper + 1)
@@ -578,7 +574,7 @@ class Absolute():
     # "XOR" between value (inside given address + reg_x) and reg_a, puts result in
     # reg_a.
     # Flags: N, Z (from result).
-    # Test made
+    # Tested
     def absY_eor(self):
         oper = self.decoder.content_y
         result = self.cpu.a ^ oper
@@ -590,7 +586,7 @@ class Absolute():
 
     # Puts value (from given address + reg_y) inside reg_a.
     # Flags: N, Z (from value).
-    # Test made
+    # Tested
     def absY_lda(self):
         oper = self.decoder.content_y
         result = self.fh.getActualNum(oper)
@@ -601,7 +597,7 @@ class Absolute():
 
     # Puts value (from given address + reg_y) inside reg_x.
     # Flags: N, Z (from value).
-    # Test made as ldy, change name
+    # Tested
     def absY_ldx(self):
         oper = self.decoder.content_y
         result = self.fh.getActualNum(oper)
@@ -613,7 +609,7 @@ class Absolute():
     # "OR" between value (from given address + reg_y) and reg_a, puts result in
     # reg_a.
     # Flags: N, Z (from result).
-    # Test made
+    # Tested
     def absY_ora(self):
         oper = self.decoder.content_y
         result = self.cpu.a | oper
@@ -629,7 +625,7 @@ class Absolute():
     # Flags: C -> is set if result is >= 0.  -- CHANGE LATER
     #        V -> is set when result > 127 ou result < -127.
     #        N, Z (from result)
-    # Test made
+    # Tested
     def absY_sbc(self):
         oper = self.decoder.content_y
         reg_a = self.cpu.a
@@ -645,7 +641,7 @@ class Absolute():
 
     # Transfers content of reg_a to given address + reg_y.
     # Does not affect any register or flags.
-    # test is crazy as s&*ˆ%
+    # Tested
     def absY_sta(self):
         oper = self.decoder.full_addr_y
         self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
