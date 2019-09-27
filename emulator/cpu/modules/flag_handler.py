@@ -50,8 +50,6 @@ class FlagHandler():
         else:
             self.cpu.v = 0
 
-    # The overflow flag is set when the result exceeds +127 or -127, otherwise
-    # it is reset.
     def setOverflowSbc(self, acc, oper, carry, res_8b):
         oper2 = ((~oper + 1) + carry - 1) % 256
         if ((acc < self.NEGATIVE and oper2 < self.NEGATIVE and res_8b >= self.NEGATIVE)
