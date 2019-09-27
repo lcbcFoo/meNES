@@ -81,7 +81,7 @@ class Absolute():
         result_8b = self.fh.getActualNum(result)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
-        self.fh.setCarry(result)
+        self.fh.setCarrySbc(result)
         return self.decoder.full_addr
 
     # Subtracts the value (inside given address) from reg_x (reg_x - value).
@@ -94,7 +94,7 @@ class Absolute():
         result_8b = self.fh.getActualNum(result)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
-        self.fh.setCarry(result)
+        self.fh.setCarrySbc(result)
         return self.decoder.full_addr
 
     # Subtracts the value (inside given address) from reg_y (reg_y - value).
@@ -107,7 +107,7 @@ class Absolute():
         result_8b = self.fh.getActualNum(result)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
-        self.fh.setCarry(result)
+        self.fh.setCarrySbc(result)
         return self.decoder.full_addr
 
     # Subtracts 1 from value (inside given address) (result = value - 1)
@@ -120,6 +120,8 @@ class Absolute():
         oper_addr = self.decoder.full_addr
         result = oper + (~1 + 1)
         result_8b = self.fh.getActualNum(result)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
         self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
         return self.decoder.full_addr
 
@@ -144,6 +146,8 @@ class Absolute():
         oper = self.decoder.content
         oper_addr = self.decoder.full_addr
         result = self.fh.getActualNum(oper+1)
+        self.fh.setNegative(result)
+        self.fh.setZero(result)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
         return self.decoder.full_addr
 
@@ -154,7 +158,6 @@ class Absolute():
         oper = self.decoder.full_addr
         self.cpu.pc = oper
         self.cpu.update_pc = False
-        return self.decoder.full_addr
 
     def abs_jsr(self):
         next_pc = self.cpu.pc + 2
@@ -165,7 +168,6 @@ class Absolute():
         oper = self.decoder.full_addr
         self.cpu.pc = oper
         self.cpu.update_pc = False
-        return oper
 
     # Data is transferred from memory to the accumulator and stored in reg_a
     # Flags: N, Z (from value).
@@ -371,7 +373,7 @@ class Absolute():
         result_8b = self.fh.getActualNum(result)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
-        self.fh.setCarry(result)
+        self.fh.setCarrySbc(result)
         return self.decoder.full_addr_x
 
     # Subtracts 1 from value (inside given address + reg_x) (result = value - 1)
@@ -384,6 +386,8 @@ class Absolute():
         oper_addr = self.decoder.full_addr_x
         result = oper + (~1 + 1)
         result_8b = self.fh.getActualNum(result)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
         self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
         return oper_addr
 
@@ -408,6 +412,8 @@ class Absolute():
         oper = self.decoder.content_x
         oper_addr = self.decoder.full_addr_x
         result = self.fh.getActualNum(oper+1)
+        self.fh.setNegative(result)
+        self.fh.setZero(result)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
         return oper_addr
 
@@ -482,7 +488,7 @@ class Absolute():
         self.fh.setZero(res_8b)
         self.cpu.mem_bus.write(addr, res_8b)
         return addr
-        
+
     # Rotates value (from given address + reg_x) 1 bit to the right, with
     # initial carry becoming bit 7. Stores result in [given address + reg_x].
     # Does NOT affect any register.
@@ -575,7 +581,7 @@ class Absolute():
         result_8b = self.fh.getActualNum(result)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
-        self.fh.setCarry(result)
+        self.fh.setCarrySbc(result)
         return self.decoder.full_addr_y
 
     # "XOR" between value (inside given address + reg_x) and reg_a, puts result in
