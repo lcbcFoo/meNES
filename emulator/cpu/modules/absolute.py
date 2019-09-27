@@ -157,9 +157,21 @@ class Absolute():
         return self.decoder.full_addr
 
     def abs_jsr(self):
-    #     oper = self.decoder.content
-        pass
-    
+        next_pc = self.cpu.pc + 1
+
+        PCH = (next_pc >> 8) & 256
+        self.cpu.push_stack(PCH)
+
+        PCL = next_pc & 256
+        self.cpu.push_stack(PCL)
+
+        status_reg = self.cpu.create_status_reg()
+        self.cpu.push_stack(status_reg)
+
+        oper = self.decoder.full_addr
+        self.cpu.pc = oper
+        self.cpu.update_pc = False
+
     # Data is transferred from memory to the accumulator and stored in reg_a
     # Flags: N, Z (from value).
     # Tested
