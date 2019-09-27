@@ -399,7 +399,8 @@ class Absolute():
     # Flags: C -> bit 0 from initial value.
     #        N -> 0
     #        Z (from result)
-    # Check test made
+    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
+    # The similar test works for zero page x.
     def absX_lsr(self):
         oper = self.decoder.content_x
         addr = self.decoder.full_addr_x
@@ -414,7 +415,8 @@ class Absolute():
     # "OR" between value (from given address + reg_x) and reg_a, puts result in
     # reg_a.
     # Flags: N, Z (from result).
-    # Check test made
+    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
+    # The similar test works for zero page x.
     def absX_ora(self):
         oper = self.decoder.content_x
         result = self.cpu.a | oper
@@ -428,7 +430,8 @@ class Absolute():
     # Does NOT affect any register.
     # Flags: C -> bit 7 from inicial value.
     #        N, Z (from result).
-    # Test made
+    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
+    # The similar test works for zero page x.
     def absX_rol(self):
         oper = self.decoder.content_x
         addr = self.decoder.full_addr_x
@@ -445,7 +448,8 @@ class Absolute():
     # Does NOT affect any register.
     # Flags: C -> bit 0 from inicial value.
     #        N, Z (from result).
-    # Test made
+    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
+    # The similar test works for zero page x.
     def absX_ror(self):
         oper = self.decoder.content_x
         addr = self.decoder.full_addr_x
@@ -463,7 +467,8 @@ class Absolute():
     # Flags: C -> is set if result is >= 0.  -- CHANGE LATER
     #        V -> is set when result > 127 ou result < -127.
     #        N, Z (from result)
-    # Check test made
+    # Tested -> MAYBE error for negative x, result diverges from http://skilldrick.github.io/easy6502/
+    # The similar test works for zero page x.
     def absX_sbc(self):
         oper = self.decoder.content_x
         reg_a = self.cpu.a
@@ -478,7 +483,7 @@ class Absolute():
 
     # Transfers content of reg_a to given address + reg_x.
     # Does not affect any register or flags.
-    # Check test made
+    # Tested
     def absX_sta(self):
         oper = self.decoder.full_addr_x
         self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
