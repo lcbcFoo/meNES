@@ -77,6 +77,7 @@ class Implied():
     # Then decrements stack pointer by 1.
     def imp_pha(self):
         self.cpu.push_stack(self.cpu.a)
+        return (self.cpu.sp+1 + 0x0100)
 
     # Increments stack pointer by 1. Then pull the first value from the stack to
     # reg_a.
@@ -85,12 +86,14 @@ class Implied():
         self.cpu.a = self.cpu.pop_stack()
         self.fh.setNegative(self.cpu.a)
         self.fh.setZero(self.cpu.a)
+        return (self.cpu.sp + 0x0100)
 
     # Add all the flags to an 8bit register like follows : NV-BDIZC
     # Then push this register to the stack. Then decrements stack pointer by 1.
     def imp_php(self):
         status_reg = self.cpu.create_status_reg()
         self.cpu.push_stack(status_reg)
+        return (self.cpu.sp+1 + 0x0100)
 
     # Increments the stack pointer by 1. Then pull the first value from the
     # stack to status_reg (NV-BDIZC).
@@ -98,6 +101,7 @@ class Implied():
     def imp_plp(self):
         status_reg = self.cpu.pop_stack()
         self.cpu.restore_status_reg(status_reg)
+        return (self.cpu.sp + 0x0100)
 
     # Index registers functions
     # Transfer value from reg_a to reg_x.

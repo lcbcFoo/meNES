@@ -129,6 +129,7 @@ class CPU:
         status_reg = 0
         status_reg += (self.n << 7)
         status_reg += (self.v << 6)
+        status_reg += (0x01 << 5)
         status_reg += (self.b << 4)
         status_reg += (self.d << 3)
         status_reg += (self.i << 2)
