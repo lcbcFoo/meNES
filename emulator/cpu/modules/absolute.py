@@ -321,6 +321,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.full_addr_x
 
     # "AND" between value (inside given address +reg_x) and reg_a, puts result in
     # reg_a.
@@ -334,6 +335,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.full_addr_x
 
     # Shifts value (inside given address + reg_x) 1 bit to the left, with
     # bit 0 set to 0. Result is stored in [given address].
@@ -350,6 +352,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.mem_bus.write(addr, res_8b)
+        return addr
 
     # Subtracts the value (inside given address + reg_x) from reg_a (reg_a - value).
     # Does NOT put result in reg_a or anywhere else.
@@ -362,6 +365,7 @@ class Absolute():
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
         self.fh.setCarry(result)
+        return self.decoder.full_addr_x
 
     # Subtracts 1 from value (inside given address + reg_x) (result = value - 1)
     # and stores the result back in the given address.
@@ -374,6 +378,7 @@ class Absolute():
         result = oper + (~1 + 1)
         result_8b = self.fh.getActualNum(result)
         self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
+        return oper_addr
 
     # "XOR" between value (inside given address + reg_x) and reg_a, puts result in
     # reg_a.
@@ -386,6 +391,7 @@ class Absolute():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.full_addr_x
 
     # Adds 1 to value (inside given address + reg_x), stores result in given
     # address. Does NOT affect any register.
@@ -396,6 +402,7 @@ class Absolute():
         oper_addr = self.decoder.full_addr_x
         result = self.fh.getActualNum(oper+1)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
+        return oper_addr
 
     # Puts value (from given address + reg_x) inside reg_a.
     # Flags: N, Z (from value).
@@ -406,6 +413,7 @@ class Absolute():
         self.cpu.a = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+        return self.decoder.full_addr_x
 
     # Puts value (from given address + reg_x) inside reg_y.
     # Flags: N, Z (from value).
@@ -416,6 +424,7 @@ class Absolute():
         self.cpu.y = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+        return self.decoder.full_addr_x
 
     # Shifts value (inside given address + reg_x) 1 bit to the right, with bit 7 set
     # to 0. Result is stored in given address.
@@ -434,6 +443,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.forceZeroFlag(0)
         self.cpu.mem_bus.write(addr, res_8b)
+        return addr
 
     # "OR" between value (from given address + reg_x) and reg_a, puts result in
     # reg_a.
@@ -447,6 +457,7 @@ class Absolute():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.full_addr_x
 
     # Rotates value (from given address + reg_x) 1 bit to the left, with
     # initial carry becoming bit 0. Stores result in [given address + reg_x].
@@ -465,6 +476,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.mem_bus.write(addr, res_8b)
+        return addr
 
     # Rotates value (from given address + reg_x) 1 bit to the right, with
     # initial carry becoming bit 7. Stores result in [given address + reg_x].
@@ -483,6 +495,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.mem_bus.write(addr, res_8b)
+        return addr
 
     # Subtracts the value (inside given address + reg_x) and borrow from reg_a
     # (result = reg_a - value - carry), puts result in reg_a. Borrow is the
@@ -503,6 +516,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.full_addr_x
 
     # Transfers content of reg_a to given address + reg_x.
     # Does not affect any register or flags.
@@ -510,6 +524,7 @@ class Absolute():
     def absX_sta(self):
         oper = self.decoder.full_addr_x
         self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
+        return oper
 
 
     ###################################################################################################################
@@ -531,6 +546,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.full_addr_y
 
     # "AND" between value (inside given address +reg_y) and reg_a, puts result in
     # reg_a.
@@ -544,6 +560,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.full_addr_y
 
     # Subtracts the value (inside given address + reg_x) from reg_a (reg_a - value).
     # Does NOT put result in reg_a or anywhere else.
@@ -556,6 +573,7 @@ class Absolute():
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
         self.fh.setCarry(result)
+        return self.decoder.full_addr_y
 
     # "XOR" between value (inside given address + reg_x) and reg_a, puts result in
     # reg_a.
@@ -568,6 +586,7 @@ class Absolute():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.full_addr_y
 
     # Puts value (from given address + reg_y) inside reg_a.
     # Flags: N, Z (from value).
@@ -578,6 +597,7 @@ class Absolute():
         self.cpu.a = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+        return self.decoder.full_addr_y
 
     # Puts value (from given address + reg_y) inside reg_x.
     # Flags: N, Z (from value).
@@ -588,6 +608,7 @@ class Absolute():
         self.cpu.x = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+        return self.decoder.full_addr_y
 
     # "OR" between value (from given address + reg_y) and reg_a, puts result in
     # reg_a.
@@ -600,6 +621,7 @@ class Absolute():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.full_addr_y
 
     # Subtracts the value (inside given address + reg_y) and borrow from reg_a
     # (result = reg_a - value - carry), puts result in reg_a. Borrow is the
@@ -619,6 +641,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.full_addr_y
 
     # Transfers content of reg_a to given address + reg_y.
     # Does not affect any register or flags.
@@ -626,3 +649,4 @@ class Absolute():
     def absY_sta(self):
         oper = self.decoder.full_addr_y
         self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
+        return oper
