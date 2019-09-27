@@ -27,6 +27,7 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.pointer_addr_x
 
     # "AND" between value of pointer_content_x and reg_a, puts result in reg_a.
     # Flags: N, Z (from result)
@@ -38,6 +39,7 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.pointer_addr_x
 
     # Subtracts the value of pointer_content_x from reg_a (reg_a - value).
     # Does NOT put result in reg_a or anywhere else.
@@ -50,6 +52,7 @@ class Indirect():
         self.fh.setCarrySbc(res)
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
+        return self.decoder.pointer_addr_x
 
     # "XOR" between value of pointer_content_x and reg_a, puts result in reg_a.
     # Flags: N, Z (from result).
@@ -61,6 +64,7 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.pointer_addr_x
 
     # Puts value of pointer_content_x inside reg_a.
     # Flags: N, Z (from value).
@@ -82,6 +86,7 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.pointer_addr_x
 
     # Subtracts the value of pointer_content_x and borrow from reg_a
     # (result = reg_a - value - borrow), puts result in reg_a. Borrow is the
@@ -100,6 +105,7 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.pointer_addr_x
 
     # Transfers content of reg_a to pointer_content_x address.
     # Does not affect any register or flags.
@@ -127,6 +133,7 @@ class Indirect():
         self.fh.setOverflow(reg_a, v, result_8b)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.pointer_addr_y
 
 
     # "AND" between value of pointer_content_y and reg_a, puts result in reg_a.
@@ -139,6 +146,7 @@ class Indirect():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.pointer_addr_y
 
     # Subtracts the value of pointer_content_y from reg_a (reg_a - value).
     # Does NOT put result in reg_a or anywhere else.
@@ -151,6 +159,7 @@ class Indirect():
         self.fh.setCarrySbc(res)
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
+        return self.decoder.pointer_addr_y
 
     # "XOR" between value of pointer_content_y and reg_a, puts result in reg_a.
     # Flags: N, Z (from result).
@@ -162,6 +171,7 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.pointer_addr_y
 
     # Puts value of pointer_content_y inside reg_a.
     # Flags: N, Z (from value).
@@ -183,6 +193,7 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.pointer_addr_y
 
     # Subtracts the value of pointer_content_y and borrow from reg_a
     # (result = reg_a - value - borrow), puts result in reg_a. Borrow is the
@@ -201,6 +212,7 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.pointer_addr_y
 
     # Transfers content of reg_a to pointer_content_y address.
     # Does not affect any register or flags.
