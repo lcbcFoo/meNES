@@ -10,7 +10,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0500
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 
@@ -43,8 +43,8 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
    .base $10000-(PRG_COUNT*$4000)
 
 ;Increments twice test variable, 
-; Shifts left (test_variable=4)
-;loads into acc (acc  should be = 4 = 100)
+;loads into acc (acc  should be = 2 = 10)
+; Compares -> flag z = 1
 Reset:
    inc test_variable
    inc test_variable

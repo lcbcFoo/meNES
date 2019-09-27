@@ -10,7 +10,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 ; variables
 ;----------------------------------------------------------------
 
-   .enum $0100
+   .enum $0500
 
    ;NOTE: declare variables using the DSB and DSW directives, like this:
 
@@ -44,6 +44,8 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
 ; Increments the test variable 3 times and after that loads it into acc
 Reset:
+   lda #0
+   sta test_variable
    dec test_variable
    dec test_variable
    dec test_variable

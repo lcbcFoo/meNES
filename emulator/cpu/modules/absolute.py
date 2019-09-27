@@ -6,7 +6,7 @@ class Absolute():
         self.cpu = cpu
         self.mem = mem
         self.decoder = decoder
-        self.handler = self.cpu.flag_handler
+        self.fh = self.cpu.flag_handler
 
     # Adds value (inside given address) to reg_a, puts result in reg_a.
     # Flags: N, Z, C, V (from result)
@@ -14,12 +14,13 @@ class Absolute():
     def abs_adc(self):
         absolute = self.decoder.content
         result = self.cpu.a + absolute + self.cpu.c
-        result_8b = self.handler.getActualNum(result)
+        result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
-        self.handler.setCarry(result)
-        self.handler.setOverflow(self.cpu.a, absolute, result_8b)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
+        self.fh.setCarry(result)
+        self.fh.setOverflow(self.cpu.a, absolute, result_8b)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        return self.decoder.full_addr
 
     # "AND" between value (inside given address) and reg_a, puts result in
     # reg_a.
@@ -29,27 +30,46 @@ class Absolute():
         oper = self.decoder.content
         reg_a = self.cpu.a
         res = reg_a & oper
-        res_8b = self.handler.getActualNum(res)
-        self.handler.setNegative(res_8b)
-        self.handler.setZero(res_8b)
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.full_addr
 
+
+    # Shifts value (inside given address) 1 bit to the left, with
+    # bit 0 set to 0. Result is stored in [given address].
+    # Flags: C -> bit 7 from initial value.
+    #        N, Z (from result).
     # Tested
     def abs_asl(self):
         oper = self.decoder.content
-        oper_addr = self.decoder.full_addr
-        result = oper << 1
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setCarry(result)
+        addr = self.decoder.full_addr
+        res = oper << 1
+        carry = (oper >> 7) & 1
+        res_8b = self.fh.getActualNum(res)
+        self.fh.forceCarryFlag(carry)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.mem_bus.write(addr, res_8b)
+        return self.decoder.full_addr
 
+
+    # "AND" between value (inside given address) and reg_a, but does NOT put
+    # result in reg_a.
+    # Flags: N -> bit 7 from initial value.
+    #        V -> bit 6 from initial value.
+    #        Z (from result).
+    #Tested
     def abs_bit(self):
-    #     oper = self.decoder.content
-    #     oper_addr = self.decoder.full_addr
-    #     result = oper & self.cpu.a
-        pass
+        oper = self.decoder.content
+        value_negative = (oper >> 7) & 1
+        value_overflow = (oper >> 6) & 1
+        res = self.cpu.a & oper
+        self.fh.setZero(res)
+        self.fh.forceNegativeFlag(value_negative)
+        self.fh.forceOverflowFlag(value_overflow)
+        return self.decoder.full_addr
 
     # Subtracts the value (inside given address) from reg_a (reg_a - value).
     # Does NOT put result in reg_a or anywhere else.
@@ -58,10 +78,11 @@ class Absolute():
     def abs_cmp(self):
         oper = self.decoder.content
         result = self.cpu.a + (~oper + 1)
-        result_8b = self.handler.getActualNum(result)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setCarry(result)
+        result_8b = self.fh.getActualNum(result)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        self.fh.setCarry(result)
+        return self.decoder.full_addr
 
     # Subtracts the value (inside given address) from reg_x (reg_x - value).
     # Does NOT put result in reg_x or anywhere else.
@@ -70,10 +91,11 @@ class Absolute():
     def abs_cpx(self):
         oper = self.decoder.content
         result = self.cpu.x + (~oper + 1)
-        result_8b = self.handler.getActualNum(result)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setCarry(result)
+        result_8b = self.fh.getActualNum(result)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        self.fh.setCarry(result)
+        return self.decoder.full_addr
 
     # Subtracts the value (inside given address) from reg_y (reg_y - value).
     # Does NOT put result in reg_y or anywhere else.
@@ -82,21 +104,24 @@ class Absolute():
     def abs_cpy(self):
         oper = self.decoder.content
         result = self.cpu.y + (~oper + 1)
-        result_8b = self.handler.getActualNum(result)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setCarry(result)
+        result_8b = self.fh.getActualNum(result)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        self.fh.setCarry(result)
+        return self.decoder.full_addr
 
     # Subtracts 1 from value (inside given address) (result = value - 1)
     # and stores the result back in the given address.
     # Does NOT affect any register.
     # Flags: N, Z (from result).
+    # Tested
     def abs_dec(self):
         oper = self.decoder.content
         oper_addr = self.decoder.full_addr
         result = oper + (~1 + 1)
-        result_8b = self.handler.getActualNum(result)
+        result_8b = self.fh.getActualNum(result)
         self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
+        return self.decoder.full_addr
 
     # "XOR" between value (inside given address) and reg_a, puts result in
     # reg_a.
@@ -105,323 +130,531 @@ class Absolute():
     def abs_eor(self):
         oper = self.decoder.content
         result = self.cpu.a ^ oper
-        result_8b = self.handler.getActualNum(result)
+        result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        return self.decoder.full_addr
 
+    # Adds 1 to value (inside given address), stores result in given
+    # address. Does NOT affect any register.
+    # Flags: N, Z (from result).
     # Tested
     def abs_inc(self):
         oper = self.decoder.content
         oper_addr = self.decoder.full_addr
-        result = self.handler.getActualNum(oper+1)
+        result = self.fh.getActualNum(oper+1)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
+        return self.decoder.full_addr
 
-    # Probably is incomplete since doesn't check page
+    # JMP changes pc to the following address
+    # No flags are affected.
+    # Tested
     def abs_jmp(self):
-    #     oper = self.decoder.content
-    #     self.cpu.pc = oper
-        pass
+        oper = self.decoder.full_addr
+        self.cpu.pc = oper
+        self.cpu.update_pc = False
+        return self.decoder.full_addr
 
     def abs_jsr(self):
-    #     oper = self.decoder.content
-        pass
-    
+        next_pc = self.cpu.pc + 1
+
+        PCH = (next_pc >> 8) & 256
+        self.cpu.push_stack(PCH)
+
+        PCL = next_pc & 256
+        self.cpu.push_stack(PCL)
+
+        status_reg = self.cpu.create_status_reg()
+        self.cpu.push_stack(status_reg)
+
+        oper = self.decoder.full_addr
+        self.cpu.pc = oper
+        self.cpu.update_pc = False
+
     # Data is transferred from memory to the accumulator and stored in reg_a
     # Flags: N, Z (from value).
     # Tested
     def abs_lda(self):
         oper = self.decoder.content
-        result = self.handler.getActualNum(oper)
+        result = self.fh.getActualNum(oper)
         self.cpu.a = result
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        self.fh.setNegative(result)
+        self.fh.setZero(result)
+        return self.decoder.full_addr
 
     # Data is transferred from memory to the accumulator and stored in reg_x
     # Flags: N, Z (from value).
     # Tested
     def abs_ldx(self):
         oper = self.decoder.content
-        result = self.handler.getActualNum(oper)
+        result = self.fh.getActualNum(oper)
         self.cpu.x = result
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        self.fh.setNegative(result)
+        self.fh.setZero(result)
+        return self.decoder.full_addr
 
     # Data is transferred from memory to the accumulator and stored in reg_y
     # Flags: N, Z (from value).
     # Tested
     def abs_ldy(self):
         oper = self.decoder.content
-        result = self.handler.getActualNum(oper)
+        result = self.fh.getActualNum(oper)
         self.cpu.y = result
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        self.fh.setNegative(result)
+        self.fh.setZero(result)
+        return self.decoder.full_addr
 
+    # Shifts value (inside given address) 1 bit to the right, with bit 7 set
+    # to 0. Result is stored in given address.
+    # Flags: C -> bit 0 from initial value.
+    #        N -> 0
+    #        Z (from result)
+    # Tested
     def abs_lsr(self):
         oper = self.decoder.content
-        oper_addr = self.decoder.full_addr
-        result = oper >> 1
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setCarry(result)
+        addr = self.decoder.full_addr
+        carry = oper & 1
+        res = oper >> 1
+        res_8b = self.fh.getActualNum(res)
+        self.fh.forceCarryFlag(carry)
+        self.fh.setNegative(res_8b)
+        self.fh.forceZeroFlag(0)
+        self.cpu.mem_bus.write(addr, res_8b)
+        return self.decoder.full_addr
 
+    # "OR" between value (from given address) and reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z (from result).
+    # Tested
     def abs_ora(self):
         oper = self.decoder.content
         result = self.cpu.a | oper
-        result_8b = self.handler.getActualNum(result)
+        result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        return self.decoder.full_addr
 
+    # Rotates value (from given address) 1 bit to the left, with initial
+    # carry becoming bit 0. Stores result in given address.
+    # Does NOT affect any register.
+    # Flags: C -> bit 7 from inicial value.
+    #        N, Z (from result).
+    # Tested
     def abs_rol(self):
-    #     oper = self.decoder.content
-    #     oper_addr = self.decoder.full_addr
-    #     result = oper << 1
-    #     result_8b = self.handler.getActualNum(result)
-    #     self.handler.setNegative(result_8b)
-    #     self.handler.setZero(result_8b)
-    #     self.handler.setCarry(result)
-
-    #     # sets bit 0 to carry bit
-    #     if self.cpu.c & 1 == 1:
-    #         result = result | 1
-
-    #     # sets carry bit to bit 7
-        
-    #     self.cpu.mem_bus.write(oper_addr, result, n=1)
-        pass
-    def abs_ror(self):
-    #     oper = self.decoder.content
-    #     oper_addr = self.decoder.full_addr
-    #     new_carry = oper & 1 == 1 # Gets carry bit info
-    #     new_bit_7 = self.cpu.c
-    #     result = oper >> 1
-    #     result = new_bit_7 <
-    #     result_8b = self.handler.getActualNum(result)
-    #     self.handler.setNegative(result_8b)
-    #     self.handler.setZero(result_8b)
-    #     self.handler.setCarry(result)
-
-    #     # sets carry bit to bit 7
-    #     if new_carry:
-    #         self.cpu.c = 1
-    #     else:
-    #         self.cpu.c = 0
-
-
-    #     # set bit 0 to carry bit
-        
-    #     self.cpu.mem_bus.write(oper_addr, result, n=1)
-        pass
-
-    def abs_sbc(self):
         oper = self.decoder.content
-        result = self.cpu.a - oper - self.cpu.c
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.a = result_8b
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setOverflow(result_8b)
-        self.handler.setCarry(result)
+        addr = self.decoder.full_addr
+        leftmost = (oper >> 7) & 1
+        res = (oper << 1) + self.cpu.c
+        res_8b = self.fh.getActualNum(res)
+        self.fh.forceCarryFlag(leftmost)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.mem_bus.write(addr, res_8b)
+        return self.decoder.full_addr
 
+    # Rotates value (from given address) 1 bit to the right, with initial
+    # carry becoming bit 7. Stores result in given address.
+    # Does NOT affect any register.
+    # Flags: C -> bit 0 from inicial value.
+    #        N, Z (from result).
+    # Tested
+    def abs_ror(self):
+        oper = self.decoder.content
+        addr = self.decoder.full_addr
+        rightmost = oper & 1
+        res = (self.cpu.c << 7) + (oper >> 1)
+        res_8b = self.fh.getActualNum(res)
+        self.fh.forceCarryFlag(rightmost)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.mem_bus.write(addr, res_8b)
+        return self.decoder.full_addr
+
+    # Subtracts the value (inside given address) and borrow from reg_a
+    # (result = reg_a - value - carry), puts result in reg_a. Borrow is the
+    # carry flag complemented.
+    # Flags: C -> is set if result is >= 0.  -- CHANGE LATER
+    #        V -> is set when result > 127 ou result < -127.
+    #        N, Z (from result)
+    # Tested
+    def abs_sbc(self):
+        reg_a = self.cpu.a
+        oper = self.decoder.content
+        carry = self.cpu.c
+        result = reg_a + (~oper +1) + carry - 1
+        result_8b = self.fh.getActualNum(result)
+        self.cpu.a = result_8b
+        self.fh.setCarrySbc(result)
+        self.fh.setOverflowSbc(reg_a, oper, carry, result_8b)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        return self.decoder.full_addr
+
+    # Transfers content of reg_a to given address.
+    # Does not affect any register or flags.
     # Tested
     def abs_sta(self):
         oper = self.decoder.full_addr
         self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
+        return self.decoder.full_addr
 
+    # Transfers content of reg_x to given address.
+    # Does not affect any register or flags.
     def abs_stx(self):
         oper = self.decoder.full_addr
         self.cpu.mem_bus.write(oper, self.cpu.x, n=1)
+        return self.decoder.full_addr
 
+    # Transfers content of reg_y to given address.
+    # Does not affect any register or flags.
     def abs_sty(self):
         oper = self.decoder.full_addr
         self.cpu.mem_bus.write(oper, self.cpu.y, n=1)
+        return self.decoder.full_addr
 
     ###################################################################################################################
     ############### ABSOLUTE X OPERATIONS #############################################################################
     ###################################################################################################################
 
+    # Adds value (inside given [address + reg_x]) to reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z, C, V (from result).
+    # Tested
     def absX_adc(self):
-        absolute_x = self.decoder.content_x
-        result = self.cpu.a + absolute_x + self.cpu.c
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.a = result_8b
-        self.handler.setCarry(result)
-        self.handler.setOverflow(self.cpu.a, absolute_x, result_8b)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
+        oper = self.decoder.content_x
+        reg_a = self.cpu.a
+        carry = self.cpu.c
+        res = reg_a + oper + carry
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setCarry(res)
+        self.fh.setOverflow(reg_a, oper, res_8b)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
+        return self.decoder.full_addr_x
 
+    # "AND" between value (inside given address +reg_x) and reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z (from result)
+    # Tested
     def absX_and(self):
-        absolute_x = self.decoder.content_x
-        result = self.cpu.a & absolute_x
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        oper = self.decoder.content_x
+        reg_a = self.cpu.a
+        res = reg_a & oper
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
+        return self.decoder.full_addr_x
 
+    # Shifts value (inside given address + reg_x) 1 bit to the left, with
+    # bit 0 set to 0. Result is stored in [given address].
+    # Flags: C -> bit 7 from initial value.
+    #        N, Z (from result).
+    # Tested
     def absX_asl(self):
-        absolute_x = self.decoder.content_x
-        oper_addr = self.decoder.full_addr + self.cpu.x
-        result = absolute_x << 1
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setCarry(result)
+        oper = self.decoder.content_x
+        addr = self.decoder.full_addr_x
+        res = oper << 1
+        carry = (oper >> 7) & 1
+        res_8b = self.fh.getActualNum(res)
+        self.fh.forceCarryFlag(carry)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.mem_bus.write(addr, res_8b)
+        return addr
 
+    # Subtracts the value (inside given address + reg_x) from reg_a (reg_a - value).
+    # Does NOT put result in reg_a or anywhere else.
+    # Flags: Z, N, C (from result).
+    # Tested
     def absX_cmp(self):
-        absolute_x = self.decoder.content_x
-        result = self.cpu.a - absolute_x
-        result_8b = self.handler.getActualNum(result)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setCarry(result)
+        oper = self.decoder.content_x
+        result = self.cpu.a + (~oper + 1)
+        result_8b = self.fh.getActualNum(result)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        self.fh.setCarry(result)
+        return self.decoder.full_addr_x
 
+    # Subtracts 1 from value (inside given address + reg_x) (result = value - 1)
+    # and stores the result back in the given address.
+    # Does NOT affect any register.
+    # Flags: N, Z (from result).
+    # Tested
     def absX_dec(self):
-        absolute_x = self.decoder.content_x
-        oper_addr = self.decoder.full_addr + self.cpu.x
-        result = self.handler.getActualNum(absolute_x-1)
-        self.cpu.mem_bus.write(oper_addr, result, n=1)
-
-
-    def absX_eor(self):
-        absolute_x = self.decoder.content_x
-        result = self.cpu.a ^ absolute_x
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.a = result_8b
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-
-    def absX_inc(self):
-        absolute_x = self.decoder.content_x
-        oper_addr = self.decoder.full_addr + self.cpu.x
-        result = self.handler.getActualNum(absolute_x+1)
-        self.cpu.mem_bus.write(oper_addr, result, n=1)
-
-
-    def absX_lda(self):
-        absolute_x = self.decoder.content_x
-        result = self.handler.getActualNum(absolute_x)
-        self.cpu.a = result
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
-
-    def absX_ldy(self):
-        absolute_x = self.decoder.content_x
-        result = self.handler.getActualNum(absolute_x)
-        self.cpu.y = result
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
-
-    def absX_lsr(self):
-        absolute_x = self.decoder.content_x
-        oper_addr = self.decoder.full_addr + self.cpu.x
-        result = absolute_x >> 1
-        result_8b = self.handler.getActualNum(result)
+        oper = self.decoder.content_x
+        oper_addr = self.decoder.full_addr_x
+        result = oper + (~1 + 1)
+        result_8b = self.fh.getActualNum(result)
         self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setCarry(result)
+        return oper_addr
 
+    # "XOR" between value (inside given address + reg_x) and reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z (from result).
+    # Tested
+    def absX_eor(self):
+        oper = self.decoder.content_x
+        result = self.cpu.a ^ oper
+        result_8b = self.fh.getActualNum(result)
+        self.cpu.a = result_8b
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        return self.decoder.full_addr_x
+
+    # Adds 1 to value (inside given address + reg_x), stores result in given
+    # address. Does NOT affect any register.
+    # Flags: N, Z (from result).
+    # Tested
+    def absX_inc(self):
+        oper = self.decoder.content_x
+        oper_addr = self.decoder.full_addr_x
+        result = self.fh.getActualNum(oper+1)
+        self.cpu.mem_bus.write(oper_addr, result, n=1)
+        return oper_addr
+
+    # Puts value (from given address + reg_x) inside reg_a.
+    # Flags: N, Z (from value).
+    # Tested
+    def absX_lda(self):
+        oper = self.decoder.content_x
+        result = self.fh.getActualNum(oper)
+        self.cpu.a = result
+        self.fh.setNegative(result)
+        self.fh.setZero(result)
+        return self.decoder.full_addr_x
+
+    # Puts value (from given address + reg_x) inside reg_y.
+    # Flags: N, Z (from value).
+    # Tested
+    def absX_ldy(self):
+        oper = self.decoder.content_x
+        result = self.fh.getActualNum(oper)
+        self.cpu.y = result
+        self.fh.setNegative(result)
+        self.fh.setZero(result)
+        return self.decoder.full_addr_x
+
+    # Shifts value (inside given address + reg_x) 1 bit to the right, with bit 7 set
+    # to 0. Result is stored in given address.
+    # Flags: C -> bit 0 from initial value.
+    #        N -> 0
+    #        Z (from result)
+    # Tested
+    def absX_lsr(self):
+        oper = self.decoder.content_x
+        addr = self.decoder.full_addr_x
+        carry = oper & 1
+        res = oper >> 1
+        res_8b = self.fh.getActualNum(res)
+        self.fh.forceCarryFlag(carry)
+        self.fh.setNegative(res_8b)
+        self.fh.forceZeroFlag(0)
+        self.cpu.mem_bus.write(addr, res_8b)
+        return addr
+
+    # "OR" between value (from given address + reg_x) and reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z (from result).
+    # Tested
     def absX_ora(self):
-        absolute_x = self.decoder.content_x
-        result = self.cpu.a | absolute_x
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.a = result_8b
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
+        oper = self.decoder.content_x
+        reg_a = self.cpu.a
+        res = reg_a | oper
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
+        return self.decoder.full_addr_x
 
+    # Rotates value (from given address + reg_x) 1 bit to the left, with
+    # initial carry becoming bit 0. Stores result in [given address + reg_x].
+    # Does NOT affect any register.
+    # Flags: C -> bit 7 from inicial value.
+    #        N, Z (from result).
+    # Tested
     def absX_rol(self):
-        pass
-
+        oper = self.decoder.content_x
+        addr = self.decoder.full_addr_x
+        leftmost = (oper >> 7) & 1
+        res = (oper << 1) + self.cpu.c
+        res_8b = self.fh.getActualNum(res)
+        self.fh.forceCarryFlag(leftmost)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.mem_bus.write(addr, res_8b)
+        return addr
+        
+    # Rotates value (from given address + reg_x) 1 bit to the right, with
+    # initial carry becoming bit 7. Stores result in [given address + reg_x].
+    # Does NOT affect any register.
+    # Flags: C -> bit 0 from inicial value.
+    #        N, Z (from result).
+    # Tested
     def absX_ror(self):
-        pass
+        oper = self.decoder.content_x
+        addr = self.decoder.full_addr_x
+        rightmost = oper & 1
+        res = (self.cpu.c << 7) + (oper >> 1)
+        res_8b = self.fh.getActualNum(res)
+        self.fh.forceCarryFlag(rightmost)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.mem_bus.write(addr, res_8b)
+        return addr
 
+    # Subtracts the value (inside given address + reg_x) and borrow from reg_a
+    # (result = reg_a - value - carry), puts result in reg_a. Borrow is the
+    # carry flag complemented.
+    # Flags: C -> is set if result is >= 0.  -- CHANGE LATER
+    #        V -> is set when result > 127 ou result < -127.
+    #        N, Z (from result)
+    # Tested
     def absX_sbc(self):
-        absolute_x = self.decoder.content_x
-        result = self.cpu.a - absolute_x - self.cpu.c
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.a = result_8b
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setOverflow(result_8b)
-        self.handler.setCarry(result)
+        oper = self.decoder.content_x
+        reg_a = self.cpu.a
+        carry = self.cpu.c
+        res = reg_a + (~oper + 1) + carry - 1
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setCarrySbc(res)
+        self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
+        return self.decoder.full_addr_x
 
+    # Transfers content of reg_a to given address + reg_x.
+    # Does not affect any register or flags.
+    # Tested
     def absX_sta(self):
-        absolute_x = self.decoder.full_addr + self.cpu.x
-        address = self.handler.getActualNum(absolute_x)
-        self.cpu.mem_bus.write(address, self.cpu.a, n=1)
+        oper = self.decoder.full_addr_x
+        self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
+        return oper
 
 
     ###################################################################################################################
     ############### ABSOLUTE Y OPERATIONS #############################################################################
     ###################################################################################################################
 
+    # Adds value (inside given [address + reg_y]) to reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z, C, V (from result).
+    # Tested
     def absY_adc(self):
-        absolute_y = self.decoder.content_y
-        result = self.cpu.a + absolute_y + self.cpu.c
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.a = result_8b
-        self.handler.setCarry(result)
-        self.handler.setOverflow(self.cpu.a, absolute_y, result_8b)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
+        oper = self.decoder.content_y
+        reg_a = self.cpu.a
+        carry = self.cpu.c
+        res = reg_a + oper + carry
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setCarry(res)
+        self.fh.setOverflow(reg_a, oper, res_8b)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
+        return self.decoder.full_addr_y
 
+    # "AND" between value (inside given address +reg_y) and reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z (from result)
+    #Tested
     def absY_and(self):
-        absolute_y = self.decoder.content_y
-        result = self.cpu.a & absolute_y
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        oper = self.decoder.content_y
+        reg_a = self.cpu.a
+        res = reg_a & oper
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
+        return self.decoder.full_addr_y
 
+    # Subtracts the value (inside given address + reg_x) from reg_a (reg_a - value).
+    # Does NOT put result in reg_a or anywhere else.
+    # Flags: Z, N, C (from result).
+    # Tested
     def absY_cmp(self):
-        absolute_y = self.decoder.content_y
-        result = self.cpu.a - absolute_y
-        result_8b = self.handler.getActualNum(result)
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setCarry(result)
+        oper = self.decoder.content_y
+        result = self.cpu.a + (~oper + 1)
+        result_8b = self.fh.getActualNum(result)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        self.fh.setCarry(result)
+        return self.decoder.full_addr_y
 
+    # "XOR" between value (inside given address + reg_x) and reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z (from result).
+    # Tested
     def absY_eor(self):
-        absolute_y = self.decoder.content_y
-        result = self.cpu.a ^ absolute_y
-        result_8b = self.handler.getActualNum(result)
+        oper = self.decoder.content_y
+        result = self.cpu.a ^ oper
+        result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        return self.decoder.full_addr_y
 
+    # Puts value (from given address + reg_y) inside reg_a.
+    # Flags: N, Z (from value).
+    # Tested
     def absY_lda(self):
-        absolute_y = self.decoder.content_y
-        result = self.handler.getActualNum(absolute_y)
+        oper = self.decoder.content_y
+        result = self.fh.getActualNum(oper)
         self.cpu.a = result
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        self.fh.setNegative(result)
+        self.fh.setZero(result)
+        return self.decoder.full_addr_y
 
+    # Puts value (from given address + reg_y) inside reg_x.
+    # Flags: N, Z (from value).
+    # Tested
     def absY_ldx(self):
-        absolute_y = self.decoder.content_y
-        result = self.handler.getActualNum(absolute_y)
+        oper = self.decoder.content_y
+        result = self.fh.getActualNum(oper)
         self.cpu.x = result
-        self.handler.setNegative(result)
-        self.handler.setZero(result)
+        self.fh.setNegative(result)
+        self.fh.setZero(result)
+        return self.decoder.full_addr_y
 
+    # "OR" between value (from given address + reg_y) and reg_a, puts result in
+    # reg_a.
+    # Flags: N, Z (from result).
+    # Tested
     def absY_ora(self):
-        absolute_y = self.decoder.content_y
-        result = self.cpu.a | absolute_y
-        result_8b = self.handler.getActualNum(result)
+        oper = self.decoder.content_y
+        result = self.cpu.a | oper
+        result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
+        self.fh.setNegative(result_8b)
+        self.fh.setZero(result_8b)
+        return self.decoder.full_addr_y
 
+    # Subtracts the value (inside given address + reg_y) and borrow from reg_a
+    # (result = reg_a - value - carry), puts result in reg_a. Borrow is the
+    # carry flag complemented.
+    # Flags: C -> is set if result is >= 0.  -- CHANGE LATER
+    #        V -> is set when result > 127 ou result < -127.
+    #        N, Z (from result)
+    # Tested
     def absY_sbc(self):
-        absolute_y = self.decoder.content_y
-        result = self.cpu.a - absolute_y - self.cpu.c
-        result_8b = self.handler.getActualNum(result)
-        self.cpu.a = result_8b
-        self.handler.setNegative(result_8b)
-        self.handler.setZero(result_8b)
-        self.handler.setOverflow(result_8b)
-        self.handler.setCarry(result)
+        oper = self.decoder.content_y
+        reg_a = self.cpu.a
+        carry = self.cpu.c
+        res = reg_a + (~oper + 1) + carry - 1
+        res_8b = self.fh.getActualNum(res)
+        self.fh.setCarrySbc(res)
+        self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
+        return self.decoder.full_addr_y
 
+    # Transfers content of reg_a to given address + reg_y.
+    # Does not affect any register or flags.
+    # Tested
     def absY_sta(self):
-        absolute_y = self.decoder.full_addr + self.cpu.y
-        address = self.handler.getActualNum(absolute_y)
-        self.cpu.mem_bus.write(address, self.cpu.a, n=1)
+        oper = self.decoder.full_addr_y
+        self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
+        return oper
