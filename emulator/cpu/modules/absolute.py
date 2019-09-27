@@ -20,6 +20,7 @@ class Absolute():
         self.fh.setOverflow(self.cpu.a, absolute, result_8b)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.full_addr
 
     # "AND" between value (inside given address) and reg_a, puts result in
     # reg_a.
@@ -33,6 +34,8 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.full_addr
+
 
     # Shifts value (inside given address) 1 bit to the left, with
     # bit 0 set to 0. Result is stored in [given address].
@@ -49,6 +52,8 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.mem_bus.write(addr, res_8b)
+        return self.decoder.full_addr
+
 
     # "AND" between value (inside given address) and reg_a, but does NOT put
     # result in reg_a.
@@ -64,6 +69,7 @@ class Absolute():
         self.fh.setZero(res)
         self.fh.forceNegativeFlag(value_negative)
         self.fh.forceOverflowFlag(value_overflow)
+        return self.decoder.full_addr
 
     # Subtracts the value (inside given address) from reg_a (reg_a - value).
     # Does NOT put result in reg_a or anywhere else.
@@ -76,6 +82,7 @@ class Absolute():
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
         self.fh.setCarry(result)
+        return self.decoder.full_addr
 
     # Subtracts the value (inside given address) from reg_x (reg_x - value).
     # Does NOT put result in reg_x or anywhere else.
@@ -88,6 +95,7 @@ class Absolute():
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
         self.fh.setCarry(result)
+        return self.decoder.full_addr
 
     # Subtracts the value (inside given address) from reg_y (reg_y - value).
     # Does NOT put result in reg_y or anywhere else.
@@ -100,6 +108,7 @@ class Absolute():
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
         self.fh.setCarry(result)
+        return self.decoder.full_addr
 
     # Subtracts 1 from value (inside given address) (result = value - 1)
     # and stores the result back in the given address.
@@ -112,6 +121,7 @@ class Absolute():
         result = oper + (~1 + 1)
         result_8b = self.fh.getActualNum(result)
         self.cpu.mem_bus.write(oper_addr, result_8b, n=1)
+        return self.decoder.full_addr
 
     # "XOR" between value (inside given address) and reg_a, puts result in
     # reg_a.
@@ -124,6 +134,7 @@ class Absolute():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.full_addr
 
     # Adds 1 to value (inside given address), stores result in given
     # address. Does NOT affect any register.
@@ -134,6 +145,7 @@ class Absolute():
         oper_addr = self.decoder.full_addr
         result = self.fh.getActualNum(oper+1)
         self.cpu.mem_bus.write(oper_addr, result, n=1)
+        return self.decoder.full_addr
 
     # JMP changes pc to the following address
     # No flags are affected.
@@ -142,7 +154,7 @@ class Absolute():
         oper = self.decoder.full_addr
         self.cpu.pc = oper
         self.cpu.update_pc = False
-        pass
+        return self.decoder.full_addr
 
     def abs_jsr(self):
     #     oper = self.decoder.content
@@ -157,6 +169,7 @@ class Absolute():
         self.cpu.a = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+        return self.decoder.full_addr
 
     # Data is transferred from memory to the accumulator and stored in reg_x
     # Flags: N, Z (from value).
@@ -167,6 +180,7 @@ class Absolute():
         self.cpu.x = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+        return self.decoder.full_addr
 
     # Data is transferred from memory to the accumulator and stored in reg_y
     # Flags: N, Z (from value).
@@ -177,6 +191,7 @@ class Absolute():
         self.cpu.y = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+        return self.decoder.full_addr
 
     # Shifts value (inside given address) 1 bit to the right, with bit 7 set
     # to 0. Result is stored in given address.
@@ -194,6 +209,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.forceZeroFlag(0)
         self.cpu.mem_bus.write(addr, res_8b)
+        return self.decoder.full_addr
 
     # "OR" between value (from given address) and reg_a, puts result in
     # reg_a.
@@ -206,6 +222,7 @@ class Absolute():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.full_addr
 
     # Rotates value (from given address) 1 bit to the left, with initial
     # carry becoming bit 0. Stores result in given address.
@@ -223,6 +240,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.mem_bus.write(addr, res_8b)
+        return self.decoder.full_addr
 
     # Rotates value (from given address) 1 bit to the right, with initial
     # carry becoming bit 7. Stores result in given address.
@@ -240,6 +258,7 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.mem_bus.write(addr, res_8b)
+        return self.decoder.full_addr
 
     # Subtracts the value (inside given address) and borrow from reg_a
     # (result = reg_a - value - carry), puts result in reg_a. Borrow is the
@@ -259,6 +278,7 @@ class Absolute():
         self.fh.setOverflowSbc(reg_a, oper, carry, result_8b)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+        return self.decoder.full_addr
 
     # Transfers content of reg_a to given address.
     # Does not affect any register or flags.
@@ -266,18 +286,21 @@ class Absolute():
     def abs_sta(self):
         oper = self.decoder.full_addr
         self.cpu.mem_bus.write(oper, self.cpu.a, n=1)
+        return self.decoder.full_addr
 
     # Transfers content of reg_x to given address.
     # Does not affect any register or flags.
     def abs_stx(self):
         oper = self.decoder.full_addr
         self.cpu.mem_bus.write(oper, self.cpu.x, n=1)
+        return self.decoder.full_addr
 
     # Transfers content of reg_y to given address.
     # Does not affect any register or flags.
     def abs_sty(self):
         oper = self.decoder.full_addr
         self.cpu.mem_bus.write(oper, self.cpu.y, n=1)
+        return self.decoder.full_addr
 
     ###################################################################################################################
     ############### ABSOLUTE X OPERATIONS #############################################################################
