@@ -12,9 +12,10 @@ class Relative():
         imm = self.decoder.immediate
 
         if imm >= 0x80:
-            npc = npc + (~imm + 1)
+            npc = npc - ((~(imm - 1))%256)
         else:
             npc = npc + imm
+
         self.cpu.pc = npc
 
     def rel_bpl(self):
