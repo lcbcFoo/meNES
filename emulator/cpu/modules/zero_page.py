@@ -332,9 +332,9 @@ class ZeroPage():
         def zpx_cmp(self):  #tested
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
-            res = reg_a - oper
+            res = reg_a + (~oper + 1)
             res_8b = self.fh.getActualNum(res)
-            self.fh.setCarry(res)
+            self.fh.setCarrySbc(res)
             self.fh.setNegative(res_8b)
             self.fh.setZero(res_8b)
             return self.decoder.addr_x
