@@ -45,19 +45,22 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 Reset:
    ; TODO: STA and LDA not tested
    lda #$40
-   sta $30
+   sta $32
    lda #0
-   sta $31
-   ; mem[0x30] = 0x40, mem[0x31] = 0x0
-   ldy #$02
+   sta $33
+    
+   ; mem[0x32] = 0x40, mem[0x33] = 0x0
+   ldx #$02
+   ; x = 2
 
-   lda #$6A
-   sta ($30), Y
-   lda #0
-   ; mem[0x42] = 0x6A
+   lda #$6B
+   sta($30,X)
 
-   lda $42
-   ; a = 0x6A
+   ; mem[0x40] = 0x6b
+
+   lda #$0
+   lda $40
+   ; a = 0x6B
    brk ; Abort execution
 
 NMI:

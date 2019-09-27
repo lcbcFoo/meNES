@@ -45,9 +45,9 @@ class Indirect():
     def indx_cmp(self):
         oper = self.decoder.pointer_content_x
         reg_a = self.cpu.a
-        res = reg_a - oper
+        res = reg_a + (~oper + 1)
         res_8b = self.fh.getActualNum(res)
-        self.fh.setCarry(res)
+        self.fh.setCarrySbc(res)
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
 
@@ -70,6 +70,7 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+        return self.decoder.pointer_addr_x
 
     # "OR" between value of pointer_content_x and reg_a, puts result in reg_a.
     # Flags: N, Z (from result).
@@ -105,6 +106,7 @@ class Indirect():
     def indx_sta(self):
         addr = self.decoder.pointer_addr_x
         self.cpu.mem_bus.write(addr, self.cpu.a)
+        return addr
 
     ##########################################################################
     #
@@ -146,7 +148,7 @@ class Indirect():
         reg_a = self.cpu.a
         res = reg_a + (~oper + 1)
         res_8b = self.fh.getActualNum(res)
-        self.fh.setCarry(res)
+        self.fh.setCarrySbc(res)
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
 
@@ -164,11 +166,12 @@ class Indirect():
     # Puts value of pointer_content_y inside reg_a.
     # Flags: N, Z (from value).
     def indy_lda(self):
-        v = self.decoder.pointer_content_y
-        result_8b = self.fh.getActualNum(v)
-        self.cpu.a = result_8b
-        self.fh.setNegative(result_8b)
-        self.fh.setZero(result_8b)
+        oper = self.decoder.pointer_content_y
+        res_8b = self.fh.getActualNum(oper)
+        self.fh.setNegative(res_8b)
+        self.fh.setZero(res_8b)
+        self.cpu.a = res_8b
+        return self.decoder.pointer_addr_y
 
     # "OR" between value of pointer_content_y and reg_a, puts result in reg_a.
     # Flags: N, Z (from result).
@@ -204,3 +207,4 @@ class Indirect():
     def indy_sta(self):
         addr = self.decoder.pointer_addr_y
         self.cpu.mem_bus.write(addr, self.cpu.a)
+        return addr

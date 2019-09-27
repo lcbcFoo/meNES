@@ -43,22 +43,18 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
    .base $10000-(PRG_COUNT*$4000)
 
 Reset:
-   ; TODO: STA and LDA not tested
-   lda #$40
-   sta $30
-   lda #0
-   sta $31
-   ; mem[0x30] = 0x40, mem[0x31] = 0x0
-   ldy #$02
+  lda #$BA
+  sta #$0300
 
-   lda #$6A
-   sta ($30), Y
-   lda #0
-   ; mem[0x42] = 0x6A
+  lda #$FF
+  sta #$FF
 
-   lda $42
-   ; a = 0x6A
-   brk ; Abort execution
+  lda #02
+  sta #$00
+
+  ldy #1
+  lda ($FF), y
+  brk ; Abort execution
 
 NMI:
 

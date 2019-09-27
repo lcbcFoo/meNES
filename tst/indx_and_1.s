@@ -51,19 +51,19 @@ Reset:
     
    ; mem[0x32] = 0x40, mem[0x33] = 0x0
 
-   lda #$6A
+   lda #$6B
    sta $40
 
-   ; mem[0x40] = 0x6A
+   ; mem[0x40] = 0x6b
 
    ldx #$02
    ; x = 2
 
    lda #$75
-   and ($30), X
+   and ($30,X)
 
    ; a = a & mem[mem[0x33] << 8 + mem[0x32] = 0x40]
-   ; a = 0x60
+   ; a = 0x61
    brk ; Abort execution
 
 NMI:
