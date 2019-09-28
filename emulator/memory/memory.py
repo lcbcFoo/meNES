@@ -13,7 +13,7 @@ class MemoryBus():
     # Select which memory instance is being accessed based on address
     def addr_mux(self, bus_addr):
         if bus_addr < 0x2000:
-            return self.ram, bus_addr
+            return self.ram, bus_addr % 0x0800
         elif bus_addr < 0x4020:
             return self.io, bus_addr - 0x2000
         elif bus_addr < 0x6000:
