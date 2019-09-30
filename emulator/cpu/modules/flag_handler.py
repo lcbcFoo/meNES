@@ -30,7 +30,7 @@ class FlagHandler():
     # The carry flag is reset when the result is less than 0, indicating a
     # borrow.
     def setCarrySbc(self, res):
-        if res < self.NEGATIVE and res >= 0:   # if res is a positive number
+        if res >= 0:   # if res is a positive number
             self.cpu.c = 1
         else:
             self.cpu.c = 0

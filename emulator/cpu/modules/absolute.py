@@ -280,7 +280,7 @@ class Absolute():
         reg_a = self.cpu.a
         oper = self.decoder.content
         carry = self.cpu.c
-        result = reg_a + (~oper +1) + carry - 1
+        result = reg_a + (~oper) + carry
         result_8b = self.fh.getActualNum(result)
         self.cpu.a = result_8b
         self.fh.setCarrySbc(result)
@@ -518,7 +518,7 @@ class Absolute():
         oper = self.decoder.content_x
         reg_a = self.cpu.a
         carry = self.cpu.c
-        res = reg_a + (~oper + 1) + carry - 1
+        res = reg_a + (~oper) + carry
         res_8b = self.fh.getActualNum(res)
         self.fh.setCarrySbc(res)
         self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)
@@ -643,7 +643,7 @@ class Absolute():
         oper = self.decoder.content_y
         reg_a = self.cpu.a
         carry = self.cpu.c
-        res = reg_a + (~oper + 1) + carry - 1
+        res = reg_a + (~oper) + carry
         res_8b = self.fh.getActualNum(res)
         self.fh.setCarrySbc(res)
         self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)

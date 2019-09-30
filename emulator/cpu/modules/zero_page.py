@@ -250,7 +250,7 @@ class ZeroPage():
             oper = self.decoder.cont_zp
             reg_a = self.cpu.a
             carry = self.cpu.c
-            res = reg_a + (~oper + 1) + carry - 1
+            res = reg_a + (~oper) + carry
             res_8b = self.fh.getActualNum(res)
             self.fh.setCarrySbc(res)
             self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)
@@ -472,7 +472,7 @@ class ZeroPage():
             oper = self.decoder.cont_zp_x
             reg_a = self.cpu.a
             carry = self.cpu.c
-            res = reg_a + (~oper + 1) + carry - 1
+            res = reg_a + (~oper) + carry
             res_8b = self.fh.getActualNum(res)
             self.fh.setCarrySbc(res)
             self.fh.setOverflowSbc(reg_a, oper, carry, res_8b)

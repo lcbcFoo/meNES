@@ -135,7 +135,7 @@ class Immediate():
         reg_a = self.cpu.a
         immediate = self.decoder.immediate
         carry = self.cpu.c
-        res = reg_a + (~immediate + 1) + carry - 1
+        res = reg_a + (~immediate) + carry
         res_8b = self.fh.getActualNum(res)
         self.fh.setCarrySbc(res)
         self.fh.setOverflowSbc(reg_a, immediate, carry, res_8b)
