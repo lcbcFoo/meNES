@@ -188,8 +188,8 @@ class ZeroPage():
             res = oper >> 1
             res_8b = self.fh.getActualNum(res)
             self.fh.forceCarryFlag(carry)
-            self.fh.setNegative(res_8b)
-            self.fh.forceZeroFlag(0)
+            self.fh.forceNegativeFlag(0)
+            self.fh.setZero(res_8b)
             self.cpu.mem_bus.write(addr, res_8b)
             return addr
 
@@ -410,8 +410,8 @@ class ZeroPage():
             res = oper >> 1
             res_8b = self.fh.getActualNum(res)
             self.fh.forceCarryFlag(carry)
-            self.fh.setNegative(res_8b)
-            self.fh.forceZeroFlag(0)
+            self.fh.forceNegativeFlag(0)
+            self.fh.setZero(res_8b)
             self.cpu.mem_bus.write(addr, res_8b)
             return addr
 

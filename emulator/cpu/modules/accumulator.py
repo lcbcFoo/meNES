@@ -21,7 +21,7 @@ class Accumulator():
         self.cpu.a = res_8b
 
     # This instruction shifts the accumulator 1 bit to the right, with
-    # the higher bit of the result always being set to 0, and the low 
+    # the higher bit of the result always being set to 0, and the low
     # bit which is shifted out of the field being stored in the carry flag.
     def acc_lsr(self):
         oper = self.cpu.a
@@ -29,7 +29,7 @@ class Accumulator():
         c = oper & 1
         res_8b = self.fh.getActualNum(res)
         self.fh.forceCarryFlag(c)
-        self.fh.setNegative(res_8b)
+        self.fh.forceNegativeFlag(0)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
 
