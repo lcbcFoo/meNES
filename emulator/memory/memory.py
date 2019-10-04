@@ -3,6 +3,7 @@
 class MemoryBus():
 
     def __init__(self):
+        self._16kb = True
         self.ram = [0] * 0x2000         # 0x0    - 0x2000
         self.io = [0] * 0x2020          # 0x2000 - 0x4020
         self.exp_rom = [0] * 0x1FE0     # 0x4020 - 0x6000
@@ -14,14 +15,19 @@ class MemoryBus():
     def addr_mux(self, bus_addr):
         if bus_addr < 0x2000:
             return self.ram, bus_addr % 0x0800
+        elif bus_addr < 0x4000:
+            return self.io, (bus_addr - 0x2000) % 0x0008
         elif bus_addr < 0x4020:
-            return self.io, bus_addr - 0x2000
+            return self.io, bus_addr - 0x4000
         elif bus_addr < 0x6000:
             return self.exp_rom, bus_addr - 0x4020
         elif bus_addr < 0x8000:
             return self.sram, bus_addr - 0x6000
         elif bus_addr < 0x10000:
-            return self.prg_rom, bus_addr - 0x8000
+            if self._16kb:
+                return self.prg_rom, (bus_addr - 0x8000) % 0x4000
+            else:
+                return self.prg_rom, bus_addr - 0x8000
         else:
             return 0xFFFF
 
