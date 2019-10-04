@@ -53,7 +53,7 @@ Reset:
     ldx #$FF
     sec
     lda #$01
-    sta $0515
+    sta $0615
     lda #$80
     sbc $0516, X
 
