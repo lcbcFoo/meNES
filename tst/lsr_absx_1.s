@@ -42,7 +42,7 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
    .base $10000-(PRG_COUNT*$4000)
 
-;Increments twice test variable, 
+;Increments twice test variable,
 ; Shifts right (test_variable=1)
 ;loads into acc (acc  should be = 1 = 100)
 Reset:
@@ -54,9 +54,9 @@ Reset:
 
    ldx #$FF
    lda #$A6
-   sta $0516
+   sta $0616
    lsr $0517, X
-   lda $0516
+   lda $0616
 
    brk ; Abort execution
 

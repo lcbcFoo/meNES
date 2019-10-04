@@ -46,16 +46,16 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 Reset:
     ldx #03
     lda #$A7
-    sta $5015
-    rol $5012, X
-    lda $5015
+    sta $0515
+    rol $0512, X
+    lda $0515
 
     ldx #$FF
     lda #$A7
     sec
-    sta $5016
-    rol $5017, X
-    lda $5016
+    sta $0616
+    rol $0517, X
+    lda $0616
 
     brk
 

@@ -45,15 +45,15 @@ MIRRORING = %0001 ;%0000 = horizontal, %0001 = vertical, %1000 = four-screen
 
 Reset:
     lda #$A7
-    sta $5015
-    ror $5015
-    lda $5015
+    sta $0515
+    ror $0515
+    lda $0515
 
     lda #$A7
     sec
-    sta $5016
-    ror $5016
-    lda $5016
+    sta $0516
+    ror $0516
+    lda $0516
 
     brk
 

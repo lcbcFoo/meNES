@@ -53,7 +53,7 @@ Reset:
     ora $0515
 
     ldy #$FF
-    sta $0516
+    sta $0616
     lda #128
     ora $0517, Y
 
