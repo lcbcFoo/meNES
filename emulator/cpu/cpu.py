@@ -43,8 +43,8 @@ class CPU:
             'accumulator': self.acc,
         }
 
-        # Clock of 1.7897725 MHz
-        self.clock = 1.7897725e6
+        self.reset()
+
 
     def reset(self):
 
@@ -75,45 +75,30 @@ class CPU:
         self.update_pc = True
 
     def run(self):
-        self.reset()
+        self.update_pc = True
+        self.decoder.update()   #read instructions from memory
+        opcode = self.decoder.opcode  # get instruction opcode
 
-        # TODO: change while control.
-        while True:
-            self.update_pc = True
-            self.decoder.update()   #read instructions from memory
-            opcode = self.decoder.opcode  # get instruction opcode
+        if opcode == 0:
+            exit(0)
 
-            if opcode == 0:
-                exit(0)
+        # get instance for the correct class
+        op_instance = self.types_dict[opcodes_dict[opcode].type]
+        # call method associated with opcode
+        address = opcodes_dict[opcode].method(op_instance)
 
-            # get instance for the correct class
-            op_instance = self.types_dict[opcodes_dict[opcode].type]
-            # call method associated with opcode
-            address = opcodes_dict[opcode].method(op_instance)
+        # Update pc if no branch/jump occured
+        if self.update_pc:
+            self.pc += opcodes_dict[opcode].bytes
 
-            # Update pc if no branch/jump occured
-            if self.update_pc:
-                self.pc += opcodes_dict[opcode].bytes
+        # Show log for this instruction
+        if(address != None):
+            val = self.mem_bus.read(address)
+            self.print_log(True, address, val)
+        else:
+            self.print_log()
 
-            # Show log for this instruction
-            if(address != None):
-                val = self.mem_bus.read(address)
-                self.print_log(True, address, val)
-            else:
-                self.print_log()
-
-            # Set a sleep proportional to the number of cycles to simulate
-            # 6502 clock rate
-            sleep(opcodes_dict[opcode].cycles * (1 / self.clock))
-
-    def read_cartridge(self, file_name):
-        f = open(file_name, 'rb')
-        lines = list(f.readlines())
-        data = []
-        for i in lines:
-            data += i
-        data = data[16:]
-        self.mem_bus.write(0xC000, data, 16384)
+        return opcodes_dict[opcode].cycles
 
     def push_stack(self, value):
         stack_addr = 0x0100 + self.sp
