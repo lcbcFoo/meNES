@@ -8,9 +8,9 @@ class PPUCTRL:
     BASE_TABLE_ADDRESS = 0
 
     def __init__(self):
-        reset()
+        self.reset()
 
-    def reset():
+    def reset(self):
         self.reg = 0
 
     def write(self,value):
