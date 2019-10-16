@@ -1,5 +1,4 @@
 import sys
-from time import sleep
 from collections import namedtuple
 from array import array
 
@@ -17,8 +16,9 @@ from cpu.modules.flag_handler import FlagHandler
 
 class CPU:
 
-    def __init__(self, bus):
+    def __init__(self, bus, ppu):
         self.mem_bus = bus
+        self.ppu = ppu
         self.decoder = Decoder(self, self.mem_bus)
         self.flag_handler = FlagHandler(self)
 

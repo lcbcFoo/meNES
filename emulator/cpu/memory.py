@@ -1,6 +1,4 @@
-
-
-class MemoryBus():
+class CpuMemoryBus():
 
     def __init__(self):
         self._16kb = True

@@ -3,18 +3,20 @@ import argparse
 import os
 import subprocess
 from cpu import *
+from ppu import *
+from time import sleep
 
 CLOCK = 1.7897725e6
 
 
-def read_cartridge(file_name, mem_cpu):
+def read_cartridge(file_name, cpu_mem, ppu_mem):
     f = open(file_name, 'rb')
     lines = list(f.readlines())
     data = []
     for i in lines:
         data += i
     data = data[16:]
-    mem_cpu.write(0xC000, data, 16384)
+    cpu_mem.write(0xC000, data, 16384)
 
 
 def main():
@@ -32,14 +34,23 @@ def main():
     args = argParser.parse_args()
     rom = args.input_file_path
 
-    mem_bus = MemoryBus()
-    read_cartridge(rom, mem_bus)
-    cpu = CPU(mem_bus)
+    cpu_mem = CpuMemoryBus()
+    ppu_mem = PpuMemoryBus()
+
+    read_cartridge(rom, cpu_mem, ppu_mem)
+    ppu = PPU(ppu_mem)
+    cpu = CPU(cpu_mem, ppu)
+
 
     while True:
         n_cycles = cpu.run()
+
+        for i in range (0, n_cycles):
+            ppu.run()
+
         # Set a sleep proportional to the number of cycles to simulate
         # 6502 clock rate
+        # TODO: test execution time for this program
         sleep(n_cycles * (1/CLOCK))
 
 
