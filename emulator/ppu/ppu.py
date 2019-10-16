@@ -11,3 +11,9 @@ class PPU:
 
     def run(self):
         pass
+
+    def write(self, addr, value):
+        pass
+
+    def read(self, addr):
+        return 0

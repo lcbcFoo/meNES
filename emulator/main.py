@@ -34,18 +34,17 @@ def main():
     args = argParser.parse_args()
     rom = args.input_file_path
 
-    cpu_mem = CpuMemoryBus()
+    # TODO: change initialization later
     ppu_mem = PpuMemoryBus()
-
-    read_cartridge(rom, cpu_mem, ppu_mem)
     ppu = PPU(ppu_mem)
+    cpu_mem = CpuMemoryBus(ppu)
+    read_cartridge(rom, cpu_mem, ppu_mem)
     cpu = CPU(cpu_mem, ppu)
-
 
     while True:
         n_cycles = cpu.run()
 
-        for i in range (0, n_cycles):
+        for i in range (0, 3 * n_cycles):
             ppu.run()
 
         # Set a sleep proportional to the number of cycles to simulate
