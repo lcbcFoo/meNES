@@ -4,6 +4,19 @@ import os
 import subprocess
 from cpu import *
 
+CLOCK = 1.7897725e6
+
+
+def read_cartridge(file_name, mem_cpu):
+    f = open(file_name, 'rb')
+    lines = list(f.readlines())
+    data = []
+    for i in lines:
+        data += i
+    data = data[16:]
+    mem_cpu.write(0xC000, data, 16384)
+
+
 def main():
     argParser = argparse.ArgumentParser(
             description='Arguments for meNES emulator.')
@@ -20,9 +33,15 @@ def main():
     rom = args.input_file_path
 
     mem_bus = MemoryBus()
+    read_cartridge(rom, mem_bus)
     cpu = CPU(mem_bus)
-    cpu.read_cartridge(rom)
-    cpu.run()
+
+    while True:
+        n_cycles = cpu.run()
+        # Set a sleep proportional to the number of cycles to simulate
+        # 6502 clock rate
+        sleep(n_cycles * (1/CLOCK))
+
 
 if __name__ == '__main__':
     main()
