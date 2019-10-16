@@ -3,6 +3,7 @@ import argparse
 import os
 import subprocess
 from cpu import *
+from time import sleep
 
 CLOCK = 1.7897725e6
 
@@ -32,7 +33,7 @@ def main():
     args = argParser.parse_args()
     rom = args.input_file_path
 
-    mem_bus = MemoryBus()
+    mem_bus = CpuMemoryBus()
     read_cartridge(rom, mem_bus)
     cpu = CPU(mem_bus)
 

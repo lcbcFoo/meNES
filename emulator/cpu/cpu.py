@@ -1,5 +1,4 @@
 import sys
-from time import sleep
 from collections import namedtuple
 from array import array
 
