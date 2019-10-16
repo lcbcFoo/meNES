@@ -12,8 +12,8 @@ class PPU:
     def run(self):
         pass
 
-    def write(self, addr, value):
+    def register_write(self, addr, value):
         pass
 
-    def read(self, addr):
+    def register_read(self, addr):
         return 0

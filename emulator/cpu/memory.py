@@ -44,17 +44,9 @@ class CpuMemoryBus():
                 curr_data = data[i] % 256
 
             if mem_instance == self.io and ((curr_addr >= 0x2000 and curr_addr <= 0x2007) or curr_addr == 0x4014):
-                self.ppu.write(curr_addr, curr_data)
+                self.ppu.register_write(curr_addr, curr_data)
 
             mem_instance[addr] = curr_data
-
-
-    # def write(self, start_addr, data, n=1):
-    #
-    #     for i in range(0, n):
-    #         mem_instance, addr = self.addr_mux(start_addr + i
-    #
-    #         mem_instance[addr] = data[i] % 256
 
     # Read n bytes starting at start_addr
     # Return a list with the n elements read
@@ -65,7 +57,7 @@ class CpuMemoryBus():
 
             curr_addr = addr + 0x2000
             if mem_instance == self.io and ((curr_addr >= 0x2000 and curr_addr <= 0x2007) or curr_addr == 0x4014):
-                data[i] = self.ppu.read(curr_addr)
+                data[i] = self.ppu.register_read(curr_addr)
             else:
                 data[i] = mem_instance[addr]
 
@@ -73,14 +65,3 @@ class CpuMemoryBus():
             return data[0]
 
         return data
-
-    # def read(self, start_addr, n=1):
-    #     data = [0] * n
-    #     for i in range(0, n):
-    #         mem_instance, addr = self.addr_mux(start_addr + i)
-    #         data[i] = mem_instance[addr]
-    #
-    #     if n == 1:
-    #         return data[0]
-    #
-    #     return data
