@@ -16,7 +16,7 @@ class OAMADDR:
         self.reg = value
 
     def increment(self):
-        if(self.ppu.ppucontrol.isVRAMAdressIncrement32):
-            self.reg += 32
-        else:
-            self.reg += 1
+        # if(self.ppu.ppucontrol.isVRAMAdressIncrement32):
+        #     self.reg += 32
+        # else:
+        self.reg += 1
