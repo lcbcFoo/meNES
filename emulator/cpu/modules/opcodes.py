@@ -103,32 +103,32 @@ opcodes_dict = {
     0x8C: Instr(type='absolute', method=Absolute.abs_sty, bytes=3, cycles=4),    #STY
 
     # Absolute X
-    0x7D: Instr(type='absolute', method=Absolute.absX_adc, bytes=3, cycles=4),   #ADC
-    0x3D: Instr(type='absolute', method=Absolute.absX_and, bytes=3, cycles=4),   #AND
-    0x1E: Instr(type='absolute', method=Absolute.absX_asl, bytes=3, cycles=7),   #ASL
-    0xDD: Instr(type='absolute', method=Absolute.absX_cmp, bytes=3, cycles=4),   #CMP
-    0xDE: Instr(type='absolute', method=Absolute.absX_dec, bytes=3, cycles=7),   #DEC
-    0x5D: Instr(type='absolute', method=Absolute.absX_eor, bytes=3, cycles=4),   #EOR
-    0xFE: Instr(type='absolute', method=Absolute.absX_inc, bytes=3, cycles=7),   #INC
-    0xBD: Instr(type='absolute', method=Absolute.absX_lda, bytes=3, cycles=4),   #LDA
-    0xBC: Instr(type='absolute', method=Absolute.absX_ldy, bytes=3, cycles=4),   #LDY
-    0x5E: Instr(type='absolute', method=Absolute.absX_lsr, bytes=3, cycles=7),   #LSR
-    0x1D: Instr(type='absolute', method=Absolute.absX_ora, bytes=3, cycles=4),   #ORA
-    0x3E: Instr(type='absolute', method=Absolute.absX_rol, bytes=3, cycles=7),   #ROL
-    0x7E: Instr(type='absolute', method=Absolute.absX_ror, bytes=3, cycles=7),   #ROR
-    0xFD: Instr(type='absolute', method=Absolute.absX_sbc, bytes=3, cycles=4),   #SBC
-    0x9D: Instr(type='absolute', method=Absolute.absX_sta, bytes=3, cycles=5),   #STA
+    0x7D: Instr(type='absolute_x', method=Absolute.absX_adc, bytes=3, cycles=4),   #ADC
+    0x3D: Instr(type='absolute_x', method=Absolute.absX_and, bytes=3, cycles=4),   #AND
+    0x1E: Instr(type='absolute_x', method=Absolute.absX_asl, bytes=3, cycles=7),   #ASL
+    0xDD: Instr(type='absolute_x', method=Absolute.absX_cmp, bytes=3, cycles=4),   #CMP
+    0xDE: Instr(type='absolute_x', method=Absolute.absX_dec, bytes=3, cycles=7),   #DEC
+    0x5D: Instr(type='absolute_x', method=Absolute.absX_eor, bytes=3, cycles=4),   #EOR
+    0xFE: Instr(type='absolute_x', method=Absolute.absX_inc, bytes=3, cycles=7),   #INC
+    0xBD: Instr(type='absolute_x', method=Absolute.absX_lda, bytes=3, cycles=4),   #LDA
+    0xBC: Instr(type='absolute_x', method=Absolute.absX_ldy, bytes=3, cycles=4),   #LDY
+    0x5E: Instr(type='absolute_x', method=Absolute.absX_lsr, bytes=3, cycles=7),   #LSR
+    0x1D: Instr(type='absolute_x', method=Absolute.absX_ora, bytes=3, cycles=4),   #ORA
+    0x3E: Instr(type='absolute_x', method=Absolute.absX_rol, bytes=3, cycles=7),   #ROL
+    0x7E: Instr(type='absolute_x', method=Absolute.absX_ror, bytes=3, cycles=7),   #ROR
+    0xFD: Instr(type='absolute_x', method=Absolute.absX_sbc, bytes=3, cycles=4),   #SBC
+    0x9D: Instr(type='absolute_x', method=Absolute.absX_sta, bytes=3, cycles=5),   #STA
 
     # Absolute Y
-    0x79: Instr(type='absolute', method=Absolute.absY_adc, bytes=3, cycles=4),   #ADC
-    0x39: Instr(type='absolute', method=Absolute.absY_and, bytes=3, cycles=4),   #AND
-    0xD9: Instr(type='absolute', method=Absolute.absY_cmp, bytes=3, cycles=4),   #CMP
-    0x59: Instr(type='absolute', method=Absolute.absY_eor, bytes=3, cycles=4),   #EOR
-    0xB9: Instr(type='absolute', method=Absolute.absY_lda, bytes=3, cycles=4),   #LDA
-    0xBE: Instr(type='absolute', method=Absolute.absY_ldx, bytes=3, cycles=4),   #LDX
-    0x19: Instr(type='absolute', method=Absolute.absY_ora, bytes=3, cycles=4),   #ORA
-    0xF9: Instr(type='absolute', method=Absolute.absY_sbc, bytes=3, cycles=4),   #SBC
-    0x99: Instr(type='absolute', method=Absolute.absY_sta, bytes=3, cycles=5),   #STA
+    0x79: Instr(type='absolute_y', method=Absolute.absY_adc, bytes=3, cycles=4),   #ADC
+    0x39: Instr(type='absolute_y', method=Absolute.absY_and, bytes=3, cycles=4),   #AND
+    0xD9: Instr(type='absolute_y', method=Absolute.absY_cmp, bytes=3, cycles=4),   #CMP
+    0x59: Instr(type='absolute_y', method=Absolute.absY_eor, bytes=3, cycles=4),   #EOR
+    0xB9: Instr(type='absolute_y', method=Absolute.absY_lda, bytes=3, cycles=4),   #LDA
+    0xBE: Instr(type='absolute_y', method=Absolute.absY_ldx, bytes=3, cycles=4),   #LDX
+    0x19: Instr(type='absolute_y', method=Absolute.absY_ora, bytes=3, cycles=4),   #ORA
+    0xF9: Instr(type='absolute_y', method=Absolute.absY_sbc, bytes=3, cycles=4),   #SBC
+    0x99: Instr(type='absolute_y', method=Absolute.absY_sta, bytes=3, cycles=5),   #STA
 
     # Indirect
     0x6C: Instr(type='indirect', method=Indirect.ind_jmp, bytes=3, cycles=5),    #JMP

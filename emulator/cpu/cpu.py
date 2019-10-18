@@ -37,6 +37,8 @@ class CPU:
             'immediate': self.imm,
             'zeropage': self.zp,
             'absolute': self.abs,
+            'absolute_x': self.abs,
+            'absolute_y': self.abs,
             'indirect': self.idr,
             'implied': self.impl,
             'relative': self.rel,
@@ -76,8 +78,10 @@ class CPU:
 
     def run(self):
         self.update_pc = True
-        self.decoder.update()   #read instructions from memory
-        opcode = self.decoder.opcode  # get instruction opcode
+        opcode = self.mem_bus.read(self.pc)
+        instr_type = opcodes_dict[opcode].type
+        self.decoder.update(instr_type)   #read instructions from memory
+        # opcode = self.decoder.opcode  # get instruction opcode
 
         if opcode == 0:
             exit(0)
