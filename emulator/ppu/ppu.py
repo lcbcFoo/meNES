@@ -39,12 +39,18 @@ class PPU:
         self.reset()
 
     def reset(self):
-        # for key in self.io_registers:
-        #     self.io_registers[key].reset()
-        pass
+        for key in self.io_registers:
+            self.io_registers[key].reset()
 
 
     def run(self):
+        self.render_pixel()
+        self.shift_registers()
+        self.fetch()
+        self.evaluate_sprites()
+        self.update_flags()
+        self.count_up_scroll_counters()
+        self.count_up_cycle()
         pass
 
     def register_write(self, addr, value):
@@ -52,3 +58,31 @@ class PPU:
 
     def register_read(self, addr):
         return self.io_registers[addr].read()
+
+    # Get BG and sprites values and prints and put it on the screen.
+    def render_pixel(self):
+        pass
+
+    # Updates values on shift registers (pixels infos).
+    def shift_registers(self):
+        pass
+
+    # According to the cycle, fetches value on VRAM and puts on shift registers.
+    def fetch(self):
+        pass
+
+    # Prepares sprite infos for next scanline.
+    def evaluate_sprites(self):
+        pass
+
+    # Sets/Clears VBlank, ZeroHit and Overflow flags according to scanline.
+    def update_flags(self):
+        pass
+
+    # Honestly, ???
+    def count_up_scroll_counters(self):
+        pass
+
+    # Increments cycle --> maybe this will not be used here.
+    def count_up_cycle(self):
+        pass
