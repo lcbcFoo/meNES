@@ -8,10 +8,10 @@ class OAMDATA:
 
     def read(self):
         OAMaddr = self.ppu.oamaddr.reg
-        return self.ppu.mem_bus.read(OAMADDR)
+        return self.ppu.mem_bus.read(OAMaddr)
 
     def write(self, value):
         self.reg = value
         OAMaddr = self.ppu.oamaddr.reg
-        self.ppu.mem_bus.write(OAMADDR, value)
+        self.ppu.mem_bus.write(OAMaddr, value)
         self.ppu.oamaddr.increment()
