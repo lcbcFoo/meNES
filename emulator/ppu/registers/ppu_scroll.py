@@ -21,4 +21,4 @@ class PPUSCROLL:
         else:
             pass
 
-        self.firstwrite = !self.firstwrite
+        self.firstwrite = not self.firstwrite
