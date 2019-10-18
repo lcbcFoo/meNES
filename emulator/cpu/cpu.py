@@ -28,7 +28,7 @@ class CPU:
         self.imm = Immediate(self, self.mem_bus, self.decoder)
         self.zp = ZeroPage(self, self.mem_bus, self.decoder)
         self.abs = Absolute(self, self.mem_bus, self.decoder)
-        self.idr = Indirect(self, self.mem_bus, self.decoder)
+        self.ind = Indirect(self, self.mem_bus, self.decoder)
         self.impl = Implied(self, self.mem_bus, self.decoder)
         self.rel = Relative(self, self.mem_bus, self.decoder)
         self.acc = Accumulator(self, self.mem_bus, self.decoder)
@@ -36,10 +36,14 @@ class CPU:
         self.types_dict = {
             'immediate': self.imm,
             'zeropage': self.zp,
+            'zeropage_x': self.zp,
+            'zeropage_y': self.zp,
             'absolute': self.abs,
             'absolute_x': self.abs,
             'absolute_y': self.abs,
-            'indirect': self.idr,
+            'indirect': self.ind,
+            'indirect_x': self.ind,
+            'indirect_y': self.ind,
             'implied': self.impl,
             'relative': self.rel,
             'accumulator': self.acc,

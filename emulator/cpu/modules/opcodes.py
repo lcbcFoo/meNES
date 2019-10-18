@@ -56,26 +56,26 @@ opcodes_dict = {
     0x84: Instr(type='zeropage', method=ZeroPage.zp_sty, bytes=2, cycles=3),     #STY
 
     # Zerop page X
-    0xD6: Instr(type='zeropage', method=ZeroPage.zpx_dec, bytes=2, cycles=6),    #DEC
-    0x55: Instr(type='zeropage', method=ZeroPage.zpx_eor, bytes=2, cycles=4),    #EOR
-    0x75: Instr(type='zeropage', method=ZeroPage.zpx_adc, bytes=2, cycles=4),    #ADC
-    0x35: Instr(type='zeropage', method=ZeroPage.zpx_and, bytes=2, cycles=4),    #AND
-    0x16: Instr(type='zeropage', method=ZeroPage.zpx_asl, bytes=2, cycles=6),    #ASL
-    0xD5: Instr(type='zeropage', method=ZeroPage.zpx_cmp, bytes=2, cycles=4),    #CMP
-    0xF6: Instr(type='zeropage', method=ZeroPage.zpx_inc, bytes=2, cycles=6),    #INC
-    0xB5: Instr(type='zeropage', method=ZeroPage.zpx_lda, bytes=2, cycles=4),    #LDA
-    0xB4: Instr(type='zeropage', method=ZeroPage.zpx_ldy, bytes=2, cycles=4),    #LDY
-    0x56: Instr(type='zeropage', method=ZeroPage.zpx_lsr, bytes=2, cycles=6),    #LSR
-    0x15: Instr(type='zeropage', method=ZeroPage.zpx_ora, bytes=2, cycles=4),    #ORA
-    0x36: Instr(type='zeropage', method=ZeroPage.zpx_rol, bytes=2, cycles=6),    #ROL
-    0x76: Instr(type='zeropage', method=ZeroPage.zpx_ror, bytes=2, cycles=6),    #ROR
-    0xF5: Instr(type='zeropage', method=ZeroPage.zpx_sbc, bytes=2, cycles=4),    #SBC
-    0x95: Instr(type='zeropage', method=ZeroPage.zpx_sta, bytes=2, cycles=4),    #STA
-    0x94: Instr(type='zeropage', method=ZeroPage.zpx_sty, bytes=2, cycles=4),    #STY
+    0xD6: Instr(type='zeropage_x', method=ZeroPage.zpx_dec, bytes=2, cycles=6),    #DEC
+    0x55: Instr(type='zeropage_x', method=ZeroPage.zpx_eor, bytes=2, cycles=4),    #EOR
+    0x75: Instr(type='zeropage_x', method=ZeroPage.zpx_adc, bytes=2, cycles=4),    #ADC
+    0x35: Instr(type='zeropage_x', method=ZeroPage.zpx_and, bytes=2, cycles=4),    #AND
+    0x16: Instr(type='zeropage_x', method=ZeroPage.zpx_asl, bytes=2, cycles=6),    #ASL
+    0xD5: Instr(type='zeropage_x', method=ZeroPage.zpx_cmp, bytes=2, cycles=4),    #CMP
+    0xF6: Instr(type='zeropage_x', method=ZeroPage.zpx_inc, bytes=2, cycles=6),    #INC
+    0xB5: Instr(type='zeropage_x', method=ZeroPage.zpx_lda, bytes=2, cycles=4),    #LDA
+    0xB4: Instr(type='zeropage_x', method=ZeroPage.zpx_ldy, bytes=2, cycles=4),    #LDY
+    0x56: Instr(type='zeropage_x', method=ZeroPage.zpx_lsr, bytes=2, cycles=6),    #LSR
+    0x15: Instr(type='zeropage_x', method=ZeroPage.zpx_ora, bytes=2, cycles=4),    #ORA
+    0x36: Instr(type='zeropage_x', method=ZeroPage.zpx_rol, bytes=2, cycles=6),    #ROL
+    0x76: Instr(type='zeropage_x', method=ZeroPage.zpx_ror, bytes=2, cycles=6),    #ROR
+    0xF5: Instr(type='zeropage_x', method=ZeroPage.zpx_sbc, bytes=2, cycles=4),    #SBC
+    0x95: Instr(type='zeropage_x', method=ZeroPage.zpx_sta, bytes=2, cycles=4),    #STA
+    0x94: Instr(type='zeropage_x', method=ZeroPage.zpx_sty, bytes=2, cycles=4),    #STY
 
     # Zero page Y
-    0xB6: Instr(type='zeropage', method=ZeroPage.zpy_ldx, bytes=2, cycles=4),    #LDX
-    0x96: Instr(type='zeropage', method=ZeroPage.zpy_stx, bytes=2, cycles=4),    #STX
+    0xB6: Instr(type='zeropage_y', method=ZeroPage.zpy_ldx, bytes=2, cycles=4),    #LDX
+    0x96: Instr(type='zeropage_y', method=ZeroPage.zpy_stx, bytes=2, cycles=4),    #STX
 
     # Absolute
     0x6D: Instr(type='absolute', method=Absolute.abs_adc, bytes=3, cycles=4),    #ADC
@@ -134,24 +134,24 @@ opcodes_dict = {
     0x6C: Instr(type='indirect', method=Indirect.ind_jmp, bytes=3, cycles=5),    #JMP
 
     # Indirect X
-    0x61: Instr(type='indirect', method=Indirect.indx_adc, bytes=2, cycles=6),   #ADC
-    0x21: Instr(type='indirect', method=Indirect.indx_and, bytes=2, cycles=6),   #AND
-    0xC1: Instr(type='indirect', method=Indirect.indx_cmp, bytes=2, cycles=6),   #CMP
-    0x41: Instr(type='indirect', method=Indirect.indx_eor, bytes=2, cycles=6),   #EOR
-    0xA1: Instr(type='indirect', method=Indirect.indx_lda, bytes=2, cycles=6),   #LDA
-    0x01: Instr(type='indirect', method=Indirect.indx_ora, bytes=2, cycles=6),   #ORA
-    0xE1: Instr(type='indirect', method=Indirect.indx_sbc, bytes=2, cycles=6),   #SBC
-    0x81: Instr(type='indirect', method=Indirect.indx_sta, bytes=2, cycles=6),   #STA
+    0x61: Instr(type='indirect_x', method=Indirect.indx_adc, bytes=2, cycles=6),   #ADC
+    0x21: Instr(type='indirect_x', method=Indirect.indx_and, bytes=2, cycles=6),   #AND
+    0xC1: Instr(type='indirect_x', method=Indirect.indx_cmp, bytes=2, cycles=6),   #CMP
+    0x41: Instr(type='indirect_x', method=Indirect.indx_eor, bytes=2, cycles=6),   #EOR
+    0xA1: Instr(type='indirect_x', method=Indirect.indx_lda, bytes=2, cycles=6),   #LDA
+    0x01: Instr(type='indirect_x', method=Indirect.indx_ora, bytes=2, cycles=6),   #ORA
+    0xE1: Instr(type='indirect_x', method=Indirect.indx_sbc, bytes=2, cycles=6),   #SBC
+    0x81: Instr(type='indirect_x', method=Indirect.indx_sta, bytes=2, cycles=6),   #STA
 
     # Indirect Y
-    0x71: Instr(type='indirect', method=Indirect.indy_adc, bytes=2, cycles=5),   #ADC
-    0x31: Instr(type='indirect', method=Indirect.indy_and, bytes=2, cycles=5),   #AND
-    0xD1: Instr(type='indirect', method=Indirect.indy_cmp, bytes=2, cycles=5),   #CMP
-    0x51: Instr(type='indirect', method=Indirect.indy_eor, bytes=2, cycles=5),   #EOR
-    0xB1: Instr(type='indirect', method=Indirect.indy_lda, bytes=2, cycles=5),   #LDA
-    0x11: Instr(type='indirect', method=Indirect.indy_ora, bytes=2, cycles=5),   #ORA
-    0xF1: Instr(type='indirect', method=Indirect.indy_sbc, bytes=2, cycles=5),   #SBC
-    0x91: Instr(type='indirect', method=Indirect.indy_sta, bytes=2, cycles=5),   #STA
+    0x71: Instr(type='indirect_y', method=Indirect.indy_adc, bytes=2, cycles=5),   #ADC
+    0x31: Instr(type='indirect_y', method=Indirect.indy_and, bytes=2, cycles=5),   #AND
+    0xD1: Instr(type='indirect_y', method=Indirect.indy_cmp, bytes=2, cycles=5),   #CMP
+    0x51: Instr(type='indirect_y', method=Indirect.indy_eor, bytes=2, cycles=5),   #EOR
+    0xB1: Instr(type='indirect_y', method=Indirect.indy_lda, bytes=2, cycles=5),   #LDA
+    0x11: Instr(type='indirect_y', method=Indirect.indy_ora, bytes=2, cycles=5),   #ORA
+    0xF1: Instr(type='indirect_y', method=Indirect.indy_sbc, bytes=2, cycles=5),   #SBC
+    0x91: Instr(type='indirect_y', method=Indirect.indy_sta, bytes=2, cycles=5),   #STA
 
     # Implied
     0x00: Instr(type='implied', method=Implied.imp_brk, bytes=1, cycles=7),     #BRK
