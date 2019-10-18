@@ -50,13 +50,13 @@ class CpuMemoryBus():
 
     # Read n bytes starting at start_addr
     # Return a list with the n elements read
-    def read(self, start_addr, n = 1):
+    def read(self, start_addr, n=1, dryrun=False):
         data = [0] * n
         for i in range(0, n):
             mem_instance, addr = self.addr_mux(start_addr + i)
 
             curr_addr = addr + 0x2000
-            if mem_instance == self.io and ((curr_addr >= 0x2000 and curr_addr <= 0x2007) or curr_addr == 0x4014):
+            if (not dryrun) and mem_instance == self.io and ((curr_addr >= 0x2000 and curr_addr <= 0x2007) or curr_addr == 0x4014):
                 data[i] = self.ppu.register_read(curr_addr)
             else:
                 data[i] = mem_instance[addr]

@@ -101,7 +101,7 @@ class CPU:
 
         # Show log for this instruction
         if(address != None):
-            val = self.mem_bus.read(address)
+            val = self.mem_bus.read(address, dryrun=True)
             self.print_log(True, address, val)
         else:
             self.print_log()
