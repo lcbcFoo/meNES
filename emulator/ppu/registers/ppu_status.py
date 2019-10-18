@@ -15,6 +15,8 @@ class PPUSTATUS:
     def read(self):
         value = self.reg
         self.reg = ~(1 << VBLANK_STATUS_BIT) & self.reg
+        self.ppu.ppuscroll.firstwrite = True
+        self.ppu.ppuaddr.firstwrite = True
         return self.reg
 
     def write(self, value):
