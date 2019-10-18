@@ -28,7 +28,7 @@ class CPU:
         self.imm = Immediate(self, self.mem_bus, self.decoder)
         self.zp = ZeroPage(self, self.mem_bus, self.decoder)
         self.abs = Absolute(self, self.mem_bus, self.decoder)
-        self.idr = Indirect(self, self.mem_bus, self.decoder)
+        self.ind = Indirect(self, self.mem_bus, self.decoder)
         self.impl = Implied(self, self.mem_bus, self.decoder)
         self.rel = Relative(self, self.mem_bus, self.decoder)
         self.acc = Accumulator(self, self.mem_bus, self.decoder)
@@ -36,8 +36,14 @@ class CPU:
         self.types_dict = {
             'immediate': self.imm,
             'zeropage': self.zp,
+            'zeropage_x': self.zp,
+            'zeropage_y': self.zp,
             'absolute': self.abs,
-            'indirect': self.idr,
+            'absolute_x': self.abs,
+            'absolute_y': self.abs,
+            'indirect': self.ind,
+            'indirect_x': self.ind,
+            'indirect_y': self.ind,
             'implied': self.impl,
             'relative': self.rel,
             'accumulator': self.acc,
@@ -76,8 +82,10 @@ class CPU:
 
     def run(self):
         self.update_pc = True
-        self.decoder.update()   #read instructions from memory
-        opcode = self.decoder.opcode  # get instruction opcode
+        opcode = self.mem_bus.read(self.pc)
+        instr_type = opcodes_dict[opcode].type
+        self.decoder.update(instr_type)   #read instructions from memory
+        # opcode = self.decoder.opcode  # get instruction opcode
 
         if opcode == 0:
             exit(0)

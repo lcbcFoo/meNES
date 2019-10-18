@@ -22,8 +22,10 @@ class PpuMemoryBus():
     def write(self, start_addr, data, n=1):
         for i in range(0, n):
             mem_instance, addr = self.addr_mux(start_addr + i)
-            mem_instance[addr] = data[i] % 256
-        return
+            if n == 1:
+                mem_instance[addr] = data % 256
+            else:
+                mem_instance[addr] = data[i] % 256
 
     # Read n bytes starting at start_addr
     # Return a list with the n elements read
