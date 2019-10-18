@@ -8,11 +8,15 @@ class PPUMASK:
     SHOW_LEFTMOST_BACKGROUND_BIT = 1
     GREYSCALE_BIT = 0
 
-    def __init__(self):
+    def __init__(self, ppu):
+        self.ppu = ppu
         self.reset()
 
     def reset(self):
         self.reg = 0
+
+    def read(self):
+        pass
 
     def write(self, value):
         self.reg = value

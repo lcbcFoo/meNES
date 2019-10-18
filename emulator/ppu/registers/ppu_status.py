@@ -5,13 +5,17 @@ class PPUSTATUS:
 
     # I do not know how to decide the initial value to the register.
     # Ask the teacher about it
-    def __init__(self):
+    def __init__(self, ppu):
+        self.ppu = ppu
         self.reg = 0
 
-    def reset():
+    def reset(self):
         pass
 
     def read(self):
         value = self.reg
         self.reg = ~(1 << VBLANK_STATUS_BIT) & self.reg
         return self.reg
+
+    def write(self, value):
+        pass
