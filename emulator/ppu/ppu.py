@@ -14,26 +14,26 @@ class PPU:
 
     def __init__(self, mem_bus):
         self.mem_bus = mem_bus
-        self.OAMADDR = OAMADDR()
-        self.OAMDATA = OAMDATA()
-        self.OAMDMA = OAMDMA()
-        self.PPUADDR = PPUADDR()
-        self.PPUCTRL = PPUCTRL()
-        self.PPUDATA = PPUDATA()
-        self.PPUMASK = PPUMASK()
-        self.PPUSCROLL = PPUSCROLL()
-        self.PPUSTATUS = PPUSTATUS()
+        self.oamaddr = OAMADDR(self)
+        self.oamdata = OAMDATA(self)
+        self.oamdma = OAMDMA(self)
+        self.ppuaddr = PPUADDR(self)
+        self.ppuctrl = PPUCTRL(self)
+        self.ppudata = PPUDATA(self)
+        self.ppumask = PPUMASK(self)
+        self.ppuscroll = PPUSCROLL(self)
+        self.ppustatus = PPUSTATUS(self)
 
         self.io_registers = {
-            0x2000: self.PPUCTRL,
-            0x2001: self.PPUMASK,
-            0x2002: self.PPUSTATUS,
-            0x2003: self.OAMADDR,
-            0x2004: self.OAMDATA,
-            0x2005: self.PPUSCROLL,
-            0x2006: self.PPUADDR,
-            0x2007: self.PPUDATA,
-            0x4014: self.OAMDMA,
+            0x2000: self.ppuctrl,
+            0x2001: self.ppumask,
+            0x2002: self.ppustatus,
+            0x2003: self.oamaddr,
+            0x2004: self.oamdata,
+            0x2005: self.ppuscroll,
+            0x2006: self.ppuaddr,
+            0x2007: self.ppudata,
+            0x4014: self.oamdma,
         }
 
         self.reset()
