@@ -16,15 +16,14 @@ from cpu.modules.flag_handler import FlagHandler
 
 class CPU:
 
-    def __init__(self, bus, ppu):
-        self.mem_bus = bus
-        self.ppu = ppu
-        self.decoder = Decoder(self, self.mem_bus)
-        self.flag_handler = FlagHandler(self)
-
+    def __init__(self, mem_bus):
         # Create instances of the classes
         # I did it separetely because I dont know if this can be done directly
         # inside types_dict. But change it later if it can.
+        self.set_memory(mem_bus)
+        self.set_decoder()
+        self.set_flag_handler()
+
         self.imm = Immediate(self, self.mem_bus, self.decoder)
         self.zp = ZeroPage(self, self.mem_bus, self.decoder)
         self.abs = Absolute(self, self.mem_bus, self.decoder)
@@ -51,6 +50,17 @@ class CPU:
 
         self.reset()
 
+    def set_memory(self, mem_bus):
+        self.mem_bus = mem_bus
+
+    def set_decoder(self):
+        self.decoder = Decoder(self, self.mem_bus)
+
+    def set_flag_handler(self):
+        self.flag_handler = FlagHandler(self)
+
+    def set_ppu(self, ppu):
+        self.ppu = ppu
 
     def reset(self):
 

@@ -13,7 +13,8 @@ from ppu.registers.ppu_status import PPUSTATUS
 class PPU:
 
     def __init__(self, mem_bus):
-        self.mem_bus = mem_bus
+        self.set_memory(mem_bus)
+
         self.oamaddr = OAMADDR(self)
         self.oamdata = OAMDATA(self)
         self.oamdma = OAMDMA(self)
@@ -37,6 +38,12 @@ class PPU:
         }
 
         self.reset()
+
+    def set_memory(self, mem_bus):
+        self.mem_bus = mem_bus
+
+    def set_cpu(self, cpu):
+        self.cpu = cpu
 
     def reset(self):
         for key in self.io_registers:

@@ -35,11 +35,16 @@ def main():
     rom = args.input_file_path
 
     # TODO: change initialization later
+    cpu_mem = CpuMemoryBus()
     ppu_mem = PpuMemoryBus()
-    ppu = PPU(ppu_mem)
-    cpu_mem = CpuMemoryBus(ppu)
     read_cartridge(rom, cpu_mem, ppu_mem)
-    cpu = CPU(cpu_mem, ppu)
+
+    ppu = PPU(ppu_mem)
+    cpu = CPU(cpu_mem)
+
+    ppu.set_cpu(cpu)
+    cpu.set_ppu(ppu)
+    cpu_mem.set_ppu(ppu)
 
     while True:
         n_cycles = cpu.run()
