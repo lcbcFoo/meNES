@@ -10,7 +10,7 @@ class PPUSCROLL:
 
     # Write-only
     def read(self):
-        pass
+        return self.reg
 
     def write(self, value):
         self.reg = value

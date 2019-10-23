@@ -10,7 +10,13 @@ class OAMADDR:
 
     # Write-only
     def read(self):
-        pass
+        return self.reg
 
     def write(self, value):
         self.reg = value
+
+    def increment(self):
+        # if(self.ppu.ppucontrol.isVRAMAdressIncrement32):
+        #     self.reg += 32
+        # else:
+        self.reg += 1

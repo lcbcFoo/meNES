@@ -2,12 +2,13 @@ class OAMDMA:
 
     def __init__(self, ppu):
         self.ppu = ppu
+        self.reg = 0
 
     def reset(self):
-        pass
+        self.reg = 0
 
     def read(self):
-        pass
+        return self.reg
 
     def write(self, value):
-        pass
+        self.reg = value
