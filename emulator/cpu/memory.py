@@ -1,7 +1,8 @@
 class CpuMemoryBus():
 
     def __init__(self):
-        self._16kb = True
+        self.set_16kb(True)
+        # self._16kb = True
         self.ram = [0] * 0x2000         # 0x0    - 0x2000
         self.io = [0] * 0x2020          # 0x2000 - 0x4020
         self.exp_rom = [0] * 0x1FE0     # 0x4020 - 0x6000
@@ -10,6 +11,9 @@ class CpuMemoryBus():
 
     def set_ppu(self, ppu):
         self.ppu = ppu
+
+    def set_16kb(self, value):
+        self._16kb = value
 
     # Select which memory instance is being accessed based on address
     def addr_mux(self, bus_addr):

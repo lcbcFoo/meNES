@@ -15,8 +15,20 @@ def read_cartridge(file_name, cpu_mem, ppu_mem):
     data = []
     for i in lines:
         data += i
-    data = data[16:]
-    cpu_mem.write(0xC000, data, 16384)
+    # data = data[16:]
+    prg_size = data[4] * 0x4000
+    chr_size = data[5] * 0x2000
+
+    if prg_size > 0x4000:
+        cpu_mem.set_16kb(False)
+
+    cpu_mem.write(0x8000, data[16:], prg_size)
+
+    if chr_size > 0x2000:
+        ppu_mem.write(0x0000, data[16+prg_size:], chr_size)
+
+    # print(data[16+prg_size:16+prg_size+chr_size])
+
 
 
 def main():
