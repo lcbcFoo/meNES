@@ -8,9 +8,8 @@ import numpy as np
 CHAR_WIDTH = 8  # character width in pixels
 CHAR_HEIGHT = 8  # character height in pixels
 BYTES_PER_CHAR = 16  # bytes per character in CHR data
-CHARS_PER_ROW = 16  # characters per row in output image
-SPRITE_SIZE = 8192 # Standard sprite CHR file size in bytes
-DEFAULT_PALETTE = ("000000", "555555", "aaaaaa", "ffffff")
+CHARS_PER_ROW = 16  # characters per row in output matrix
+TOTAL_ROWS = 32 # amount of tile rows in output matrix
 
 def split_help(array, nrows, ncols):
     """Split a matrix into sub-matrices."""
@@ -75,6 +74,6 @@ def decode_sprites(chr_file):
         targetRows = generate_pixel_rows(source)
         targetArray = np.array(list(targetRows))
 
-    out = split_help(targetArray, 32, 16)
+    out = split_help(targetArray, TOTAL_ROWS, CHARS_PER_ROW)
 
     return out
