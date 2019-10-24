@@ -15,7 +15,7 @@ def read_cartridge(file_name, cpu_mem, ppu_mem):
     data = []
     for i in lines:
         data += i
-    # data = data[16:]
+
     prg_size = data[4] * 0x4000
     chr_size = data[5] * 0x2000
 
@@ -24,10 +24,8 @@ def read_cartridge(file_name, cpu_mem, ppu_mem):
 
     cpu_mem.write(0x8000, data[16:], prg_size)
 
-    if chr_size > 0x2000:
+    if chr_size > 0:
         ppu_mem.write(0x0000, data[16+prg_size:], chr_size)
-
-    # print(data[16+prg_size:16+prg_size+chr_size])
 
 
 
@@ -46,7 +44,6 @@ def main():
     args = argParser.parse_args()
     rom = args.input_file_path
 
-    # TODO: change initialization later
     cpu_mem = CpuMemoryBus()
     ppu_mem = PpuMemoryBus()
     read_cartridge(rom, cpu_mem, ppu_mem)
