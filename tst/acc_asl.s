@@ -65,3 +65,5 @@ IRQ:
    .dw NMI
    .dw Reset
    .dw IRQ
+
+   .incbin "sprites.chr"
