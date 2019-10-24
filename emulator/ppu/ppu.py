@@ -9,12 +9,14 @@ from ppu.registers.ppu_data import PPUDATA
 from ppu.registers.ppu_mask import PPUMASK
 from ppu.registers.ppu_scroll import PPUSCROLL
 from ppu.registers.ppu_status import PPUSTATUS
+from ppu.shift_register import Register8Bit, Register16Bit
 
 class PPU:
 
     def __init__(self, mem_bus):
         self.set_memory(mem_bus)
 
+        # io registers
         self.oamaddr = OAMADDR(self)
         self.oamdata = OAMDATA(self)
         self.oamdma = OAMDMA(self)
@@ -36,6 +38,20 @@ class PPU:
             0x2007: self.ppudata,
             0x4014: self.oamdma,
         }
+
+        # Inside shift-registers
+        self.nameTableRegister = Register8Bit()
+        self.attributeTableLowRegister = Register16Bit()
+        self.attributeTableHighRegister = Register16Bit()
+        self.patternTableLowRegister = Register16Bit()
+        self.patternTableHighRegister = Register16Bit()
+
+        # inside latches
+        self.nameTableLatch = 0
+        self.attributeTableLowLatch = 0
+        self.attributeTableHighLatch = 0
+        self.patternTableLowLatch = 0
+        self.patternTableHighLatch = 0
 
         self.reset()
 
