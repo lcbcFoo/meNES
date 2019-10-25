@@ -1,4 +1,4 @@
-class ShiftRegister:
+class Register:
 
     def __init__(self):
         self.size = self.getSize()

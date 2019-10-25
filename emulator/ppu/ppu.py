@@ -9,7 +9,7 @@ from ppu.registers.ppu_data import PPUDATA
 from ppu.registers.ppu_mask import PPUMASK
 from ppu.registers.ppu_scroll import PPUSCROLL
 from ppu.registers.ppu_status import PPUSTATUS
-from ppu.shift_register import Register8Bit, Register16Bit
+from ppu.register import Register8Bit, Register16Bit
 
 class PPU:
 
