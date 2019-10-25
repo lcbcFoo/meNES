@@ -56,13 +56,13 @@ class Register:
         self.data = ((self.data << 1) + (carry_in & 1)) % self.mod
         return carry_out
 
-class Register8Bit(ShiftRegister):
+class Register8Bit(Register):
 
     def getSize(self):
         return 8
 
 
-class Register16Bit(ShiftRegister):
+class Register16Bit(Register):
 
     def getSize(self):
         return 16
