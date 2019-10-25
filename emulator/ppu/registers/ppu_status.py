@@ -1,7 +1,8 @@
+VBLANK_STATUS_BIT = 7
+SPRITE0_HIT_BIT = 6
+SPRITE_OVERFLOW_BIT = 5
+
 class PPUSTATUS:
-    VBLANK_STATUS_BIT = 7
-    SPRITE0_HIT_BIT = 6
-    SPRITE_OVERFLOW_BIT = 5
 
     # I do not know how to decide the initial value to the register.
     # Ask the teacher about it

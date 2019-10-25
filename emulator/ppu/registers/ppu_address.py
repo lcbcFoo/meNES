@@ -20,7 +20,7 @@ class PPUADDR:
         self.firstwrite = not self.firstwrite
 
     def increment(self):
-        if(self.ppu.ppucontrol.isVRAMAdressIncrement32):
+        if(self.ppu.ppuctrl.isVRAMAdressIncrement32):
             self.reg += 32
         else:
             self.reg += 1
