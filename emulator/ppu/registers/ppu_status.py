@@ -8,28 +8,27 @@ class PPUSTATUS:
     # Ask the teacher about it
     def __init__(self, ppu):
         self.ppu = ppu
-        self.reg = 0
+        self.reg = register
+        self.reg.store(0)
 
     def reset(self):
         pass
 
     def read(self):
-        value = self.reg
-        self.reg = ~(1 << VBLANK_STATUS_BIT) & self.reg
+        value = self.reg.load()
+        self.reg.storeBit(VBLANK_STATUS_BIT, 0)
         self.ppu.ppuscroll.firstwrite = True
         self.ppu.ppuaddr.firstwrite = True
-        return self.reg
+        return value
 
     def write(self, value):
-        self.reg = self.reg & 0b11100000
-        tempvalue = value & 0b00011111
-        self.reg = self.reg + tempvalue
+        self.reg.storeBits(0, 5, value)
 
     def hasVblankStarted():
-        return (1 << VBLANK_STATUS_BIT) & self.reg
+        return self.reg.isBitSet(VBLANK_STATUS_BIT)
 
     def isSprite0Hit():
-        return (1 << SPRITE0_HIT_BIT) & self.reg
+        return self.reg.isBitSet(SPRITE0_HIT_BIT)
 
     def isSpriteOverflowSet():
-        return (1 << SPRITE_OVERFLOW_BIT) & self.reg
+        return self.reg.isBitSet(SPRITE_OVERFLOW_BIT)
