@@ -13,7 +13,7 @@ TOTAL_ROWS = 32 # amount of tile rows in output matrix
 
 def split_help(array, nrows, ncols):
     """Split a matrix into sub-matrices."""
-    
+
     print("Initial dimensions:", array.shape)
     splitted_lines = np.array(np.hsplit(array, ncols))
 

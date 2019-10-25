@@ -10,6 +10,7 @@ from ppu.registers.ppu_mask import PPUMASK
 from ppu.registers.ppu_scroll import PPUSCROLL
 from ppu.registers.ppu_status import PPUSTATUS
 from ppu.register import Register8Bit, Register16Bit
+# from ppu.sprite_decoder import *
 
 class PPU:
 
@@ -52,6 +53,9 @@ class PPU:
         self.attributeTableHighLatch = 0
         self.patternTableLowLatch = 0
         self.patternTableHighLatch = 0
+
+        # Building sprites matrix
+        # self.sprites = decode_sprites(self.mem_bus.pattern_tables)
 
         self.reset()
 
