@@ -22,7 +22,7 @@ class PPUCTRL:
         return self.reg.load()
 
     def write(self,value):
-        self.reg.write(value)
+        self.reg.store(value)
 
     def isNMIEnabled():
         return self.reg.isBitSet(NMI_BIT)

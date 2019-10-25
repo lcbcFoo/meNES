@@ -1,12 +1,12 @@
 class PPUSCROLL:
 
-    def __init__(self, ppu):
+    def __init__(self, ppu, register):
         self.ppu = ppu
         self.reg = register
         self.reset()
 
     def reset(self):
-        self.store(0)
+        self.reg.store(0)
         self.firstwrite = True
 
     # Write-only

@@ -6,7 +6,7 @@ class PPUSTATUS:
 
     # I do not know how to decide the initial value to the register.
     # Ask the teacher about it
-    def __init__(self, ppu):
+    def __init__(self, ppu, register):
         self.ppu = ppu
         self.reg = register
         self.reg.store(0)

@@ -1,8 +1,8 @@
 class PPUDATA:
 
-    def __init__(self, ppu):
+    def __init__(self, ppu, register):
         self.ppu = ppu
-        self.register = register
+        self.reg = register
         self.reset()
 
     def reset(self):
