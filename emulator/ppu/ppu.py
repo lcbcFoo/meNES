@@ -71,15 +71,15 @@ class PPU:
         self.set_memory(mem_bus)
 
         # io registers
-        self.oamaddr = OAMADDR(self)
-        self.oamdata = OAMDATA(self)
-        self.oamdma = OAMDMA(self)
-        self.ppuaddr = PPUADDR(self)
-        self.ppuctrl = PPUCTRL(self)
-        self.ppudata = PPUDATA(self)
-        self.ppumask = PPUMASK(self)
-        self.ppuscroll = PPUSCROLL(self)
-        self.ppustatus = PPUSTATUS(self)
+        self.oamaddr = OAMADDR(self, Register8Bit())
+        self.oamdata = OAMDATA(self, Register8Bit())
+        self.oamdma = OAMDMA(self, Register8Bit())
+        self.ppuaddr = PPUADDR(self, Register16Bit())
+        self.ppuctrl = PPUCTRL(self, Register8Bit())
+        self.ppudata = PPUDATA(self, Register8Bit())
+        self.ppumask = PPUMASK(self, Register8Bit())
+        self.ppuscroll = PPUSCROLL(self, Register16Bit())
+        self.ppustatus = PPUSTATUS(self, Register8Bit())
 
         self.io_registers = {
             0x2000: self.ppuctrl,

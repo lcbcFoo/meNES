@@ -1,8 +1,9 @@
 class OAMADDR:
 
-    def __init__(self, ppu):
+    def __init__(self, ppu, register):
         self.ppu = ppu
-        self.reg = 0
+        self.reg = register
+        self.reg.store(0)
 
     # The register value remains unchanged after reset
     def reset(self):
@@ -10,13 +11,10 @@ class OAMADDR:
 
     # Write-only
     def read(self):
-        return self.reg
+        return self.reg.load()
 
     def write(self, value):
-        self.reg = value
+        self.reg.store(value)
 
     def increment(self):
-        # if(self.ppu.ppucontrol.isVRAMAdressIncrement32):
-        #     self.reg += 32
-        # else:
-        self.reg += 1
+        self.reg.store(self.reg.increment())
