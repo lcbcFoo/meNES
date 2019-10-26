@@ -24,22 +24,22 @@ class PPUCTRL:
     def write(self,value):
         self.reg.store(value)
 
-    def isNMIEnabled():
+    def isNMIEnabled(self):
         return self.reg.isBitSet(NMI_BIT)
 
-    def isSpriteH16():
+    def isSpriteH16(self):
         return self.reg.isBitSet(SPRITE_HEIGHT_BIT)
 
-    def isBackgroundPatternTable1000():
+    def isBackgroundPatternTable1000(self):
         return self.reg.isBitSet(BACKGROUND_PATTERN_TABLE_BIT)
 
-    def isSpritePatternTable1000():
+    def isSpritePatternTable1000(self):
         return self.reg.isBitSet(SPRITE_PATTERN_TABLE_BIT)
 
-    def isVRAMAdressIncrement32():
+    def isVRAMAdressIncrement32(self):
         return self.reg.isBitSet(VRAM_ADDRESS_INCREMENT_BIT)
 
-    def returnNameTableAddress():
+    def returnNameTableAddress(self):
         highbit = self.reg.loadBit(BASE_TABLE_ADDRESSH)
         lowbit = self.reg.loadBit(BASE_TABLE_ADDRESSL)
         return highbit + lowbit

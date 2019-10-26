@@ -3,7 +3,7 @@ import pygame
 import time
 import numpy as np
 
-from constants import *
+from gui.constants import *
 
 class Gui():
     def __init__(self):
@@ -15,7 +15,6 @@ class Gui():
 
         # Screen
         self.screen = pygame.display.set_mode(SIZE)
-        pygame.display.set_caption("PingPong Game!")
 
     def draw_screen(self, image):
         # Redraw screen
@@ -25,8 +24,10 @@ class Gui():
             for j in range(len(image[i])):
                 image[i][j] = PALETTES[image[i][j]]
 
+        i = np.transpose(np.array(image))
+        #i = np.array(image)
         # Make a surface in pygame based on image and show it
-        surface = pygame.surfarray.make_surface(np.array(image))
+        surface = pygame.surfarray.make_surface(i)
         im = pygame.transform.scale(surface, SIZE)
         self.screen.blit(im, pygame.Rect((0, 0), SIZE))
         pygame.display.flip()

@@ -17,8 +17,13 @@ from ppu.sprite_decoder import *
 
 class PPU:
 
-    def __init__(self, mem_bus):
+    def __init__(self, mem_bus, gui):
         self.set_memory(mem_bus)
+        self.gui = gui
+
+        # ppu cycle and scanline counter
+        self.cycle = 0;
+        self.scanline = 0
 
         # io registers
         self.oamaddr = OAMADDR(self, Register8Bit())
@@ -71,6 +76,7 @@ class PPU:
     def reset(self):
         for key in self.io_registers:
             self.io_registers[key].reset()
+        self.render_background()
 
 
     def run(self):
@@ -89,6 +95,20 @@ class PPU:
     def register_read(self, addr):
         return self.io_registers[addr].read()
 
+    def render_background(self):
+        # self.background = [[0]*256 for i in range(0,240)]
+        #
+        # for a in range(0, 960):
+        #     #sprite = self.sprite_table[self.mem_bus.read(0x2000+a)]
+        #     sprite = self.sprite_table[0x13]
+        #     print((a*8)//240*8)
+        #     for i in range(0, 8):
+        #         for j in range(0, 8):
+        #             self.background[((a*8)//240)*8+i][(a*8)%256+j] = sprite[i][j]
+        # print(len(self.background[0]))
+        # print(len(self.background))
+        # self.gui.draw_screen(self.background)
+        pass
     # Get BG and sprites values and prints and put it on the screen.
     def render_pixel(self):
         pass

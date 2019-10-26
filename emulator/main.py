@@ -4,6 +4,7 @@ import os
 import subprocess
 from cpu import *
 from ppu import *
+from gui import *
 from time import sleep
 
 CLOCK = 1.7897725e6
@@ -46,9 +47,10 @@ def main():
 
     cpu_mem = CpuMemoryBus()
     ppu_mem = PpuMemoryBus()
+    gui = Gui()
     read_cartridge(rom, cpu_mem, ppu_mem)
 
-    ppu = PPU(ppu_mem)
+    ppu = PPU(ppu_mem, gui)
     cpu = CPU(cpu_mem)
 
     ppu.set_cpu(cpu)

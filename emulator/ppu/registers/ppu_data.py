@@ -11,11 +11,11 @@ class PPUDATA:
     def read(self):
         VRAMaddr = self.ppu.ppuaddr.reg.load()
         self.ppu.ppuaddr.increment()
-        self.reg.write(self.ppu.mem_bus.read(VRAMaddr))
+        self.reg.store(self.ppu.mem_bus.read(VRAMaddr))
         return self.reg.load()
 
     def write(self, value):
-        self.reg.write(value)
+        self.reg.store(value)
         VRAMaddr = self.ppu.ppuaddr.reg.load()
         self.ppu.mem_bus.write(VRAMaddr, value)
         self.ppu.ppuaddr.increment()
