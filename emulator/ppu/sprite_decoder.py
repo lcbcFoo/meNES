@@ -1,11 +1,5 @@
 from pprint import pprint
 
-CHAR_WIDTH = 8  # character width in pixels
-CHAR_HEIGHT = 8  # character height in pixels
-BYTES_PER_CHAR = 16  # bytes per character in CHR data
-CHARS_PER_ROW = 16  # characters per row in output matrix
-TOTAL_ROWS = 32 # amount of tile rows in output matrix
-
 def split(l, n):
     for i in range(0, len(l), n):
         yield l[i:i+n]
