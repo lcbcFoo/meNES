@@ -58,13 +58,9 @@ class PPU:
         self.patternTableHighLatch = 0
 
         # Building sprites matrix
-        # self.sprites = decode_sprites(self.mem_bus.pattern_tables)
-        # print(self.mem_bus.pattern_tables)
-
+        self.sprite_table = transform_sprites(self.mem_bus.pattern_tables)
 
         self.reset()
-        self.sprite_table = transform_sprites(self.mem_bus.pattern_tables)
-        pprint(self.sprite_table[0x14])
 
     def set_memory(self, mem_bus):
         self.mem_bus = mem_bus
