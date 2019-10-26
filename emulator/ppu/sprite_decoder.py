@@ -1,29 +1,10 @@
-import getopt
-import os.path
-import sys
-import png
 from pprint import pprint
-import numpy as np
 
 CHAR_WIDTH = 8  # character width in pixels
 CHAR_HEIGHT = 8  # character height in pixels
 BYTES_PER_CHAR = 16  # bytes per character in CHR data
 CHARS_PER_ROW = 16  # characters per row in output matrix
 TOTAL_ROWS = 32 # amount of tile rows in output matrix
-
-def split_help(array, nrows, ncols):
-    """Split a matrix into sub-matrices."""
-    print("starting")
-    print("Initial dimensions:", array.shape)
-    splitted_lines = np.array(np.hsplit(array, ncols))
-    if not np.all(splitted_lines == 0):
-        print("a")
-    print("Splitted lines dimensions:",splitted_lines.shape)
-    splitted_cols = np.array(np.hsplit(splitted_lines, TOTAL_ROWS))
-    if not np.all(splitted_lines == 0):
-        print("b")
-    print("Splitted columns dimensions:",splitted_cols.shape)
-    return splitted_cols
 
 def split(l, n):
     for i in range(0, len(l), n):
