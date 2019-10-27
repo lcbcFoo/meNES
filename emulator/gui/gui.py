@@ -19,13 +19,14 @@ class Gui():
     def draw_screen(self, image):
         # Redraw screen
 
+        image = [[image[j][i] for j in range(len(image))]
+                for i in range(len(image[0]))] 
         # Convert NES palette to RGB color
         for i in range(len(image)):
             for j in range(len(image[i])):
                 image[i][j] = PALETTES[image[i][j]]
 
-        i = np.transpose(np.array(image))
-        #i = np.array(image)
+        i = np.array(image)
         # Make a surface in pygame based on image and show it
         surface = pygame.surfarray.make_surface(i)
         im = pygame.transform.scale(surface, SIZE)
