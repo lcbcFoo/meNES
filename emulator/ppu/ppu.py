@@ -89,25 +89,113 @@ class PPU:
         self.count_up_cycle()
         pass
 
-    def register_write(self, addr, value):
-        self.io_registers[addr].write(value)
+    def register_write(self, addr, value, sys = False):
+        self.io_registers[addr].write(value, sys)
 
-    def register_read(self, addr):
-        return self.io_registers[addr].read()
+    def register_read(self, addr, sys = False):
+        return self.io_registers[addr].read(sys)
 
     def render_background(self):
-        # self.background = [[0]*256 for i in range(0,240)]
-        #
-        # for a in range(0, 960):
-        #     #sprite = self.sprite_table[self.mem_bus.read(0x2000+a)]
-        #     sprite = self.sprite_table[0x13]
-        #     print((a*8)//240*8)
-        #     for i in range(0, 8):
-        #         for j in range(0, 8):
-        #             self.background[((a*8)//240)*8+i][(a*8)%256+j] = sprite[i][j]
-        # print(len(self.background[0]))
-        # print(len(self.background))
-        # self.gui.draw_screen(self.background)
+        # Undestand this part
+        # Load the current background tile pattern and attributes into the "shifter"
+        #LoadBackgroundShifters();
+
+        # Fetch background tiles
+        # "(vram_addr.reg & 0x0FFF)" : Mask to 12 bits that are relevant
+        # "| 0x2000"                 : Offset into nametable space on PPU address bus
+        bg_base = 0x2000
+        #addr = bg_base | (vram_addr.reg & 0x0FFF));
+
+        self.background = [[0]*256 for i in range(0,240)]
+
+        # Background name table is composed by 32 * 32 bytes
+        # Last 2 rows of bytes are attributes for color, we will look later
+
+        # Read each byte of the 30 x 32 bytes that are not attribute
+        # Each of these bytes is an ID to be looked on the pattern table (sprites)
+        for i in range(0, 30):
+            for j in range(0, 32):
+                addr = bg_base + (i * 32) + j
+                sprite = self.sprite_table[self.mem_bus.read(addr)]
+                for k1 in range(0, 8):
+                    for k2 in range(0, 8):
+                        base_i = 8 * i
+                        base_j = 8 * j
+                        self.background[base_i + k1][base_j + k2] = sprite[k1][k2]
+        print(self.mem_bus.read(0x23c0, 64))
+        
+        # Read the 64 bytes that tell us which palette to use to each sprite
+        for i in range(30, 32):
+            for j in range(0, 32):
+                # read the byte
+                addr = bg_base + (i * 32) + j
+                byte = self.mem_bus.read(addr)
+                #print(hex(addr))
+                #print(bin(byte))
+
+                # interpret its bits to look for palette ID
+                pal_1 = byte & 0b00000011
+                pal_2 = (byte & 0b00001100) >> 2
+                pal_3 = (byte & 0b00110000) >> 4
+                pal_4 = (byte & 0b11000000) >> 6
+
+                # each attribute separates a tile into 4 2x2 quadrants
+                # pal_1 is for the top left, pal_@ for top right,
+                # pal_3 bot left and pal_4 bot right
+
+                # palettes are located at address 0x3f00-3f1d
+                # 0x3f00 is the background color
+                # 0x3f01 - 0x3f04 is the palette ID 1 and so on
+                # then the palette ID is basically an offset to add to the
+                # pixel bits (0, 1, 2, 3) to search for its matching color
+                
+                # Compose the mapping number:color for each palette
+                print(self.mem_bus.read(0x3f00, 16))
+                print(pal_1,pal_2,pal_3, pal_4)
+                map_1 = dict([(k, v) for k, v in zip(range(0, 4),
+                    self.mem_bus.read(0x3f00 + pal_1 * 4, 4))])
+                map_2 = dict([(k, v) for k, v in zip(range(0, 4),
+                    self.mem_bus.read(0x3f00 + pal_2 * 4, 4))])
+                map_3 = dict([(k, v) for k, v in zip(range(0, 4),
+                    self.mem_bus.read(0x3f00 + pal_3 * 4, 4))])
+                map_4 = dict([(k, v) for k, v in zip(range(0, 4),
+                    self.mem_bus.read(0x3f00 + pal_4 * 4, 4))])
+
+                # print(map_1)
+                # print(map_2)
+                # print(map_3)
+                # print(map_4)
+
+                base_y = 8 * ((j // 32) + (i - 30))
+                base_x = j * 8
+                #print(base_y,base_x)
+                for k1 in range(0, 4):
+                    for k2 in range(0, 4):
+                        y1 = base_y + k1
+                        x1 = base_x + k2
+                        addr1 = self.background[y1][x1]
+                        val1 = map_1[addr1]
+                        self.background[y1][x1] = val1
+
+                        y2 = base_y + k1
+                        x2 = base_x + k2 + 4
+                        addr2 = self.background[y2][x2]
+                        val2 = map_2[addr2]
+                        self.background[y2][x2] = val2
+                        
+                        y3 = base_y + k1 + 4
+                        x3 = base_x + k2
+                        addr3 = self.background[y3][x3]
+                        val3 = map_3[addr3]
+                        self.background[y3][x3] = val3
+                        
+                        y4 = base_y + k1 + 4
+                        x4 = base_x + k2 + 4
+                        addr4 = self.background[y4][x4]
+                        val4 = map_4[addr4]
+                        self.background[y4][x4] = val4
+
+        self.gui.draw_screen(self.background)
         pass
     # Get BG and sprites values and prints and put it on the screen.
     def render_pixel(self):
