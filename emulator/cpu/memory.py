@@ -16,7 +16,7 @@ class CpuMemoryBus():
         self._16kb = value
 
     # Select which memory instance is being accessed based on address
-    def addr_mux(self, bus_addr):
+    def addr_mux(self, bus_addr, sys = False):
         if bus_addr < 0x2000:
             return self.ram, bus_addr % 0x0800
         elif bus_addr < 0x4000:
@@ -37,7 +37,7 @@ class CpuMemoryBus():
 
     # Write n bytes starting at start_addr
     # Assumes data is a list with at least n elements
-    def write(self, start_addr, data, n = 1):
+    def write(self, start_addr, data, n = 1, sys = False):
         for i in range(0, n):
             mem_instance, addr = self.addr_mux(start_addr + i)
 
@@ -49,20 +49,20 @@ class CpuMemoryBus():
                 curr_data = data[i] % 256
 
             if mem_instance == self.io and ((curr_addr >= 0x2000 and curr_addr <= 0x2007) or curr_addr == 0x4014):
-                self.ppu.register_write(curr_addr, curr_data)
+                self.ppu.register_write(curr_addr, curr_data, sys)
 
             mem_instance[addr] = curr_data
 
     # Read n bytes starting at start_addr
     # Return a list with the n elements read
-    def read(self, start_addr, n=1, dryrun=False):
+    def read(self, start_addr, n=1, dryrun=False, sys = False):
         data = [0] * n
         for i in range(0, n):
             mem_instance, addr = self.addr_mux(start_addr + i)
 
             curr_addr = addr + 0x2000
             if (not dryrun) and mem_instance == self.io and ((curr_addr >= 0x2000 and curr_addr <= 0x2007) or curr_addr == 0x4014):
-                data[i] = self.ppu.register_read(curr_addr)
+                data[i] = self.ppu.register_read(curr_addr, sys)
             else:
                 data[i] = mem_instance[addr]
 

@@ -76,7 +76,7 @@ class PPU:
     def reset(self):
         for key in self.io_registers:
             self.io_registers[key].reset()
-        self.render_background()
+        #self.render_background()
 
 
     def run(self):

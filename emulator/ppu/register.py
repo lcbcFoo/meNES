@@ -76,5 +76,5 @@ class Register16Bit(Register):
     def storeHigherByte(self, value):
         self.storeBits(8, 8, value)
 
-    def storeLowerByte(self, value):
+    def storeLowerByte(self, value, deb=False):
         self.storeBits(0, 8, value)
