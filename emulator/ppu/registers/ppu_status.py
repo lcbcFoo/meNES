@@ -14,14 +14,18 @@ class PPUSTATUS:
     def reset(self):
         pass
 
-    def read(self):
+    def read(self, sys):
+        if sys:
+            return 0
         value = self.reg.load()
         self.reg.storeBit(VBLANK_STATUS_BIT, 0)
         self.ppu.ppuscroll.firstwrite = True
         self.ppu.ppuaddr.firstwrite = True
         return value
 
-    def write(self, value):
+    def write(self, value, sys):
+        if sys:
+            return
         self.reg.storeBits(0, 5, value)
 
     def hasVblankStarted():

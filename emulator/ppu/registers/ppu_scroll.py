@@ -10,10 +10,14 @@ class PPUSCROLL:
         self.firstwrite = True
 
     # Write-only
-    def read(self):
+    def read(self, sys):
+        if sys:
+            return 0
         return self.reg.load()
 
-    def write(self, value):
+    def write(self, value, sys):
+        if sys:
+            return
         self.reg.write(value)
 
         #See how it works in the wiki

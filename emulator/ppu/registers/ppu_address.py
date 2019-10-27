@@ -9,10 +9,15 @@ class PPUADDR:
     def reset(self):
         self.firstwrite = True
 
-    def read(self):
+    def read(self, sys):
+        if sys:
+            return 0
         return self.reg.load()
 
-    def write(self, value):
+    def write(self, value, sys):
+        #print('addr: ' + hex(value))
+        if sys:
+            return
         if(self.firstwrite):
             self.reg.storeHigherByte(value)
         else:
@@ -21,7 +26,12 @@ class PPUADDR:
         self.firstwrite = not self.firstwrite
 
     def increment(self):
-        if(self.ppu.ppuctrl.isVRAMAdressIncrement32):
+        # if self.reg.load() == 0xf8f7:
+        #     raise Exception
+        if(self.ppu.ppuctrl.isVRAMAdressIncrement32()):
             self.reg.add(32)
         else:
             self.reg.increment()
+
+        # print('inc')
+        # print(hex(self.reg.load()))

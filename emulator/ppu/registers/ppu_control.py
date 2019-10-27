@@ -18,10 +18,14 @@ class PPUCTRL:
         self.reg.store(0)
 
     # Write-only
-    def read(self):
+    def read(self, sys):
+        if sys:
+            return 0
         return self.reg.load()
 
-    def write(self,value):
+    def write(self,value, sys):
+        if sys:
+            return
         self.reg.store(value)
 
     def isNMIEnabled(self):
