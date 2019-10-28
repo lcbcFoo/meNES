@@ -1,17 +1,17 @@
-import pygame
+# import pygame
+from cpu.controllers import Controller
 
 class CpuMemoryBus():
 
     def __init__(self):
         self.set_16kb(True)
+        self.controllers = Controller()
 
         self.ram = [0] * 0x2000         # 0x0    - 0x2000
         self.io = [0] * 0x2020          # 0x2000 - 0x4020
         self.exp_rom = [0] * 0x1FE0     # 0x4020 - 0x6000
         self.sram = [0] * 0x2000        # 0x6000 - 0x8000
         self.prg_rom = [0] * 0x8000     # 0x8000 - 0x10000
-
-        self.controller_state = [0] * 2
 
     def set_ppu(self, ppu):
         self.ppu = ppu
@@ -56,11 +56,11 @@ class CpuMemoryBus():
                 self.ppu.register_write(curr_addr, curr_data, sys)
             elif mem_instance == self.io:
                 if curr_addr == 0x4016:
-                    curr_data = self.get_ctrl1_input()
-                    self.controller_state[0] = curr_data
+                    curr_data = self.controllers.get_ctrl1_input()
+                    self.controllers.state[0] = curr_data
                 elif curr_addr == 0x4017:
-                    curr_data = self.get_ctrl2_input()
-                    self.controller_state[1] = curr_data
+                    curr_data = self.controllers.get_ctrl2_input()
+                    self.controllers.state[1] = curr_data
 
             mem_instance[addr] = curr_data
 
@@ -75,65 +75,14 @@ class CpuMemoryBus():
             if (not dryrun) and mem_instance == self.io and ((curr_addr >= 0x2000 and curr_addr <= 0x2007) or curr_addr == 0x4014):
                 data[i] = self.ppu.register_read(curr_addr, sys)
             elif mem_instance == self.io and (curr_addr == 0x4016 or curr_addr == 0x4017):
-                data[i] = (self.controller_state[curr_addr % 2] & 0x80) >> 7
-                val_update = (self.controller_state[curr_addr % 2] << 1) % 256
+                data[i] = (self.controllers.state[curr_addr % 2] & 0x80) >> 7
+                val_update = (self.controllers.state[curr_addr % 2] << 1) % 256
                 if (not dryrun):
-                    self.controller_state[curr_addr % 2] = val_update
+                    self.controllers.state[curr_addr % 2] = val_update
             else:
                 data[i] = mem_instance[addr]
 
         if n == 1:
             return data[0]
 
-        return data
-
-    def get_ctrl1_input(self):
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_o]:                    # A
-            data = 0x80
-        elif keys[pygame.K_p]:                  # B
-            data = 0x40
-        elif keys[pygame.K_l]:                  # select
-            data = 0x20
-        elif keys[pygame.K_RETURN]:             # start
-            data = 0x10
-        elif keys[pygame.K_UP]:                 # up
-            data = 0x08
-        elif keys[pygame.K_DOWN]:               # down
-            data = 0x04
-        elif keys[pygame.K_LEFT]:               # left
-            data = 0x02
-        elif keys[pygame.K_RIGHT]:              # right
-            data = 0x01
-        else:
-            data = 0x00
-
-        pygame.event.pump()
-        return data
-
-
-    def get_ctrl2_input(self):
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_v]:                    # A
-            data = 0x80
-        elif keys[pygame.K_c]:                  # B
-            data = 0x40
-        elif keys[pygame.K_x]:                  # select
-            data = 0x20
-        elif keys[pygame.K_SPACE]:              # start
-            data = 0x10
-        elif keys[pygame.K_w]:                  # up
-            data = 0x08
-        elif keys[pygame.K_s]:                  # down
-            data = 0x04
-        elif keys[pygame.K_a]:                  # left
-            data = 0x02
-        elif keys[pygame.K_d]:                  # right
-            data = 0x01
-        else:
-            data = 0x00
-
-        pygame.event.pump()
         return data
