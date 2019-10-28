@@ -2,15 +2,15 @@ import sys
 import copy
 from pprint import pprint
 
-from ppu.registers.oam_address import OAMADDR
-from ppu.registers.oam_data import OAMDATA
-from ppu.registers.oam_dma import OAMDMA
-from ppu.registers.ppu_address import PPUADDR
-from ppu.registers.ppu_control import PPUCTRL
-from ppu.registers.ppu_data import PPUDATA
-from ppu.registers.ppu_mask import PPUMASK
-from ppu.registers.ppu_scroll import PPUSCROLL
-from ppu.registers.ppu_status import PPUSTATUS
+from ppu.registers.oam_address import *
+from ppu.registers.oam_data import *
+from ppu.registers.oam_dma import *
+from ppu.registers.ppu_address import *
+from ppu.registers.ppu_control import *
+from ppu.registers.ppu_data import *
+from ppu.registers.ppu_mask import *
+from ppu.registers.ppu_scroll import *
+from ppu.registers.ppu_status import *
 from ppu.register import Register8Bit, Register16Bit
 from ppu.sprite_decoder import *
 
@@ -20,10 +20,6 @@ class PPU:
     def __init__(self, mem_bus, gui):
         self.set_memory(mem_bus)
         self.gui = gui
-
-        # ppu cycle and scanline counter
-        self.cycle = 0;
-        self.scanline = 0
 
         # io registers
         self.oamaddr = OAMADDR(self, Register8Bit())
@@ -76,17 +72,72 @@ class PPU:
     def reset(self):
         for key in self.io_registers:
             self.io_registers[key].reset()
-        #self.render_background()
 
+        # ppu cycle and scanline counter
+        self.cycle = 0;
+        self.scanline = -1
+
+        # Flag for on going DMA
+        self.dma_on_going = False
+
+        # OAM memory region
+        self.oam_memory = [0] * 256
+
+        # DMA page used in DMA operation
+        self.dma_page = 0
+
+        # NMI flag
+        self.nmi_flag = False
 
     def run(self):
-        self.render_pixel()
-        self.shift_registers()
-        self.fetch()
-        self.evaluate_sprites()
-        self.update_flags()
-        self.count_up_scroll_counters()
-        self.count_up_cycle()
+        # We do all work of those 240 scanlines in one cycle, so we just 
+        # do nothing until 240
+        if self.scanline == -1 and self.cycle == 1:
+            self.render_background()
+        elif self.scanline < 240:
+            pass
+        
+        # At this point, self.background contains the background where we want
+        # to 'stamp' the sprites
+
+
+        # At scanline 240 we should have our screen ready for next
+        # scanline sets NMI. So we stamp sprites here
+        elif self.scanline == 240:
+            self.render_sprites()
+            pass
+
+        # TODO: do something with sprites
+
+        # At this point, our screen is ready, so we enter vblank state and
+        # raise NMI interrupt if bit is set
+        elif self.scanline == 241:
+            if self.cycle == 1:
+                self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 1)
+
+                if self.ppuctrl.isNMIEnabled():
+                    self.nmi_flag = True
+
+        elif self.scanline < 261:
+            pass
+
+        # Update cycles and scanline
+        self.cycle += 1
+        if self.cycle == 341:
+            self.cycle = 0
+            self.scanline += 1
+            if self.scanline == 261:
+                self.scanline = -1
+                self.gui.draw_screen(self.background)
+
+
+        # self.render_pixel()
+        # self.shift_registers()
+        # self.fetch()
+        # self.evaluate_sprites()
+        # self.update_flags()
+        # self.count_up_scroll_counters()
+        # self.count_up_cycle()
         pass
 
     def register_write(self, addr, value, sys = False):
@@ -95,17 +146,11 @@ class PPU:
     def register_read(self, addr, sys = False):
         return self.io_registers[addr].read(sys)
 
+    def render_sprites(self):
+        pass
+    
     def render_background(self):
-        # Undestand this part
-        # Load the current background tile pattern and attributes into the "shifter"
-        #LoadBackgroundShifters();
-
-        # Fetch background tiles
-        # "(vram_addr.reg & 0x0FFF)" : Mask to 12 bits that are relevant
-        # "| 0x2000"                 : Offset into nametable space on PPU address bus
         bg_base = 0x2000
-        #addr = bg_base | (vram_addr.reg & 0x0FFF));
-
         self.background = [[0]*256 for i in range(0,240)]
 
         # Background name table is composed by 32 * 32 bytes
@@ -122,16 +167,13 @@ class PPU:
                         base_i = 8 * i
                         base_j = 8 * j
                         self.background[base_i + k1][base_j + k2] = sprite[k1][k2]
-        print(self.mem_bus.read(0x23c0, 64))
-        
+
         # Read the 64 bytes that tell us which palette to use to each sprite
         for i in range(30, 32):
             for j in range(0, 32):
                 # read the byte
                 addr = bg_base + (i * 32) + j
                 byte = self.mem_bus.read(addr)
-                #print(hex(addr))
-                #print(bin(byte))
 
                 # interpret its bits to look for palette ID
                 pal_1 = byte & 0b00000011
@@ -140,7 +182,7 @@ class PPU:
                 pal_4 = (byte & 0b11000000) >> 6
 
                 # each attribute separates a tile into 4 2x2 quadrants
-                # pal_1 is for the top left, pal_@ for top right,
+                # pal_1 is for the top left, pal_2 for top right,
                 # pal_3 bot left and pal_4 bot right
 
                 # palettes are located at address 0x3f00-3f1d
@@ -148,55 +190,77 @@ class PPU:
                 # 0x3f01 - 0x3f04 is the palette ID 1 and so on
                 # then the palette ID is basically an offset to add to the
                 # pixel bits (0, 1, 2, 3) to search for its matching color
-                
+
                 # Compose the mapping number:color for each palette
-                print(self.mem_bus.read(0x3f00, 16))
-                print(pal_1,pal_2,pal_3, pal_4)
-                map_1 = dict([(k, v) for k, v in zip(range(0, 4),
-                    self.mem_bus.read(0x3f00 + pal_1 * 4, 4))])
-                map_2 = dict([(k, v) for k, v in zip(range(0, 4),
-                    self.mem_bus.read(0x3f00 + pal_2 * 4, 4))])
-                map_3 = dict([(k, v) for k, v in zip(range(0, 4),
-                    self.mem_bus.read(0x3f00 + pal_3 * 4, 4))])
-                map_4 = dict([(k, v) for k, v in zip(range(0, 4),
-                    self.mem_bus.read(0x3f00 + pal_4 * 4, 4))])
+                # In all maps, value 0 mirrors background color, which
+                # is located at 0x3f00
+                bg_color = self.mem_bus.read(0x3f00)
+                map_1 = dict([(k, v & 0x3f) for k, v in zip(range(1, 4),
+                    self.mem_bus.read(0x3f00 + pal_1 * 4 + 1, 3))])
+                map_1[0] = bg_color
 
-                # print(map_1)
-                # print(map_2)
-                # print(map_3)
-                # print(map_4)
+                map_2 = dict([(k, v & 0x3f) for k, v in zip(range(1, 4),
+                    self.mem_bus.read(0x3f00 + pal_2 * 4 + 1, 3))])
+                map_2[0] = bg_color
 
-                base_y = 8 * ((j // 32) + (i - 30))
-                base_x = j * 8
-                #print(base_y,base_x)
-                for k1 in range(0, 4):
-                    for k2 in range(0, 4):
+                map_3 = dict([(k, v & 0x3f) for k, v in zip(range(1, 4),
+                    self.mem_bus.read(0x3f00 + pal_3 * 4 + 1, 3))])
+                map_3[0] = bg_color
+
+                map_4 = dict([(k, v & 0x3f) for k, v in zip(range(1, 4),
+                    self.mem_bus.read(0x3f00 + pal_4 * 4 + 1, 3))])
+                map_4[0] = bg_color
+
+
+                # Now we have each map for each quadrant of the 32x32 tile
+                # Meaning, 4 16x16 squares
+                #     16 16
+                #      _ _
+                # 16  |_|_| 16
+                # 16  |_|_| 16
+                #     16 16
+
+                # We define the base address (top left) of the tile we
+                # are coloring with this attibute
+                base_y = (32 * (j // 8)) + 128 * (i - 30 )
+                base_x = (j * 32) % 256
+
+                # This represents the end of the screen -> finish
+                if base_y >= 224:
+                    break
+
+                # Now, we map the correspondig map for each quadrant
+                for k1 in range(0, 16):
+                    for k2 in range(0, 16):
+
+                        # Top left
                         y1 = base_y + k1
                         x1 = base_x + k2
                         addr1 = self.background[y1][x1]
                         val1 = map_1[addr1]
                         self.background[y1][x1] = val1
 
+                        # Top right
                         y2 = base_y + k1
-                        x2 = base_x + k2 + 4
+                        x2 = base_x + k2 + 16
                         addr2 = self.background[y2][x2]
                         val2 = map_2[addr2]
                         self.background[y2][x2] = val2
-                        
-                        y3 = base_y + k1 + 4
+
+                        # Bottom left
+                        y3 = base_y + k1 + 16
                         x3 = base_x + k2
                         addr3 = self.background[y3][x3]
                         val3 = map_3[addr3]
                         self.background[y3][x3] = val3
-                        
-                        y4 = base_y + k1 + 4
-                        x4 = base_x + k2 + 4
+
+                        # Bottom right
+                        y4 = base_y + k1 + 16
+                        x4 = base_x + k2 + 16
                         addr4 = self.background[y4][x4]
                         val4 = map_4[addr4]
                         self.background[y4][x4] = val4
 
-        self.gui.draw_screen(self.background)
-        pass
     # Get BG and sprites values and prints and put it on the screen.
     def render_pixel(self):
         pass

@@ -21,8 +21,5 @@ class PPUDATA:
             return
         self.reg.store(value)
         VRAMaddr = self.ppu.ppuaddr.reg.load()
-        #print('ppu')
-        #print(hex(VRAMaddr) + ' = ' + hex(value))
-
         self.ppu.mem_bus.write(VRAMaddr, value)
         self.ppu.ppuaddr.increment()

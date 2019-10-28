@@ -20,13 +20,13 @@ class Register:
         self.data = value % self.mod
 
     def storeBit(self, pos, value):
-        # erase bit
-        self.data = self.data - ((self.data >> pos) & 1) * (1 << pos)
-        self.data = (self.data + ((value & 1) << pos)) % self.mod
+        mask = (1 << pos)
+        self.data &= ~mask
+        self.data |= (value << pos)
+        self.data %= self.mod
 
     def storeBits(self, start, offset, value):
         mask = ((1 << offset) - 1) << (start)
-        #mask = (((self.mod - 1) >> start) % (1 << (offset+1))) << start
         # erase bits
         self.data = (self.data & ~mask) % self.mod
         self.data = (self.data + ((value << start) & mask)) % self.mod

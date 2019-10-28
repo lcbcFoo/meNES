@@ -6,7 +6,7 @@ class OAMDMA:
         self.reg.store(0)
 
     def reset(self):
-        self.reg = 0
+        self.reg.store(0)
 
     def read(self, sys):
         if sys:
@@ -17,3 +17,5 @@ class OAMDMA:
         if sys:
             return
         self.reg.store(value)
+        self.ppu.dma_on_going = True 
+        self.ppu.dma_page = value

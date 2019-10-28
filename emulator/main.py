@@ -56,9 +56,32 @@ def main():
     ppu.set_cpu(cpu)
     cpu.set_ppu(ppu)
     cpu_mem.set_ppu(ppu)
-
+    
+    dma_counter = 0
+    wait_clock = False
     while True:
-        n_cycles = cpu.run()
+        # This is the direct memory access
+        # When cpu writes N in 0x4014, dma starts, copying 256 bytes
+        # from cpu memory starting at 0x100 * N into dma memory (sprites
+        # information)
+        # During this time, cpu clock is not running, so we count 1 clock
+        # passed
+        if ppu.dma_on_going:
+            read_from_cpu_mem = cpu.mem_bus.read(ppu.dma_page * 0x100 + dma_counter)
+            ppu.oam_memory[dma_counter] = read_from_cpu_mem
+            dma_counter += 1
+            n_cycles = 1
+
+            if dma_counter == 256:
+                dma_counter = 0
+                ppu.dma_on_going = False
+
+        else:
+            n_cycles = cpu.run()
+
+        if ppu.nmi_flag:
+            ppu.nmi_flag = False
+            cpu.nmi()
 
         for i in range (0, 3 * n_cycles):
             ppu.run()

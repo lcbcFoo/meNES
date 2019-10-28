@@ -201,7 +201,7 @@ LoadPalettesLoop:
     jsr LoadSpritesGame
     jsr LoadPress
     jsr LoadStart
-    brk
+    ;brk
 
 
 ;----------------------------------------------------------------------
@@ -209,6 +209,7 @@ LoadPalettesLoop:
 ; ------------ LOAD BACKGROUND ----------------------------------------
 LoadBackground:
     lda $2002             ; read PPU status to reset the high/low latch
+
     lda #$20
     sta $2006             ; write the high byte of $2000 address
     lda #$00
@@ -302,6 +303,14 @@ LoadAttributeLoop:
     sta $2001
 
 ; ------- END OF BACKGROUND --------------------------------------------------
+; For debug, program stays here forever after loading stuff indo ppu
+    lda #$00
+    sta $2003       ; set the low byte (00) of the RAM address
+    lda #$02
+    sta $4014       ; set the high byte (02) of the RAM address, start the transfer
+loop:
+    jmp loop
+    brk
 
     jmp     before_main_loop
 

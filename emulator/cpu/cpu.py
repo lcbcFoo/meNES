@@ -118,6 +118,10 @@ class CPU:
 
         return opcodes_dict[opcode].cycles
 
+    def nmi(self):
+        # TODO: treat NMI interrupt
+        pass
+
     def push_stack(self, value):
         stack_addr = 0x0100 + self.sp
         self.mem_bus.write(stack_addr, value)
