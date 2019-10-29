@@ -330,6 +330,10 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_x
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_x
 
     # "AND" between value (inside given address +reg_x) and reg_a, puts result in
@@ -344,6 +348,10 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_x
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_x
 
     # Shifts value (inside given address + reg_x) 1 bit to the left, with
@@ -374,6 +382,10 @@ class Absolute():
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
         self.fh.setCarrySbc(result)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_x
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_x
 
     # Subtracts 1 from value (inside given address + reg_x) (result = value - 1)
@@ -402,6 +414,10 @@ class Absolute():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_x
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_x
 
     # Adds 1 to value (inside given address + reg_x), stores result in given
@@ -426,6 +442,10 @@ class Absolute():
         self.cpu.a = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_x
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_x
 
     # Puts value (from given address + reg_x) inside reg_y.
@@ -437,6 +457,10 @@ class Absolute():
         self.cpu.y = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_x
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_x
 
     # Shifts value (inside given address + reg_x) 1 bit to the right, with bit 7 set
@@ -469,6 +493,10 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_x
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_x
 
     # Rotates value (from given address + reg_x) 1 bit to the left, with
@@ -525,6 +553,10 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_x
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_x
 
     # Transfers content of reg_a to given address + reg_x.
@@ -555,6 +587,10 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_y
 
     # "AND" between value (inside given address +reg_y) and reg_a, puts result in
@@ -569,6 +605,10 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_y
 
     # Subtracts the value (inside given address + reg_x) from reg_a (reg_a - value).
@@ -582,6 +622,10 @@ class Absolute():
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
         self.fh.setCarrySbc(result)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_y
 
     # "XOR" between value (inside given address + reg_x) and reg_a, puts result in
@@ -595,6 +639,10 @@ class Absolute():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_y
 
     # Puts value (from given address + reg_y) inside reg_a.
@@ -606,6 +654,10 @@ class Absolute():
         self.cpu.a = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_y
 
     # Puts value (from given address + reg_y) inside reg_x.
@@ -617,6 +669,10 @@ class Absolute():
         self.cpu.x = result
         self.fh.setNegative(result)
         self.fh.setZero(result)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_y
 
     # "OR" between value (from given address + reg_y) and reg_a, puts result in
@@ -630,6 +686,10 @@ class Absolute():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_y
 
     # Subtracts the value (inside given address + reg_y) and borrow from reg_a
@@ -650,6 +710,10 @@ class Absolute():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.full_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.full_addr_y
 
     # Transfers content of reg_a to given address + reg_y.
