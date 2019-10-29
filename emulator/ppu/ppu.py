@@ -97,7 +97,7 @@ class PPU:
         if self.scanline == -1 and self.cycle == 1:
             if(self.background[237][255] == 0):  # Render only the first time
                 self.render_background()
-        elif self.scanline < 240:
+        elif self.scanline < 2:
             pass
 
         # At this point, self.background contains the background where we want
@@ -106,7 +106,7 @@ class PPU:
 
         # At scanline 240 we should have our screen ready for next
         # scanline sets NMI. So we stamp sprites here
-        elif self.scanline == 240:
+        elif self.scanline == 2:
             self.render_sprites()
             pass
 
@@ -114,22 +114,22 @@ class PPU:
 
         # At this point, our screen is ready, so we enter vblank state and
         # raise NMI interrupt if bit is set
-        elif self.scanline == 241:
+        elif self.scanline == 3:
             if self.cycle == 1:
                 self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 1)
 
                 if self.ppuctrl.isNMIEnabled():
                     self.nmi_flag = True
 
-        elif self.scanline < 261:
+        elif self.scanline < 10:
             pass
 
         # Update cycles and scanline
         self.cycle += 1
-        if self.cycle == 341:
+        if self.cycle == 10:
             self.cycle = 0
             self.scanline += 1
-            if self.scanline == 261:
+            if self.scanline == 200:
                 self.scanline = -1
                 self.gui.draw_screen(self.background)
 
