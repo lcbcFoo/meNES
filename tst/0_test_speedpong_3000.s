@@ -939,7 +939,7 @@ wait:
     inc     sleeping
 SLEEP:
     lda     sleeping
-  ;  bne     SLEEP
+    bne     SLEEP
     rts
 ; end wait
 
