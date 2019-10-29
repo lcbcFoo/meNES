@@ -110,11 +110,11 @@ class CPU:
             self.pc += opcodes_dict[opcode].bytes
 
         # Show log for this instruction
-        if(address != None):
-            val = self.mem_bus.read(address, dryrun=True)
-            self.print_log(True, address, val)
-        else:
-            self.print_log()
+        # if(address != None):
+        #     val = self.mem_bus.read(address, dryrun=True)
+        #     self.print_log(True, address, val)
+        # else:
+        #     self.print_log()
 
         return opcodes_dict[opcode].cycles
 
