@@ -127,6 +127,7 @@ class CPU:
         self.push_stack(self.create_status_reg())
         self.pc = self.mem_bus.read(0xFFFA)
         self.pc += self.mem_bus.read(0xFFFB) << 8
+        self.run()
 
     def push_stack(self, value):
         stack_addr = 0x0100 + self.sp
