@@ -119,8 +119,14 @@ class CPU:
         return opcodes_dict[opcode].cycles
 
     def nmi(self):
-        # TODO: treat NMI interrupt
-        pass
+        next_pc = self.pc
+        PCH = (next_pc >> 8) & 255
+        self.push_stack(PCH)
+        PCL = next_pc & 255
+        self.push_stack(PCL)
+        self.push_stack(self.create_status_reg())
+        self.pc = self.mem_bus.read(0xFFFA)
+        self.pc += self.mem_bus.read(0xFFFB) << 8
 
     def push_stack(self, value):
         stack_addr = 0x0100 + self.sp
