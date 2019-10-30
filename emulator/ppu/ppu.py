@@ -89,21 +89,24 @@ class PPU:
         # NMI flag
         self.nmi_flag = False
 
+        self.background = [[0]*256 for i in range(0,240)]
+
     def run(self):
-        # We do all work of those 240 scanlines in one cycle, so we just 
+        # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
         if self.scanline == -1 and self.cycle == 1:
-            self.render_background()
-        elif self.scanline < 240:
+            if(self.background[237][255] == 0):  # Render only the first time
+                self.render_background()
+        elif self.scanline < 2:
             pass
-        
+
         # At this point, self.background contains the background where we want
         # to 'stamp' the sprites
 
 
         # At scanline 240 we should have our screen ready for next
         # scanline sets NMI. So we stamp sprites here
-        elif self.scanline == 240:
+        elif self.scanline == 2:
             self.render_sprites()
             pass
 
@@ -111,22 +114,22 @@ class PPU:
 
         # At this point, our screen is ready, so we enter vblank state and
         # raise NMI interrupt if bit is set
-        elif self.scanline == 241:
+        elif self.scanline == 3:
             if self.cycle == 1:
                 self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 1)
 
                 if self.ppuctrl.isNMIEnabled():
                     self.nmi_flag = True
 
-        elif self.scanline < 261:
+        elif self.scanline < 10:
             pass
 
         # Update cycles and scanline
         self.cycle += 1
-        if self.cycle == 341:
+        if self.cycle == 10:
             self.cycle = 0
             self.scanline += 1
-            if self.scanline == 261:
+            if self.scanline == 200:
                 self.scanline = -1
                 self.gui.draw_screen(self.background)
 
@@ -147,11 +150,35 @@ class PPU:
         return self.io_registers[addr].read(sys)
 
     def render_sprites(self):
+        for i in range(64):
+            base_addr = i*4
+            y = self.oam_memory[base_addr]
+            sprite_num = self.oam_memory[base_addr+1]
+            attr = self.oam_memory[base_addr+2]
+            x = self.oam_memory[base_addr+3]
+
+            pal_1 = attr & 0b00000011
+            pal_2 = (attr & 0b00001100) >> 2
+            pal_3 = (attr & 0b00110000) >> 4
+            pal_4 = (attr & 0b11000000) >> 6
+
+            map1 = dict([(k, v & 0x3f) for k, v in zip(range(1, 4),
+                self.mem_bus.read(0x3f10 + pal_1 * 4 + 1, 3))])
+            map1[0] = 0x00
+
+            for iy in range(8):
+                for ix in range(8):
+                    cor = map1[self.sprite_table[sprite_num][iy][ix]]
+                    if cor != 0:
+                        self.background[y+iy][x+ix] = cor
+
+
+
         pass
-    
+
     def render_background(self):
         bg_base = 0x2000
-        self.background = [[0]*256 for i in range(0,240)]
+        # self.background = [[0]*256 for i in range(0,240)]
 
         # Background name table is composed by 32 * 32 bytes
         # Last 2 rows of bytes are attributes for color, we will look later

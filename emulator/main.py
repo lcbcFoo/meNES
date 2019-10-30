@@ -56,7 +56,7 @@ def main():
     ppu.set_cpu(cpu)
     cpu.set_ppu(ppu)
     cpu_mem.set_ppu(ppu)
-    
+
     dma_counter = 0
     wait_clock = False
     while True:
@@ -83,13 +83,13 @@ def main():
             ppu.nmi_flag = False
             cpu.nmi()
 
-        for i in range (0, 3 * n_cycles):
+        for i in range (0, n_cycles):
             ppu.run()
 
         # Set a sleep proportional to the number of cycles to simulate
         # 6502 clock rate
         # TODO: test execution time for this program
-        sleep(n_cycles * (1/CLOCK))
+        # sleep(n_cycles * (1/CLOCK))
 
 
 if __name__ == '__main__':

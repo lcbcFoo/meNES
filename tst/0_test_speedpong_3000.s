@@ -309,8 +309,8 @@ LoadAttributeLoop:
     lda #$02
     sta $4014       ; set the high byte (02) of the RAM address, start the transfer
 loop:
-    jmp loop
-    brk
+    ;jmp loop
+    ;brk
 
     jmp     before_main_loop
 
@@ -939,7 +939,7 @@ wait:
     inc     sleeping
 SLEEP:
     lda     sleeping
-  ;  bne     SLEEP
+    bne     SLEEP
     rts
 ; end wait
 

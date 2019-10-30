@@ -110,19 +110,26 @@ class CPU:
             self.pc += opcodes_dict[opcode].bytes
 
         # Show log for this instruction
-        if(address != None):
-            val = self.mem_bus.read(address, dryrun=True)
-            self.print_log(True, address, val)
-        else:
-            self.print_log()
+        # if(address != None):
+        #     val = self.mem_bus.read(address, dryrun=True)
+        #     self.print_log(True, address, val)
+        # else:
+        #     self.print_log()
 
         cycles = opcodes_dict[opcode].cycles + self.additional_cycle
         self.additional_cycle = 0
         return cycles
 
     def nmi(self):
-        # TODO: treat NMI interrupt
-        pass
+        next_pc = self.pc
+        PCH = (next_pc >> 8) & 255
+        self.push_stack(PCH)
+        PCL = next_pc & 255
+        self.push_stack(PCL)
+        self.push_stack(self.create_status_reg())
+        self.pc = self.mem_bus.read(0xFFFA)
+        self.pc += self.mem_bus.read(0xFFFB) << 8
+        self.run()
 
     def push_stack(self, value):
         stack_addr = 0x0100 + self.sp
