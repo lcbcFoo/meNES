@@ -100,6 +100,8 @@ class PPU:
         # do nothing until 240
         if not self.background_ready:  # Render only the first time
             self.render_background()
+            self.background[13:] = self.background[:227]
+            self.background[:13] = 0
 
         # At this point, self.background contains the background where we want
         # to 'stamp' the sprites
