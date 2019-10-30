@@ -91,7 +91,7 @@ class PPU:
         # NMI flag
         self.nmi_flag = False
 
-        self.background = [[0]*256 for i in range(0,240)]
+        self.background = np.zeros((240,256))
 
         self.background_ready = False
 
@@ -129,7 +129,7 @@ class PPU:
         return self.io_registers[addr].read(sys)
 
     def render_sprites(self):
-        screen = [[j for j in  i] for i in self.background]
+        screen = np.copy(self.background)
         for i in range(64):
             base_addr = i*4
             y = self.oam_memory[base_addr]
@@ -158,7 +158,6 @@ class PPU:
     def render_background(self):
         self.background_ready = True
         bg_base = 0x2000
-        # self.background = [[0]*256 for i in range(0,240)]
 
         # Background name table is composed by 32 * 32 bytes
         # Last 2 rows of bytes are attributes for color, we will look later
@@ -267,33 +266,3 @@ class PPU:
                         addr4 = self.background[y4][x4]
                         val4 = map_4[addr4]
                         self.background[y4][x4] = val4
-
-
-
-    # Get BG and sprites values and prints and put it on the screen.
-    def render_pixel(self):
-        pass
-
-    # Updates values on shift registers (pixels infos).
-    def shift_registers(self):
-        pass
-
-    # According to the cycle, fetches value on VRAM and puts on shift registers.
-    def fetch(self):
-        pass
-
-    # Prepares sprite infos for next scanline.
-    def evaluate_sprites(self):
-        pass
-
-    # Sets/Clears VBlank, ZeroHit and Overflow flags according to scanline.
-    def update_flags(self):
-        pass
-
-    # Honestly, ???
-    def count_up_scroll_counters(self):
-        pass
-
-    # Increments cycle --> maybe this will not be used here.
-    def count_up_cycle(self):
-        pass
