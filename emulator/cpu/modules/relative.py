@@ -17,7 +17,8 @@ class Relative():
             npc = npc + imm
 
         # Adds additional cycle if page boundary was crossed
-        self.cpu.additional_cycle = self.cpu.set_additional_cycle(npc)
+        if (npc & 0xFF00) != (self.cpu.pc << 8):
+            self.additional_cycle = 1
         # Adds additional cycle since branch was taken
         self.cpu.additional_cycle += 1
         self.cpu.pc = npc
