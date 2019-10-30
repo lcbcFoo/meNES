@@ -60,7 +60,7 @@ def main():
     dma_counter = 0
     wait_clock = False
 
-    for i in range(10000):  #Initialization
+    for i in range(5000):  #Initialization
         _ = cpu.run()
 
     while True:
