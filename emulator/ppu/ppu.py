@@ -2,6 +2,7 @@ import sys
 import copy
 from pprint import pprint
 import copy
+import numpy as np
 
 from ppu.registers.oam_address import *
 from ppu.registers.oam_data import *
@@ -92,49 +93,34 @@ class PPU:
 
         self.background = [[0]*256 for i in range(0,240)]
 
+        self.background_ready = False
+
     def run(self):
         # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
-        if self.scanline == -1 and self.cycle == 1:
-            if(self.background[220][255] == 0):  # Render only the first time
-                self.render_background()
-        elif self.scanline < 2:
-            pass
+        if not self.background_ready:  # Render only the first time
+            self.render_background()
 
         # At this point, self.background contains the background where we want
         # to 'stamp' the sprites
 
-
         # At scanline 240 we should have our screen ready for next
         # scanline sets NMI. So we stamp sprites here
-        elif self.scanline == 2 and self.cycle == 1:
+        if self.cycle == 1:
             self.screen = self.render_sprites()
-            pass
-
-        # TODO: do something with sprites
-
         # At this point, our screen is ready, so we enter vblank state and
         # raise NMI interrupt if bit is set
-        elif self.scanline == 3:
-            if self.cycle == 1:
-                self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 1)
+            self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 1)
 
-                if self.ppuctrl.isNMIEnabled():
-                    self.nmi_flag = True
-
-        elif self.scanline < 10:
-            pass
+            if self.ppuctrl.isNMIEnabled():
+                self.nmi_flag = True
 
         # Update cycles and scanline
         self.cycle += 1
-        if self.cycle == 10:
+        if self.cycle == 700:
             self.cycle = 0
-            self.scanline += 1
-            if self.scanline == 70:
-                self.scanline = -1
-                self.gui.draw_screen(self.screen)
+            self.gui.draw_screen(self.screen)
 
-        pass
 
     def register_write(self, addr, value, sys = False):
         self.io_registers[addr].write(value, sys)
@@ -170,6 +156,7 @@ class PPU:
 
 
     def render_background(self):
+        self.background_ready = True
         bg_base = 0x2000
         # self.background = [[0]*256 for i in range(0,240)]
 
@@ -280,6 +267,8 @@ class PPU:
                         addr4 = self.background[y4][x4]
                         val4 = map_4[addr4]
                         self.background[y4][x4] = val4
+
+
 
     # Get BG and sprites values and prints and put it on the screen.
     def render_pixel(self):
