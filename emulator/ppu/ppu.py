@@ -1,6 +1,7 @@
 import sys
 import copy
 from pprint import pprint
+import copy
 
 from ppu.registers.oam_address import *
 from ppu.registers.oam_data import *
@@ -95,7 +96,7 @@ class PPU:
         # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
         if self.scanline == -1 and self.cycle == 1:
-            if(self.background[237][255] == 0):  # Render only the first time
+            if(self.background[220][255] == 0):  # Render only the first time
                 self.render_background()
         elif self.scanline < 2:
             pass
@@ -106,8 +107,8 @@ class PPU:
 
         # At scanline 240 we should have our screen ready for next
         # scanline sets NMI. So we stamp sprites here
-        elif self.scanline == 2:
-            self.render_sprites()
+        elif self.scanline == 2 and self.cycle == 1:
+            self.screen = self.render_sprites()
             pass
 
         # TODO: do something with sprites
@@ -129,18 +130,10 @@ class PPU:
         if self.cycle == 10:
             self.cycle = 0
             self.scanline += 1
-            if self.scanline == 200:
+            if self.scanline == 70:
                 self.scanline = -1
-                self.gui.draw_screen(self.background)
+                self.gui.draw_screen(self.screen)
 
-
-        # self.render_pixel()
-        # self.shift_registers()
-        # self.fetch()
-        # self.evaluate_sprites()
-        # self.update_flags()
-        # self.count_up_scroll_counters()
-        # self.count_up_cycle()
         pass
 
     def register_write(self, addr, value, sys = False):
@@ -150,6 +143,7 @@ class PPU:
         return self.io_registers[addr].read(sys)
 
     def render_sprites(self):
+        screen = [[j for j in  i] for i in self.background]
         for i in range(64):
             base_addr = i*4
             y = self.oam_memory[base_addr]
@@ -170,11 +164,10 @@ class PPU:
                 for ix in range(8):
                     cor = map1[self.sprite_table[sprite_num][iy][ix]]
                     if cor != 0:
-                        self.background[y+iy][x+ix] = cor
+                        screen[y+iy][x+ix] = cor
 
+        return screen
 
-
-        pass
 
     def render_background(self):
         bg_base = 0x2000
