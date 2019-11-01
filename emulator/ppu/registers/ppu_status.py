@@ -15,8 +15,6 @@ class PPUSTATUS:
         pass
 
     def read(self, sys):
-        if sys:
-            return 0
         value = self.reg.load()
         self.reg.storeBit(VBLANK_STATUS_BIT, 0)
         self.ppu.ppuscroll.firstwrite = True

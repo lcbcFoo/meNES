@@ -60,9 +60,6 @@ def main():
     dma_counter = 0
     wait_clock = False
 
-    for i in range(5000):  #Initialization
-        _ = cpu.run()
-
     while True:
         # This is the direct memory access
         # When cpu writes N in 0x4014, dma starts, copying 256 bytes

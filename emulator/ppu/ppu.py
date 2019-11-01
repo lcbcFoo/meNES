@@ -98,7 +98,7 @@ class PPU:
     def run(self):
         # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
-        if not self.background_ready:  # Render only the first time
+        if not self.background_ready and self.ppumask.isBackgroundEnabled():  # Render only the first time
             self.render_background()
             self.background[13:] = self.background[:227]
             self.background[:13] = 0
@@ -108,10 +108,14 @@ class PPU:
 
         # At scanline 240 we should have our screen ready for next
         # scanline sets NMI. So we stamp sprites here
-        if self.cycle == 1:
+        if self.ppumask.isSpriteEnabled() and self.cycle == 1:
             self.screen = self.render_sprites()
-        # At this point, our screen is ready, so we enter vblank state and
-        # raise NMI interrupt if bit is set
+        elif self.cycle == 1:
+            self.screen = self.background
+
+        if self.cycle == 1:
+            # At this point, our screen is ready, so we enter vblank state and
+            # raise NMI interrupt if bit is set
             self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 1)
 
             if self.ppuctrl.isNMIEnabled():
