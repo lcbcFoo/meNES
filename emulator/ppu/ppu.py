@@ -16,6 +16,72 @@ from ppu.registers.ppu_status import *
 from ppu.register import Register8Bit, Register16Bit
 from ppu.sprite_decoder import *
 
+PALETTES = {
+        0x00 : (0, 0, 0),
+        0x01 : (0, 30, 116),
+        0x02 : (8, 16, 144),
+        0x03 : (48, 0, 136),
+        0x04 : (68, 0, 100),
+        0x05 : (92, 0, 48),
+        0x06 : (84, 4, 0),
+        0x07 : (60, 24, 0),
+        0x08 : (32, 42, 0),
+        0x09 : (8, 58, 0),
+        0x0a : (0, 64, 0),
+        0x0b : (0, 60, 0),
+        0x0c : (0, 50, 60),
+        0x0d : (0, 0, 0),
+        0x0e : (0, 0, 0),
+        0x0f : (0, 0, 0),
+        0x10 : (152, 150, 152),
+        0x11 : (8, 76, 196),
+        0x12 : (48, 50, 236),
+        0x13 : (92, 30, 228),
+        0x14 : (136, 20, 176),
+        0x15 : (160, 20, 100),
+        0x16 : (152, 34, 32),
+        0x17 : (120, 60, 0),
+        0x18 : (84, 90, 0),
+        0x19 : (40, 114, 0),
+        0x1a : (8, 124, 0),
+        0x1b : (0, 118, 40),
+        0x1c : (0, 102, 120),
+        0x1d : (0, 0, 0),
+        0x1e : (0, 0, 0),
+        0x1f : (0, 0, 0),
+        0x20 : (236, 238, 236),
+        0x21 : (76, 154, 236),
+        0x22 : (120, 124, 236),
+        0x23 : (176, 98, 236),
+        0x24 : (228, 84, 236),
+        0x25 : (236, 88, 180),
+        0x26 : (236, 106, 100),
+        0x27 : (212, 136, 32),
+        0x28 : (160, 170, 0),
+        0x29 : (116, 196, 0),
+        0x2a : (76, 208, 32),
+        0x2b : (56, 204, 108),
+        0x2c : (56, 180, 204),
+        0x2d : (60, 60, 60),
+        0x2e : (0, 0, 0),
+        0x2f : (0, 0, 0),
+        0x30 : (236, 238, 236),
+        0x31 : (168, 204, 236),
+        0x32 : (188, 188, 236),
+        0x33 : (212, 178, 236),
+        0x34 : (236, 174, 236),
+        0x35 : (236, 174, 212),
+        0x36 : (236, 180, 176),
+        0x37 : (228, 196, 144),
+        0x38 : (204, 210, 120),
+        0x39 : (180, 222, 120),
+        0x3a : (168, 226, 144),
+        0x3b : (152, 226, 180),
+        0x3c : (160, 214, 228),
+        0x3d : (160, 162, 160),
+        0x3e : (0, 0, 0),
+        0x3f : (0, 0, 0)
+}
 
 class PPU:
 
@@ -90,9 +156,9 @@ class PPU:
 
         # NMI flag
         self.nmi_flag = False
-
-        self.background = np.zeros((240,256))
-
+        
+        image = np.zeros((240, 256))
+        self.background = np.array([[PALETTES[0] for i in j] for j in image])
         self.background_ready = False
 
     def run(self):
@@ -110,8 +176,8 @@ class PPU:
         # scanline sets NMI. So we stamp sprites here
         if self.ppumask.isSpriteEnabled() and self.cycle == 1:
             self.screen = self.render_sprites()
-        elif self.cycle == 1:
-            self.screen = self.background
+        # elif self.cycle == 1:
+        #     self.screen = self.background
 
         if self.cycle == 1:
             # At this point, our screen is ready, so we enter vblank state and
@@ -125,7 +191,9 @@ class PPU:
         self.cycle += 1
         if self.cycle == 700:
             self.cycle = 0
-            self.gui.draw_screen(self.screen)
+            if self.background_ready:
+                # print(self.screen)
+                self.gui.draw_screen(self.screen)
 
 
     def register_write(self, addr, value, sys = False):
@@ -156,7 +224,7 @@ class PPU:
                 for ix in range(8):
                     cor = map1[self.sprite_table[sprite_num][iy][ix]]
                     if cor != 0:
-                        screen[y+iy][x+ix] = cor
+                        screen[y+iy][x+ix] = PALETTES[cor]
 
         return screen
 
@@ -164,6 +232,7 @@ class PPU:
     def render_background(self):
         self.background_ready = True
         bg_base = 0x2000
+        bg = np.zeros((240, 256))
 
         # Background name table is composed by 32 * 32 bytes
         # Last 2 rows of bytes are attributes for color, we will look later
@@ -178,7 +247,7 @@ class PPU:
                     for k2 in range(0, 8):
                         base_i = 8 * i
                         base_j = 8 * j
-                        self.background[base_i + k1][base_j + k2] = sprite[k1][k2]
+                        bg[base_i + k1][base_j + k2] = sprite[k1][k2]
 
         # Read the 64 bytes that tell us which palette to use to each sprite
         for i in range(30, 32):
@@ -248,27 +317,30 @@ class PPU:
                         # Top left
                         y1 = base_y + k1
                         x1 = base_x + k2
-                        addr1 = self.background[y1][x1]
+                        addr1 = bg[y1][x1]
                         val1 = map_1[addr1]
-                        self.background[y1][x1] = val1
+                        bg[y1][x1] = val1
 
                         # Top right
                         y2 = base_y + k1
                         x2 = base_x + k2 + 16
-                        addr2 = self.background[y2][x2]
+                        addr2 = bg[y2][x2]
                         val2 = map_2[addr2]
-                        self.background[y2][x2] = val2
+                        bg[y2][x2] = val2
 
                         # Bottom left
                         y3 = base_y + k1 + 16
                         x3 = base_x + k2
-                        addr3 = self.background[y3][x3]
+                        addr3 = bg[y3][x3]
                         val3 = map_3[addr3]
-                        self.background[y3][x3] = val3
+                        bg[y3][x3] = val3
 
                         # Bottom right
                         y4 = base_y + k1 + 16
                         x4 = base_x + k2 + 16
-                        addr4 = self.background[y4][x4]
+                        addr4 = bg[y4][x4]
                         val4 = map_4[addr4]
-                        self.background[y4][x4] = val4
+                        bg[y4][x4] = val4
+        self.background = np.array([[PALETTES[i] for i in j] for j in bg])
+        print(self.background)
+        self.screen = np.copy(self.background)
