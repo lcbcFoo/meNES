@@ -156,7 +156,7 @@ class PPU:
 
         # NMI flag
         self.nmi_flag = False
-        
+
         image = np.zeros((240, 256))
         self.background = np.array([[PALETTES[0] for i in j] for j in image])
         self.background_ready = False
@@ -192,7 +192,6 @@ class PPU:
         if self.cycle == 700:
             self.cycle = 0
             if self.background_ready:
-                # print(self.screen)
                 self.gui.draw_screen(self.screen)
 
 
@@ -342,5 +341,4 @@ class PPU:
                         val4 = map_4[addr4]
                         bg[y4][x4] = val4
         self.background = np.array([[PALETTES[i] for i in j] for j in bg])
-        print(self.background)
         self.screen = np.copy(self.background)

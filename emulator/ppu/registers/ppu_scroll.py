@@ -18,7 +18,7 @@ class PPUSCROLL:
     def write(self, value, sys):
         if sys:
             return
-        self.reg.write(value)
+        self.reg.store(value)
 
         #See how it works in the wiki
         if(self.firstwrite):
