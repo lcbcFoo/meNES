@@ -223,7 +223,8 @@ class PPU:
                 for ix in range(8):
                     cor = map1[self.sprite_table[sprite_num][iy][ix]]
                     if cor != 0:
-                        screen[y+iy][x+ix] = PALETTES[cor]
+                        rgb_color = self.update_color(PALETTES[cor])
+                        screen[y+iy][x+ix] = rgb_color
 
         return screen
 
@@ -333,5 +334,21 @@ class PPU:
                         addr4 = bg[y4][x4]
                         val4 = map_4[int(addr4)]
                         bg[y4][x4] = val4
-        self.background = np.array([[PALETTES[i] for i in j] for j in bg])
+        self.background = np.array([[self.update_color(PALETTES[i]) for i in j] for j in bg])
         self.screen = np.copy(self.background)
+
+    def update_color(self, color):
+        output_color = list(color)
+        if self.ppumask.isEmphasizeRedEnabled():
+            output_color[0] = 255
+        if self.ppumask.isEmphasizeGreenEnabled():
+            output_color[1] = 255
+        if self.ppumask.isEmphasizeBlueEnabled():
+            output_color[2] = 255
+        if self.ppumask.isGrayScaleEnabled():
+            red = output_color[0]
+            green = output_color[1]
+            blue = output_color[2]
+            grayscale = round((0.3 * red) + (0.59 * green) + (0.11 * blue))
+            output_color = [grayscale, grayscale, grayscale]
+        return tuple(output_color)
