@@ -232,6 +232,7 @@ class PPU:
         self.background_ready = True
         bg_base = 0x2000
         bg = np.zeros((240, 256))
+        pallete_map = [v & 0x3f for v in self.mem_bus.read(0x3f00, 8 * 4 + 1)]
 
         # Background name table is composed by 32 * 32 bytes
         # Last 2 rows of bytes are attributes for color, we will look later
@@ -274,23 +275,15 @@ class PPU:
                 # Compose the mapping number:color for each palette
                 # In all maps, value 0 mirrors background color, which
                 # is located at 0x3f00
-                bg_color = self.mem_bus.read(0x3f00)
-                map_1 = dict([(k, v & 0x3f) for k, v in zip(range(1, 4),
-                    self.mem_bus.read(0x3f00 + pal_1 * 4 + 1, 3))])
-                map_1[0] = bg_color
 
-                map_2 = dict([(k, v & 0x3f) for k, v in zip(range(1, 4),
-                    self.mem_bus.read(0x3f00 + pal_2 * 4 + 1, 3))])
-                map_2[0] = bg_color
-
-                map_3 = dict([(k, v & 0x3f) for k, v in zip(range(1, 4),
-                    self.mem_bus.read(0x3f00 + pal_3 * 4 + 1, 3))])
-                map_3[0] = bg_color
-
-                map_4 = dict([(k, v & 0x3f) for k, v in zip(range(1, 4),
-                    self.mem_bus.read(0x3f00 + pal_4 * 4 + 1, 3))])
-                map_4[0] = bg_color
-
+                map_1 = [pallete_map[0]] + \
+                    pallete_map[pal_1 * 4 + 1 : pal_1 * 4 + 4]
+                map_2 = [pallete_map[0]] + \
+                    pallete_map[pal_2 * 4 + 1 : pal_2 * 4 + 4]
+                map_3 = [pallete_map[0]] + \
+                    pallete_map[pal_3 * 4 + 1 : pal_3 * 4 + 4]
+                map_4 = [pallete_map[0]] + \
+                    pallete_map[pal_4 * 4 + 1 : pal_4 * 4 + 4]
 
                 # Now we have each map for each quadrant of the 32x32 tile
                 # Meaning, 4 16x16 squares
@@ -317,28 +310,28 @@ class PPU:
                         y1 = base_y + k1
                         x1 = base_x + k2
                         addr1 = bg[y1][x1]
-                        val1 = map_1[addr1]
+                        val1 = map_1[int(addr1)]
                         bg[y1][x1] = val1
 
                         # Top right
                         y2 = base_y + k1
                         x2 = base_x + k2 + 16
                         addr2 = bg[y2][x2]
-                        val2 = map_2[addr2]
+                        val2 = map_2[int(addr2)]
                         bg[y2][x2] = val2
 
                         # Bottom left
                         y3 = base_y + k1 + 16
                         x3 = base_x + k2
                         addr3 = bg[y3][x3]
-                        val3 = map_3[addr3]
+                        val3 = map_3[int(addr3)]
                         bg[y3][x3] = val3
 
                         # Bottom right
                         y4 = base_y + k1 + 16
                         x4 = base_x + k2 + 16
                         addr4 = bg[y4][x4]
-                        val4 = map_4[addr4]
+                        val4 = map_4[int(addr4)]
                         bg[y4][x4] = val4
         self.background = np.array([[PALETTES[i] for i in j] for j in bg])
         self.screen = np.copy(self.background)
