@@ -157,7 +157,7 @@ class PPU:
         # NMI flag
         self.nmi_flag = False
 
-        image = np.zeros((240, 256))
+        image = np.zeros((280, 280))  # TODO: fix screen size
         self.background = np.array([[PALETTES[0] for i in j] for j in image])
         self.background_ready = False
 
@@ -165,9 +165,10 @@ class PPU:
         # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
         if not self.background_ready and self.ppumask.isBackgroundEnabled():  # Render only the first time
+        # if self.cycle == 1 and self.ppumask.isBackgroundEnabled():  # Render only the first time
             self.render_background()
-            self.background[13:] = self.background[:227]
-            self.background[:13] = 0
+            # self.background[13:] = self.background[:227]
+            # self.background[:13] = 0
 
         # At this point, self.background contains the background where we want
         # to 'stamp' the sprites
@@ -217,6 +218,24 @@ class PPU:
             attr = self.oam_memory[base_addr+2]
             x = self.oam_memory[base_addr+3]
 
+            # 76543210 - attr
+            # ||||||||
+            # ||||||++- Palette (4 to 7) of sprite
+            # |||+++--- Unimplemented
+            # ||+------ Priority (0: in front of background; 1: behind background)
+            # |+------- Flip sprite horizontally
+            # +-------- Flip sprite vertically
+
+            priority = (attr >> 5) & 1
+            flip_horizontal = (attr >> 6) & 1
+            flip_vertical = (attr >> 7) & 1
+
+            curr_sprite = self.sprite_table[sprite_num]
+            if flip_horizontal == 1:
+                curr_sprite = np.fliplr(curr_sprite)
+            if flip_vertical == 1:
+                curr_sprite = np.flipud(curr_sprite)
+
             pal_1 = attr & 0b00000011
             pal_2 = (attr & 0b00001100) >> 2
             pal_3 = (attr & 0b00110000) >> 4
@@ -230,7 +249,7 @@ class PPU:
                 if line_count[y+iy] < 8:
                     line_count[y+iy] += 1
                     for ix in range(8):
-                        cor = map1[self.sprite_table[sprite_num][iy][ix]]
+                        cor = map1[curr_sprite[iy][ix]]
                         if cor != 0:
                             rgb_color = self.update_color(PALETTES[cor])
                             screen[y+iy][x+ix] = rgb_color
@@ -245,7 +264,7 @@ class PPU:
 
         self.background_ready = True
         bg_base = 0x2000
-        bg = np.zeros((240, 256))
+        bg = np.zeros((280, 280))  # TODO: fix screen size
         pallete_map = [v & 0x3f for v in self.mem_bus.read(0x3f00, 8 * 4 + 1)]
 
         # Background name table is composed by 32 * 32 bytes
