@@ -234,9 +234,6 @@ class PPU:
                         if cor != 0:
                             rgb_color = self.update_color(PALETTES[cor])
                             screen[y+iy][x+ix] = rgb_color
-                else:
-                    print(str(y+iy) + ": " + str(line_count[y+iy]))
-
         return screen
 
 
