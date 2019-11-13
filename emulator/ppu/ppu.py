@@ -164,8 +164,8 @@ class PPU:
     def run(self):
         # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
-        if not self.background_ready and self.ppumask.isBackgroundEnabled():  # Render only the first time
-        # if self.cycle == 1 and self.ppumask.isBackgroundEnabled():  # Render only the first time
+        # if not self.background_ready and self.ppumask.isBackgroundEnabled():  # Render only the first time
+        if self.cycle == 1 and self.ppumask.isBackgroundEnabled():  # Render only the first time
             self.render_background()
             # self.background[13:] = self.background[:227]
             # self.background[:13] = 0
@@ -227,6 +227,9 @@ class PPU:
             # +-------- Flip sprite vertically
 
             priority = (attr >> 5) & 1
+            if priority == 1:
+                continue
+
             flip_horizontal = (attr >> 6) & 1
             flip_vertical = (attr >> 7) & 1
 
