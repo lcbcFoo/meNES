@@ -127,7 +127,7 @@ class PPU:
         self.patternTableHighLatch = 0
 
         # Building sprites matrix
-        self.sprite_table = transform_sprites(self.mem_bus.pattern_tables)
+        self.pattern_table_1, self.pattern_table_2 = transform_sprites(self.mem_bus.pattern_tables)
 
         self.reset()
 
@@ -202,6 +202,11 @@ class PPU:
         return self.io_registers[addr].read(sys)
 
     def render_sprites(self):
+        if self.ppuctrl.isSpritePatternTable1000():
+            self.sprite_table = self.pattern_table_2
+        else:
+            self.sprite_table = self.pattern_table_1
+
         screen = np.copy(self.background)
         for i in range(64):
             base_addr = i*4
@@ -230,6 +235,11 @@ class PPU:
 
 
     def render_background(self):
+        if self.ppuctrl.isBackgroundPatternTable1000():
+            self.bg_table = self.pattern_table_2
+        else:
+            self.bg_table = self.pattern_table_1
+
         self.background_ready = True
         bg_base = 0x2000
         bg = np.zeros((240, 256))
@@ -243,7 +253,7 @@ class PPU:
         for i in range(0, 30):
             for j in range(0, 32):
                 addr = bg_base + (i * 32) + j
-                sprite = self.sprite_table[self.mem_bus.read(addr)]
+                sprite = self.bg_table[self.mem_bus.read(addr)]
                 for k1 in range(0, 8):
                     for k2 in range(0, 8):
                         base_i = 8 * i

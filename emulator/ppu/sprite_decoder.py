@@ -46,4 +46,4 @@ def transform_sprites(pattern_tables):
         my_list.append(l)
     low, high = my_list[::2], my_list[1::2]
     ans = generate_sprite_tiles(low, high)
-    return ans
+    return ans[:256], ans[256:]
