@@ -207,6 +207,8 @@ class PPU:
         else:
             self.sprite_table = self.pattern_table_1
 
+        line_count = np.zeros(280)  # TODO: Fix screen size later
+
         screen = np.copy(self.background)
         for i in range(64):
             base_addr = i*4
@@ -225,11 +227,15 @@ class PPU:
             map1[0] = 0x00
 
             for iy in range(8):
-                for ix in range(8):
-                    cor = map1[self.sprite_table[sprite_num][iy][ix]]
-                    if cor != 0:
-                        rgb_color = self.update_color(PALETTES[cor])
-                        screen[y+iy][x+ix] = rgb_color
+                if line_count[y+iy] < 8:
+                    line_count[y+iy] += 1
+                    for ix in range(8):
+                        cor = map1[self.sprite_table[sprite_num][iy][ix]]
+                        if cor != 0:
+                            rgb_color = self.update_color(PALETTES[cor])
+                            screen[y+iy][x+ix] = rgb_color
+                else:
+                    print(str(y+iy) + ": " + str(line_count[y+iy]))
 
         return screen
 
