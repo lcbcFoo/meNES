@@ -159,30 +159,40 @@ class PPU:
 
         image = np.zeros((280, 280))  # TODO: fix screen size
         self.background = np.array([[PALETTES[0] for i in j] for j in image])
+        self.screen = np.array([[PALETTES[0] for i in j] for j in image])
+        self.bg = np.zeros((280, 280))  # TODO: fix screen size
+        self.blank_bg = np.array([[PALETTES[0] for i in j] for j in image])
         self.background_ready = False
 
     def run(self):
         # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
-        # if not self.background_ready and self.ppumask.isBackgroundEnabled():  # Render only the first time
-        if self.cycle == 1 and self.ppumask.isBackgroundEnabled():  # Render only the first time
-            self.render_background()
+        if self.scanline == -1 and self.cycle == 1:
+            self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 0)
             # self.background[13:] = self.background[:227]
             # self.background[:13] = 0
+            
+            # If we should render background
+            if self.ppumask.isBackgroundEnabled():
+                self.render_background()
+            # Else just leave it black
+            else:
+                np.copyto(self.screen, self.blank_bg)
 
         # At this point, self.background contains the background where we want
         # to 'stamp' the sprites
 
+        # We do everything in scanline = 1, so do nothing until 240
+        if self.scanline >= 0 and self.scanline < 240:
+            pass
+
         # At scanline 240 we should have our screen ready for next
         # scanline sets NMI. So we stamp sprites here
-        if self.ppumask.isSpriteEnabled() and self.cycle == 1:
+        if self.scanline == 240 and self.ppumask.isSpriteEnabled() and self.cycle == 1:
             self.screen = self.render_sprites()
-        # elif self.cycle == 1:
-        #     self.screen = self.background
 
-        if self.cycle == 1:
-            # At this point, our screen is ready, so we enter vblank state and
-            # raise NMI interrupt if bit is set
+        # End rendering screen background, enable vblank
+        if self.scanline == 241 and self.cycle == 1:
             self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 1)
 
             if self.ppuctrl.isNMIEnabled():
@@ -190,10 +200,15 @@ class PPU:
 
         # Update cycles and scanline
         self.cycle += 1
-        if self.cycle == 700:
+        if self.cycle == 341:
             self.cycle = 0
-            if self.background_ready:
+            self.scanline += 1
+            if self.scanline == 261:
+                self.scanline = -1
                 self.gui.draw_screen(self.screen)
+
+            # if self.background_ready:
+            #     self.gui.draw_screen(self.screen)
 
 
     def register_write(self, addr, value, sys = False):
@@ -267,7 +282,6 @@ class PPU:
 
         self.background_ready = True
         bg_base = 0x2000
-        bg = np.zeros((280, 280))  # TODO: fix screen size
         pallete_map = [v & 0x3f for v in self.mem_bus.read(0x3f00, 8 * 4 + 1)]
 
         # Background name table is composed by 32 * 32 bytes
@@ -283,7 +297,7 @@ class PPU:
                     for k2 in range(0, 8):
                         base_i = 8 * i
                         base_j = 8 * j
-                        bg[base_i + k1][base_j + k2] = sprite[k1][k2]
+                        self.bg[base_i + k1][base_j + k2] = sprite[k1][k2]
 
         # Read the 64 bytes that tell us which palette to use to each sprite
         for i in range(30, 32):
@@ -345,32 +359,34 @@ class PPU:
                         # Top left
                         y1 = base_y + k1
                         x1 = base_x + k2
-                        addr1 = bg[y1][x1]
+                        addr1 = self.bg[y1][x1]
                         val1 = map_1[int(addr1)]
-                        bg[y1][x1] = val1
+                        self.background[y1][x1] = self.update_color(PALETTES[val1])
 
                         # Top right
                         y2 = base_y + k1
                         x2 = base_x + k2 + 16
-                        addr2 = bg[y2][x2]
+                        addr2 = self.bg[y2][x2]
                         val2 = map_2[int(addr2)]
-                        bg[y2][x2] = val2
+                        self.background[y2][x2] = self.update_color(PALETTES[val2])
 
                         # Bottom left
                         y3 = base_y + k1 + 16
                         x3 = base_x + k2
-                        addr3 = bg[y3][x3]
+                        addr3 = self.bg[y3][x3]
                         val3 = map_3[int(addr3)]
-                        bg[y3][x3] = val3
+                        self.background[y3][x3] = self.update_color(PALETTES[val3])
 
                         # Bottom right
                         y4 = base_y + k1 + 16
                         x4 = base_x + k2 + 16
-                        addr4 = bg[y4][x4]
+                        addr4 = self.bg[y4][x4]
                         val4 = map_4[int(addr4)]
-                        bg[y4][x4] = val4
-        self.background = np.array([[self.update_color(PALETTES[i]) for i in j] for j in bg])
-        self.screen = np.copy(self.background)
+                        self.background[y4][x4] = self.update_color(PALETTES[val4])
+        # self.background = np.array([[self.update_color(PALETTES[i]) 
+        #     for i in j] for j in self.bg])
+        
+        np.copyto(self.screen, self.background)
 
     def update_color(self, color):
         output_color = list(color)
