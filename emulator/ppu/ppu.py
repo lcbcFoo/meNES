@@ -163,21 +163,28 @@ class PPU:
         self.bg = np.zeros((280, 280))  # TODO: fix screen size
         self.blank_bg = np.array([[PALETTES[0] for i in j] for j in image])
         self.background_ready = False
+        self.count = 0
 
     def run(self):
+        counter = 20
         # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
         if self.scanline == -1 and self.cycle == 1:
             self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 0)
             # self.background[13:] = self.background[:227]
             # self.background[:13] = 0
-            
+
             # If we should render background
-            if self.ppumask.isBackgroundEnabled():
+            if self.ppumask.isBackgroundEnabled() and self.count == counter:
                 self.render_background()
             # Else just leave it black
             else:
                 np.copyto(self.screen, self.blank_bg)
+
+            if self.count == counter:
+                self.count = 0
+            else:
+                self.count += 1
 
         # At this point, self.background contains the background where we want
         # to 'stamp' the sprites
@@ -200,12 +207,15 @@ class PPU:
 
         # Update cycles and scanline
         self.cycle += 1
-        if self.cycle == 341:
+        if self.cycle == 34:
             self.cycle = 0
             self.scanline += 1
             if self.scanline == 261:
                 self.scanline = -1
-                self.gui.draw_screen(self.screen)
+                offset_x = self.ppuscroll.x
+                offset_y = self.ppuscroll.y
+                # TODO: fix scroll.
+                self.gui.draw_screen(self.screen[offset_x:240+offset_x][offset_y:256+offset_y])
 
             # if self.background_ready:
             #     self.gui.draw_screen(self.screen)
@@ -281,7 +291,7 @@ class PPU:
             self.bg_table = self.pattern_table_1
 
         self.background_ready = True
-        bg_base = 0x2000
+        bg_base = self.ppuctrl.returnNameTableAddress()
         pallete_map = [v & 0x3f for v in self.mem_bus.read(0x3f00, 8 * 4 + 1)]
 
         # Background name table is composed by 32 * 32 bytes
@@ -383,9 +393,9 @@ class PPU:
                         addr4 = self.bg[y4][x4]
                         val4 = map_4[int(addr4)]
                         self.background[y4][x4] = self.update_color(PALETTES[val4])
-        # self.background = np.array([[self.update_color(PALETTES[i]) 
+        # self.background = np.array([[self.update_color(PALETTES[i])
         #     for i in j] for j in self.bg])
-        
+
         np.copyto(self.screen, self.background)
 
     def update_color(self, color):
