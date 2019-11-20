@@ -166,7 +166,7 @@ class PPU:
         self.count = 0
 
     def run(self):
-        counter = 20
+        counter = 100
         # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
         if self.scanline == -1 and self.cycle == 1:

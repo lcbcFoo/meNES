@@ -68,7 +68,7 @@ class CpuMemoryBus():
 
     # Read n bytes starting at start_addr
     # Return a list with the n elements read
-    def read(self, start_addr, n=1, dryrun=False, sys=False):
+    def read(self, start_addr, n=1, sys=False):
         if n == 1:
             return self.mem_cpp.read(start_addr, sys)
         else:

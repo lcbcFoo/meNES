@@ -3,7 +3,8 @@ from collections import namedtuple
 from array import array
 
 from cpu.modules.opcodes import opcodes_dict
-from cpu.modules.decoder import Decoder
+#from cpu.modules.decoder import Decoder
+from cpu.modules.decoder_cpp import DecoderCpp
 
 from cpu.modules.zero_page import ZeroPage
 from cpu.modules.absolute import Absolute
@@ -54,7 +55,7 @@ class CPU:
         self.mem_bus = mem_bus
 
     def set_decoder(self):
-        self.decoder = Decoder(self, self.mem_bus)
+        self.decoder = DecoderCpp(self, self.mem_bus)
 
     def set_flag_handler(self):
         self.flag_handler = FlagHandler(self)
@@ -89,6 +90,15 @@ class CPU:
         # Flag to indicate that PC has to be updated, it will be false if
         # a branch or jump were performed
         self.update_pc = True
+
+    def get_y(self):
+        return self.y
+
+    def get_x(self):
+        return self.x
+
+    def get_pc(self):
+        return self.pc
 
     def run(self):
         self.update_pc = True

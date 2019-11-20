@@ -86,7 +86,7 @@ def main():
             ppu.nmi_flag = False
             cpu.nmi()
 
-        for i in range (3):  # Maybe just run it once
+        for i in range (3 * n_cycles):  # Maybe just run it once
             ppu.run()
 
         # Set a sleep proportional to the number of cycles to simulate
