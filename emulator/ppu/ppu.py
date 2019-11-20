@@ -166,6 +166,7 @@ class PPU:
         self.count = 0
 
     def run(self):
+        counter = 20
         # We do all work of those 240 scanlines in one cycle, so we just
         # do nothing until 240
         if self.scanline == -1 and self.cycle == 1:
@@ -174,13 +175,13 @@ class PPU:
             # self.background[:13] = 0
             
             # If we should render background
-            if self.ppumask.isBackgroundEnabled() and self.count == 2:
+            if self.ppumask.isBackgroundEnabled() and self.count == counter:
                 self.render_background()
             # Else just leave it black
             else:
                 np.copyto(self.screen, self.blank_bg)
 
-            if self.count == 2:
+            if self.count == counter:
                 self.count = 0
             else:
                 self.count += 1
