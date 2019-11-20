@@ -15,8 +15,6 @@ class PPUSTATUS:
         pass
 
     def read(self, sys):
-        if sys:
-            return 0
         value = self.reg.load()
         self.reg.storeBit(VBLANK_STATUS_BIT, 0)
         self.ppu.ppuscroll.firstwrite = True
@@ -28,11 +26,11 @@ class PPUSTATUS:
             return
         self.reg.storeBits(0, 5, value)
 
-    def hasVblankStarted():
+    def hasVblankStarted(self):
         return self.reg.isBitSet(VBLANK_STATUS_BIT)
 
-    def isSprite0Hit():
+    def isSprite0Hit(self):
         return self.reg.isBitSet(SPRITE0_HIT_BIT)
 
-    def isSpriteOverflowSet():
+    def isSpriteOverflowSet(self):
         return self.reg.isBitSet(SPRITE_OVERFLOW_BIT)

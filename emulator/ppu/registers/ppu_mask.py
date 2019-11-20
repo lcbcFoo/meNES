@@ -27,26 +27,26 @@ class PPUMASK:
             return
         self.reg.store(value)
 
-    def isEmphasizeBlueEnabled():
+    def isEmphasizeBlueEnabled(self):
         return self.reg.isBitSet(EMPHASIZE_BLUE_BIT)
 
-    def isEmphasizeGreenEnabled():
+    def isEmphasizeGreenEnabled(self):
         return self.reg.isBitSet(EMPHASIZE_GREEN_BIT)
 
-    def isEmphasizeRedEnabled():
+    def isEmphasizeRedEnabled(self):
         return self.reg.isBitSet(EMPHASIZE_RED_BIT)
 
-    def isSpriteEnabled():
+    def isSpriteEnabled(self):
         return self.reg.isBitSet(SHOW_SPRITE_BIT)
 
-    def isBackgroundEnabled():
+    def isBackgroundEnabled(self):
         return self.reg.isBitSet(SHOW_BACKGROUND_BIT)
 
-    def isLeftmostSpriteEnabled():
+    def isLeftmostSpriteEnabled(self):
         return self.reg.isBitSet(SHOW_LEFTMOST_SPRITE_BIT)
 
-    def isLeftmostBackgroundEnabled():
+    def isLeftmostBackgroundEnabled(self):
         return self.reg.isBitSet(SHOW_LEFTMOST_BACKGROUND_BIT)
 
-    def isGrayScaleEnabled():
+    def isGrayScaleEnabled(self):
         return self.reg.isBitSet(GREYSCALE_BIT)

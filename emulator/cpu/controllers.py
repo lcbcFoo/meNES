@@ -5,7 +5,7 @@ class Controller:
     def __init__(self):
         self.state = [0] * 2
 
-    def get_ctrl1_input(self):
+    def get_ctrl2_input(self):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_o]:                    # A
@@ -31,7 +31,7 @@ class Controller:
         return data
 
 
-    def get_ctrl2_input(self):
+    def get_ctrl1_input(self):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_v]:                    # A

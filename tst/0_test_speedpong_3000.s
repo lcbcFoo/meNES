@@ -131,7 +131,7 @@ Reset:
     ;; First wait for vblank to make sure PPU is ready
 vblankwait1:
     bit	$2002
-    ;bpl	vblankwait1
+    bpl	vblankwait1
 
 clear_memory:
   	lda	#$00
@@ -145,12 +145,12 @@ clear_memory:
   	lda	#$fe
   	sta	$0200, x	; Move all sprites off screen
   	inx
-  ;	bne	clear_memory
+  	bne	clear_memory
 
 	;; Second wait for vblank, PPU is ready after this
 vblankwait2:
   	bit	$2002
-  	;bpl	vblankwait2
+  	bpl	vblankwait2
 
 clear_nametables:
   	lda	$2002		; Read PPU status to reset the high/low latch

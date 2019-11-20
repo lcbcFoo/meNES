@@ -46,4 +46,5 @@ class PPUCTRL:
     def returnNameTableAddress(self):
         highbit = self.reg.loadBit(BASE_TABLE_ADDRESSH)
         lowbit = self.reg.loadBit(BASE_TABLE_ADDRESSL)
-        return highbit + lowbit
+        # (0 = $2000; 1 = $2400; 2 = $2800; 3 = $2C00)
+        return 0x2000 + (highbit * 2 + lowbit) * 0x400

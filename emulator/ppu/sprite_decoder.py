@@ -1,4 +1,5 @@
 from pprint import pprint
+import numpy as np
 
 def split(l, n):
     for i in range(0, len(l), n):
@@ -20,7 +21,7 @@ def generate_sprite_tiles(lo_byte, hi_byte):
             # Appends line to tile
             new_tyle.append(tile_line)
         # Appends tile to sprites array
-        sprite_tiles.append(new_tyle)
+        sprite_tiles.append(np.array(new_tyle))
 
     return sprite_tiles
 
@@ -46,4 +47,4 @@ def transform_sprites(pattern_tables):
         my_list.append(l)
     low, high = my_list[::2], my_list[1::2]
     ans = generate_sprite_tiles(low, high)
-    return ans
+    return ans[:256], ans[256:]

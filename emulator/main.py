@@ -59,6 +59,7 @@ def main():
 
     dma_counter = 0
     wait_clock = False
+
     while True:
         # This is the direct memory access
         # When cpu writes N in 0x4014, dma starts, copying 256 bytes
@@ -67,14 +68,13 @@ def main():
         # During this time, cpu clock is not running, so we count 1 clock
         # passed
         if ppu.dma_on_going:
-            read_from_cpu_mem = cpu.mem_bus.read(ppu.dma_page * 0x100 + dma_counter)
-            ppu.oam_memory[dma_counter] = read_from_cpu_mem
-            dma_counter += 1
+            for dma_counter in range(256):
+                read_from_cpu_mem = cpu.mem_bus.read(ppu.dma_page * 0x100 + dma_counter)
+                ppu.oam_memory[dma_counter] = read_from_cpu_mem
+
             n_cycles = 1
 
-            if dma_counter == 256:
-                dma_counter = 0
-                ppu.dma_on_going = False
+            ppu.dma_on_going = False
 
         else:
             n_cycles = cpu.run()
@@ -83,8 +83,8 @@ def main():
             ppu.nmi_flag = False
             cpu.nmi()
 
-        for i in range (0, n_cycles):
-            ppu.run()
+        # for i in range (n_cycles):  # Maybe just run it once
+        ppu.run()
 
         # Set a sleep proportional to the number of cycles to simulate
         # 6502 clock rate
