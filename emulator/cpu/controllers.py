@@ -5,6 +5,14 @@ class Controller:
     def __init__(self):
         self.state = [0] * 2
 
+    def set_state(self, index, val):
+        self.state[index] = val
+
+    def get_state(self, index):
+        val = self.state[index]
+        self.set_state(index, (val << 1) % 256)
+        return val
+
     def get_ctrl2_input(self):
         keys = pygame.key.get_pressed()
 

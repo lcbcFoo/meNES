@@ -10,7 +10,7 @@ from time import sleep
 CLOCK = 1.7897725e6
 
 
-def read_cartridge(file_name, cpu_mem, ppu_mem):
+def read_cartridge(file_name):
     f = open(file_name, 'rb')
     lines = list(f.readlines())
     data = []
@@ -21,13 +21,18 @@ def read_cartridge(file_name, cpu_mem, ppu_mem):
     chr_size = data[5] * 0x2000
 
     if prg_size > 0x4000:
-        cpu_mem.set_16kb(False)
+        cpu_mem = CpuMemoryBus(False)
+    else:
+        cpu_mem = CpuMemoryBus(True)
+    
+    ppu_mem = PpuMemoryBus()
 
     cpu_mem.write(0x8000, data[16:], prg_size)
 
     if chr_size > 0:
         ppu_mem.write(0x0000, data[16+prg_size:], chr_size)
 
+    return (cpu_mem, ppu_mem)
 
 
 def main():
@@ -45,10 +50,8 @@ def main():
     args = argParser.parse_args()
     rom = args.input_file_path
 
-    cpu_mem = CpuMemoryBus()
-    ppu_mem = PpuMemoryBus()
+    cpu_mem, ppu_mem = read_cartridge(rom)
     gui = Gui()
-    read_cartridge(rom, cpu_mem, ppu_mem)
 
     ppu = PPU(ppu_mem, gui)
     cpu = CPU(cpu_mem)
@@ -83,8 +86,8 @@ def main():
             ppu.nmi_flag = False
             cpu.nmi()
 
-        # for i in range (n_cycles):  # Maybe just run it once
-        ppu.run()
+        for i in range (3):  # Maybe just run it once
+            ppu.run()
 
         # Set a sleep proportional to the number of cycles to simulate
         # 6502 clock rate

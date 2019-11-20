@@ -163,6 +163,7 @@ class PPU:
         self.bg = np.zeros((280, 280))  # TODO: fix screen size
         self.blank_bg = np.array([[PALETTES[0] for i in j] for j in image])
         self.background_ready = False
+        self.count = 0
 
     def run(self):
         # We do all work of those 240 scanlines in one cycle, so we just
@@ -173,11 +174,16 @@ class PPU:
             # self.background[:13] = 0
             
             # If we should render background
-            if self.ppumask.isBackgroundEnabled():
+            if self.ppumask.isBackgroundEnabled() and self.count == 2:
                 self.render_background()
             # Else just leave it black
             else:
                 np.copyto(self.screen, self.blank_bg)
+
+            if self.count == 2:
+                self.count = 0
+            else:
+                self.count += 1
 
         # At this point, self.background contains the background where we want
         # to 'stamp' the sprites
@@ -200,7 +206,7 @@ class PPU:
 
         # Update cycles and scanline
         self.cycle += 1
-        if self.cycle == 341:
+        if self.cycle == 34:
             self.cycle = 0
             self.scanline += 1
             if self.scanline == 261:
