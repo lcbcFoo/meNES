@@ -15,7 +15,9 @@ class PPUSTATUS:
         pass
 
     def read(self, sys):
-        value = self.reg.load()
+        value_aux = self.reg.load() & 0xE0
+        data_buffer = self.ppu.ppudata.buffer & 0x1F
+        value = value_aux | data_buffer
         self.reg.storeBit(VBLANK_STATUS_BIT, 0)
         self.ppu.ppuscroll.firstwrite = True
         self.ppu.ppuaddr.firstwrite = True
