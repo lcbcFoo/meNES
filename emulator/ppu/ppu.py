@@ -171,8 +171,6 @@ class PPU:
         # do nothing until 240
         if self.scanline == -1 and self.cycle == 1:
             self.ppustatus.reg.storeBit(VBLANK_STATUS_BIT, 0)
-            # self.background[13:] = self.background[:227]
-            # self.background[:13] = 0
 
             # If we should render background
             if self.ppumask.isBackgroundEnabled() and self.count == counter:
@@ -197,6 +195,10 @@ class PPU:
         # scanline sets NMI. So we stamp sprites here
         if self.scanline == 240 and self.ppumask.isSpriteEnabled() and self.cycle == 1:
             self.screen = self.render_sprites()
+            if self.sprite_zero_hit:
+                self.ppustatus.reg.storeBit(SPRITE0_HIT_BIT, 1)
+            else:
+                self.ppustatus.reg.storeBit(SPRITE0_HIT_BIT, 0)
 
         # End rendering screen background, enable vblank
         if self.scanline == 241 and self.cycle == 1:
@@ -212,13 +214,12 @@ class PPU:
             self.scanline += 1
             if self.scanline == 261:
                 self.scanline = -1
+                self.sprite_zero_hit = False
+                self.ppustatus.reg.storeBit(SPRITE0_HIT_BIT, 0)
                 offset_x = self.ppuscroll.x
                 offset_y = self.ppuscroll.y
-                # TODO: fix scroll.
-                self.gui.draw_screen(self.screen[offset_x:240+offset_x][offset_y:256+offset_y])
+                self.gui.draw_screen(self.screen)
 
-            # if self.background_ready:
-            #     self.gui.draw_screen(self.screen)
 
 
     def register_write(self, addr, value, sys = False):
@@ -228,6 +229,8 @@ class PPU:
         return self.io_registers[addr].read(sys)
 
     def render_sprites(self):
+        self.sprite_zero_hit = False
+
         if self.ppuctrl.isSpritePatternTable1000():
             self.sprite_table = self.pattern_table_2
         else:
@@ -252,8 +255,6 @@ class PPU:
             # +-------- Flip sprite vertically
 
             priority = (attr >> 5) & 1
-            if priority == 1:
-                continue
 
             flip_horizontal = (attr >> 6) & 1
             flip_vertical = (attr >> 7) & 1
@@ -278,12 +279,14 @@ class PPU:
                     line_count[y+iy] += 1
                     for ix in range(8):
                         cor = map1[curr_sprite[iy][ix]]
-                        if cor != 0:
+                        if i == 0 and cor != 0 and (screen[y+iy][x+ix]).any():
+                            self.sprite_zero_hit = True
+                        if cor != 0 and priority == 0:
                             rgb_color = self.update_color(PALETTES[cor])
                             screen[y+iy][x+ix] = rgb_color
         return screen
 
-
+    #TODO: implement scroll
     def render_background(self):
         if self.ppuctrl.isBackgroundPatternTable1000():
             self.bg_table = self.pattern_table_2
@@ -313,7 +316,7 @@ class PPU:
         for i in range(30, 32):
             for j in range(0, 32):
                 # read the byte
-                addr = bg_base + (i * 32) + j
+                addr = bg_base + (i * 32) + j  #TODO: check this
                 byte = self.mem_bus.read(addr)
 
                 # interpret its bits to look for palette ID

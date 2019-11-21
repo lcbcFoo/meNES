@@ -83,8 +83,8 @@ def main():
             ppu.nmi_flag = False
             cpu.nmi()
 
-        # for i in range (n_cycles):  # Maybe just run it once
-        ppu.run()
+        for i in range (3*n_cycles):  # Maybe just run it once
+            ppu.run()
 
         # Set a sleep proportional to the number of cycles to simulate
         # 6502 clock rate
