@@ -272,7 +272,7 @@ public:
                 scanline = -1;
                 py::array_t<uint8_t> np_array(240 * 256 * 3);
                 uint8_t* ptr = static_cast<uint8_t*>(np_array.request().ptr);
-               
+
                 for(size_t i = 0; i < 240; ++i)
                     for(size_t j = 0; j < 256; ++j)
                         for(size_t k = 0; k < 3; ++k) {
@@ -293,7 +293,7 @@ public:
 
         background_ready = true;
         uint32_t bg_base = 0x2000;
-        vector<uint8_t> pallete_map = 
+        vector<uint8_t> pallete_map =
                         mem_bus.attr("read")(0x3f00, 8 * 4 + 1).cast<vector<uint8_t>>();
         for (int i = 0; i < 8 * 4 + 1; ++i)
             pallete_map[i] = pallete_map[i] & 0x3f;
@@ -357,7 +357,7 @@ public:
                 memcpy(&map_3[1], &pallete_map[pal_3 * 4 + 1], 3);
                 memcpy(&map_4[1], &pallete_map[pal_4 * 4 + 1], 3);
 
-                
+
                 // Now we have each map for each quadrant of the 32x32 tile
                 // Meaning, 4 16x16 squares
                 //     16 16
@@ -424,7 +424,7 @@ public:
             memcpy(sprite_table, pattern_table_1, 256 * 8 * 8);
 
         uint32_t line_count[280] = {0};
-        vector<uint8_t> pallete_map = 
+        vector<uint8_t> pallete_map =
                         mem_bus.attr("read")(0x3f10, 8 * 4 + 1).cast<vector<uint8_t>>();
         for (int i = 0; i < 8 * 4 + 1; ++i)
             pallete_map[i] = pallete_map[i] & 0x3f;
@@ -464,7 +464,7 @@ public:
             uint8_t pal_1 = attr & 0b00000011;
 
             uint8_t map_1[4];
-            map_1[0] = pallete_map[0];
+            map_1[0] = 0x00;
             memcpy(&map_1[1], &pallete_map[pal_1 * 4 + 1], 3);
 
             for (int iy = 0; iy < 8; iy++) {
@@ -530,13 +530,13 @@ PYBIND11_MODULE(ppu_cpp_module, m) {
         .def_readwrite("io_registers", &PpuCpp::io_registers)
         .def_readwrite("nmi_flag", &PpuCpp::nmi_flag)
         .def_readwrite("ppuctrl", &PpuCpp::ppuctrl)
-        .def_readwrite("ppumask", &PpuCpp::ppumask) 
+        .def_readwrite("ppumask", &PpuCpp::ppumask)
         .def_readwrite("ppustatus", &PpuCpp::ppustatus)
         .def_readwrite("oamaddr", &PpuCpp::oamaddr)
-        .def_readwrite("oamdata", &PpuCpp::oamdata) 
+        .def_readwrite("oamdata", &PpuCpp::oamdata)
         .def_readwrite("ppuscroll", &PpuCpp::ppuscroll)
         .def_readwrite("ppuaddr", &PpuCpp::ppuaddr)
-        .def_readwrite("ppudata", &PpuCpp::ppudata) 
+        .def_readwrite("ppudata", &PpuCpp::ppudata)
         .def_readwrite("oamdma", &PpuCpp::oamdma);
 
 }
@@ -544,5 +544,3 @@ PYBIND11_MODULE(ppu_cpp_module, m) {
 /*     for (int i = 0; i < 0x40; i++) */
 /*         cout << "(" << get<0>(PALETTES[i]) << ", " << get<1>(PALETTES[i]) << endl; */
 /* } */
-
-
