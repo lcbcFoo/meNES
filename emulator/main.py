@@ -4,6 +4,7 @@ import os
 import subprocess
 from cpu import *
 from ppu import *
+from ppu.ppu_cpp_module import PpuCpp
 from gui import *
 from time import sleep
 
@@ -53,7 +54,8 @@ def main():
     cpu_mem, ppu_mem = read_cartridge(rom)
     gui = Gui()
 
-    ppu = PPU(ppu_mem, gui)
+    #ppu = PPU(ppu_mem, gui)
+    ppu = PpuCpp(ppu_mem, gui)
     cpu = CPU(cpu_mem)
 
     ppu.set_cpu(cpu)
@@ -73,7 +75,7 @@ def main():
         if ppu.dma_on_going:
             for dma_counter in range(256):
                 read_from_cpu_mem = cpu.mem_bus.read(ppu.dma_page * 0x100 + dma_counter)
-                ppu.oam_memory[dma_counter] = read_from_cpu_mem
+                ppu.write_oam_mem(dma_counter, read_from_cpu_mem)
 
             n_cycles = 1
 
