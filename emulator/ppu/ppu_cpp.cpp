@@ -14,7 +14,7 @@ using namespace std;
 typedef vector<int> Color;
 
 vector<Color> PALETTES {
-        Color{0, 0, 0},
+        Color{84, 84, 84},
         Color{0, 30, 116},
         Color{8, 16, 144},
         Color{48, 0, 136},
@@ -142,6 +142,7 @@ public:
     int32_t scanline = -1;
     bool background_ready = false;
     uint32_t count = 0;
+    bool sprite_zero_hit = false;
 
     // Shift registers
     py::object nameTableRegister = Register8Bit();
@@ -253,6 +254,11 @@ public:
         if (scanline == 240 && cycle == 1 &&
                 io_registers[0x2001].attr("isSpriteEnabled")().cast<bool>()) {
             render_sprites();
+            if (sprite_zero_hit){
+              io_registers[0x2002].attr("reg").attr("storeBit")(6, 1);
+            } else {
+              io_registers[0x2002].attr("reg").attr("storeBit")(6, 0);
+            }
         }
 
         if (scanline == 241 && cycle == 1) {
@@ -270,6 +276,8 @@ public:
 
             if (scanline == 261) {
                 scanline = -1;
+                sprite_zero_hit = false;
+                io_registers[0x2002].attr("reg").attr("storeBit")(6, 0);
                 py::array_t<uint8_t> np_array(240 * 256 * 3);
                 uint8_t* ptr = static_cast<uint8_t*>(np_array.request().ptr);
 
@@ -417,6 +425,7 @@ public:
     }
 
     void render_sprites() {
+        sprite_zero_hit = false;
         uint8_t sprite_table[256][8][8];
         if (ppuctrl.attr("isSpritePatternTable1000")().cast<bool>())
             memcpy(sprite_table, pattern_table_2, 256 * 8 * 8);
@@ -445,8 +454,6 @@ public:
             // |+------- Flip sprite horizontally
             // +-------- Flip sprite vertically
             uint8_t priority = (attr >> 5) & 1;
-            if (priority == 1)
-                continue;
 
             uint8_t flip_horizontal = (attr >> 6) & 1;
             uint8_t flip_vertical = (attr >> 7) & 1;
@@ -485,8 +492,10 @@ public:
 
                     for (int ix = 0; ix < 8; ++ix) {
                         uint8_t cor = map_1[curr_sprite[iy][ix]];
-
-                        if (cor != 0) {
+                        if (i == 0 && cor != 0 && (screen[y + iy][x + ix] != Color{0,0,0})){
+                          sprite_zero_hit = true;
+                        }
+                        if (cor != 0 && priority == 0) {
                             screen[y + iy][x + ix] = update_color(PALETTES[cor]);
                         }
                     }
