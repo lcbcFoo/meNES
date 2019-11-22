@@ -455,10 +455,22 @@ public:
             memcpy(curr_sprite, &sprite_table[sprite_num], 64);
 
             if (flip_horizontal == 1) {
-                // TODO flip horizontally
+                for (int ih = 0; ih < 8; ih++) {
+                  for (int jh = 0; jh < 4; jh++) {
+                    uint8_t htmp = curr_sprite[ih][jh];
+                    curr_sprite[ih][jh] = curr_sprite[ih][7-jh];
+                    curr_sprite[ih][7-jh] = htmp;
+                  }
+                }
             }
             if (flip_vertical == 1) {
-                // TODO: flip vertically
+              for (int iv = 0; iv < 4; iv++) {
+                for (int jv = 0; jv < 8; jv++) {
+                  uint8_t vtmp = curr_sprite[iv][jv];
+                  curr_sprite[iv][jv] = curr_sprite[7-iv][jv];
+                  curr_sprite[7-iv][jv] = vtmp;
+                }
+              }
             }
 
             uint8_t pal_1 = attr & 0b00000011;
