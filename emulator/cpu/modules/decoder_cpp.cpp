@@ -51,21 +51,21 @@ public:
         uint32_t low = mem_read(pc + 1, 1, true).cast<uint32_t>() & 0xff;
         uint32_t high = mem_read(pc + 2, 1, true).cast<uint32_t>() & 0xff;
 
-        /* cout << "Decoder: op = " << hex << opcode */ 
+        /* cout << "Decoder: op = " << hex << opcode */
         /*     << ", low = " << hex << low << ", high = " << hex << high << endl; */
 
         immediate = low;
 
         // Zeropage
         if (instr_type == "zeropage") {
-            cont_zp = mem_read(low, 1, true).cast<uint32_t>() & 0xff; 
+            cont_zp = mem_read(low, 1, true).cast<uint32_t>() & 0xff;
             return;
         }
 
         uint32_t local_addr_x = low + x;
-        addr_x = local_addr_x & 0xff; 
+        addr_x = local_addr_x & 0xff;
         uint32_t local_addr_y = low + y;
-        addr_y = local_addr_y & 0xff; 
+        addr_y = local_addr_y & 0xff;
 
         if (instr_type == "zeropage_x") {
             cont_zp_x = mem_read(addr_x, 1, true).cast<uint32_t>() & 0xff;
@@ -83,17 +83,20 @@ public:
         full_addr_y = (high << 8) + local_addr_y;
 
         if (instr_type == "absolute") {
-            content = mem_read(full_addr, 1, true).cast<uint32_t>() & 0xff;
+            if (opcode >= 0x8C && opcode <= 0x8E){
+              return;
+            }
+            content = mem_read(full_addr, 1).cast<uint32_t>() & 0xff;
             return;
         }
 
         if (instr_type == "absolute_x") {
-            content_x = mem_read(full_addr_x, 1, true).cast<uint32_t>() & 0xff;
+            content_x = mem_read(full_addr_x, 1).cast<uint32_t>() & 0xff;
             return;
         }
 
         if (instr_type == "absolute_y") {
-            content_y = mem_read(full_addr_y, 1, true).cast<uint32_t>() & 0xff;
+            content_y = mem_read(full_addr_y, 1).cast<uint32_t>() & 0xff;
             return;
         }
 
