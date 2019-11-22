@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <map>
 #include <cstdlib>
+// #pragma pack(2)
+// #pragma pack(push,1)
 
 namespace py = pybind11;
 using namespace std;
@@ -111,6 +113,7 @@ public:
     vector<int> oam_memory = vector<int>(256, 0);
     uint8_t dma_page = 0;
     bool nmi_flag = false;
+    bool firstwrite = true;
 
     py::object ppuctrl      = PPUCTRL(this, Register8Bit());
     py::object ppumask      = PPUMASK(this, Register8Bit());
@@ -170,6 +173,8 @@ public:
             vector<vector<Color>>(280, vector<Color>(280, Color{0, 0, 0}));
     vector<vector<int>> bg = vector<vector<int>>(280, vector<int>(280, 0));
 
+    vector<vector<Color>> telao =
+            vector<vector<Color>>(560, vector<Color>(560, Color{0, 0, 0}));
 
 
 
@@ -232,11 +237,23 @@ public:
     }
 
     void run() {
+        // printf("PPU run\n");
         if (scanline == -1 && cycle == 1) {
             io_registers[0x2002].attr("reg").attr("storeBit")(7, 0);
+            // printf("ESTOU AQUIIIIIII\n");
 
-            if (io_registers[0x2001].attr("isBackgroundEnabled")().cast<bool>())
-                render_background();
+            if (io_registers[0x2001].attr("isBackgroundEnabled")().cast<bool>()){
+                // render_background();
+                int scroll_x = io_registers[0x2005].attr("x").cast<int>();
+                int scroll_y = io_registers[0x2005].attr("y").cast<int>();
+                // cout << "Scroll x: " << scroll_x << " $$$$$$$$$  scroll_y: " << scroll_y << endl;
+                // printf("copiando o telao pra screen\n");
+                for(size_t i = 0; i < 240; ++i)
+                    for(size_t j = 0; j < 256; ++j)
+                        for(size_t k = 0; k < 3; ++k) {
+                            screen[i][j][k] = telao[i+scroll_y][j+scroll_x][k];
+                        }
+            }
             else {
                 // TODO copy blank_bg to screen
                 for(size_t i = 0; i < 240; ++i)
@@ -246,6 +263,7 @@ public:
                         }
             }
         }
+        // printf("estou aqui 2\n");
 
         if (scanline >= 0 && scanline < 240) {
             // do nothing
@@ -281,15 +299,26 @@ public:
                 py::array_t<uint8_t> np_array(240 * 256 * 3);
                 uint8_t* ptr = static_cast<uint8_t*>(np_array.request().ptr);
 
+                // printf("AAA 1\n");
+                // cout << "comecou a copiar" << endl;
+
                 for(size_t i = 0; i < 240; ++i)
                     for(size_t j = 0; j < 256; ++j)
                         for(size_t k = 0; k < 3; ++k) {
                             ptr[i * 256 * 3 + j * 3 + k] = screen[i][j][k];
                         }
+                // printf("AAA 2\n");
+                // cout << "antes do resize" << endl;
                 np_array.resize({240, 256, 3});
+                // printf("AAA 3\n");
+                // cout << "depois do resize" << endl;
                 gui_draw(np_array);
+                // printf("AAA 4\n");
+                // cout << "fim do draw screen" << endl;
             }
         }
+        // printf("PPU termina run\n");
+        // printf("PPU termina run\n");
     }
 
     void render_background() {
@@ -533,6 +562,95 @@ public:
 
         return Color{output_color[0], output_color[1], output_color[2]};
     }
+
+
+
+    void update_telao(int sprite_num, int VRAMaddr){
+      // printf("COMECOU\n");
+      int x, y, attr_addr;
+      if (VRAMaddr >= 0x2000 && VRAMaddr < 0x23C0){
+        x = (VRAMaddr - 0x2000) % 0x20;
+        y = (int)((VRAMaddr - 0x2000) / 0x20);
+        attr_addr = 0x23C0 + (VRAMaddr - 0x2000);
+      }
+      else if (VRAMaddr >= 0x2400 && VRAMaddr < 0x27C0){
+        x = 32 + ((VRAMaddr - 0x2400) % 0x20);
+        y = (int)((VRAMaddr - 0x2400)/0x20);
+        attr_addr = 0x27C0 + (VRAMaddr - 0x2400);
+      }
+      else if (VRAMaddr >= 0x2800 && VRAMaddr < 0x2BC0) {
+        x = (VRAMaddr - 0x2800) % 0x20;
+        y = 30 + (int)((VRAMaddr - 0x2800)/0x20);
+        attr_addr = 0x2BC0 + (VRAMaddr - 0x2800);
+      }
+      else if (VRAMaddr >= 0x2C00 && VRAMaddr < 0x2FC0) {
+        x = 32 + ((VRAMaddr - 0x2C00) % 0x20);
+        y = 30 + (int)((VRAMaddr - 0x2C00)/0x20);
+        attr_addr = (0x2FC0 + (VRAMaddr - 0x2C00)) ;
+
+
+      }
+
+      else {
+        // cout << "entrou aqui" << endl;
+        return;
+      }
+      x *= 8;
+      y *= 8;
+
+      // cout << "x: " << x << " --- y: " << y << " --- VRAMaddr: " << VRAMaddr << endl;
+
+      // Get correct sprite tile
+      uint8_t sprite[8][8];
+      if (ppuctrl.attr("isBackgroundPatternTable1000")().cast<bool>())
+          memcpy(sprite, pattern_table_2 + sprite_num, 64);
+      else
+          memcpy(sprite, pattern_table_1 + sprite_num, 64);
+
+      // TODO: definir o numero da paleta de cores.
+      uint8_t attribute = mem_bus.attr("read")(attr_addr, 1).cast<uint8_t>();
+      // int num_paleta = 1; // Using fixed number just for now
+      int num_paleta;
+
+      int pal_x = (x % 32) / 16;
+      int pal_y = (y % 32) / 16;
+
+      if(pal_x == 0 && pal_y == 0){
+        //top-left
+        num_paleta = attribute & 0b00000011;
+      }
+      else if (pal_x == 0 && pal_y == 1){
+        // top-right
+        num_paleta = (attribute & 0b00001100) >> 2;
+      }
+      else if (pal_x == 1 && pal_y == 0){
+        // bottom left
+        num_paleta = (attribute & 0b00110000) >> 4;
+      }
+      else if(pal_x == 1 && pal_y == 1){
+        // bottom right
+        num_paleta = (attribute & 0b11000000) >> 6;
+      }
+      else{
+        cout << "OH NO!" << endl;
+      }
+
+      // Get correct pallete map for this sprite
+      vector<uint8_t> pallete_map =
+                      mem_bus.attr("read")(0x3F00 + (num_paleta*4), 4*8 + 1).cast<vector<uint8_t>>();
+      for (int i = 0; i < 8 * 4 + 1; ++i)
+          pallete_map[i] = pallete_map[i] & 0x3f;
+
+      // Copy sprite to telao.
+      for (int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+          uint32_t color_num = sprite[i][j];
+          telao[y+i][x+j] = update_color(PALETTES[pallete_map[color_num]]);
+        }
+      }
+      return;
+    }
+
 };
 
 
@@ -542,6 +660,7 @@ PYBIND11_MODULE(ppu_cpp_module, m) {
         .def("run", &PpuCpp::run)
         .def("reset", &PpuCpp::reset)
         .def("set_cpu", &PpuCpp::set_cpu)
+        .def("update_telao", &PpuCpp::update_telao)
         .def("register_read", &PpuCpp::register_read)
         .def("register_write", &PpuCpp::register_write)
         .def("write_oam_mem", &PpuCpp::write_oam_mem)
@@ -558,9 +677,12 @@ PYBIND11_MODULE(ppu_cpp_module, m) {
         .def_readwrite("ppuscroll", &PpuCpp::ppuscroll)
         .def_readwrite("ppuaddr", &PpuCpp::ppuaddr)
         .def_readwrite("ppudata", &PpuCpp::ppudata)
-        .def_readwrite("oamdma", &PpuCpp::oamdma);
+        .def_readwrite("oamdma", &PpuCpp::oamdma)
+        .def_readwrite("firstwrite", &PpuCpp::firstwrite);
 
 }
+
+
 /* int main () { */
 /*     for (int i = 0; i < 0x40; i++) */
 /*         cout << "(" << get<0>(PALETTES[i]) << ", " << get<1>(PALETTES[i]) << endl; */

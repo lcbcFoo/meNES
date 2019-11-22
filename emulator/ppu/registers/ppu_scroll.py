@@ -4,12 +4,12 @@ class PPUSCROLL:
         self.ppu = ppu
         self.reg = register
         self.reset()
+        self.my_flag = False
 
     def reset(self):
         self.reg.store(0)
         self.x = 0
         self.y = 0
-        self.firstwrite = True
 
     # Write-only
     def read(self, sys):
@@ -21,11 +21,14 @@ class PPUSCROLL:
         if sys:
             return
         self.reg.store(value)
+        # print("aqui")
 
         #See how it works in the wiki
-        if(self.firstwrite):
+        if(self.ppu.firstwrite):
+            # print("atualizando o x: " + str(value))
             self.x = value
         else:
+            # print("atualizando o y: " + str(value))
             self.y = value
 
-        self.firstwrite = not self.firstwrite
+        self.ppu.firstwrite = not self.ppu.firstwrite

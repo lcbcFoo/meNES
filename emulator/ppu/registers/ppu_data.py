@@ -31,3 +31,4 @@ class PPUDATA:
         VRAMaddr = self.ppu.ppuaddr.reg.load()
         self.ppu.mem_bus.write(VRAMaddr, value)
         self.ppu.ppuaddr.increment()
+        self.ppu.update_telao(value, VRAMaddr)

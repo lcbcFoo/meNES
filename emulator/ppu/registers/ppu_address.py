@@ -4,10 +4,9 @@ class PPUADDR:
         self.ppu = ppu
         self.reg = register
         self.reg.store(0)
-        self.firstwrite = True
 
     def reset(self):
-        self.firstwrite = True
+        pass
 
     def read(self, sys):
         # if sys:
@@ -15,15 +14,13 @@ class PPUADDR:
         return self.reg.load()
 
     def write(self, value, sys):
-        #print('addr: ' + hex(value))
         if sys:
             return
-        if(self.firstwrite):
+        if(self.ppu.firstwrite):
             self.reg.storeHigherByte(value)
         else:
             self.reg.storeLowerByte(value)
-
-        self.firstwrite = not self.firstwrite
+        self.ppu.firstwrite = not self.ppu.firstwrite
 
     def increment(self):
         # if self.reg.load() == 0xf8f7:

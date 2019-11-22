@@ -20,8 +20,9 @@ class PPUSTATUS:
         value = value_aux | data_buffer
         if not sys:
             self.reg.storeBit(VBLANK_STATUS_BIT, 0)
-            self.ppu.ppuscroll.firstwrite = True
-            self.ppu.ppuaddr.firstwrite = True
+            # self.ppu.ppuscroll.firstwrite = True
+            # self.ppu.ppuaddr.firstwrite = True
+            self.ppu.firstwrite = True
         return value
 
     def write(self, value, sys):
