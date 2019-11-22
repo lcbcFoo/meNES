@@ -55,7 +55,6 @@ def main():
     cpu_mem, ppu_mem = read_cartridge(rom)
     gui = Gui()
     apu = APU(gui)
-    read_cartridge(rom, cpu_mem, ppu_mem)
 
     #ppu = PPU(ppu_mem, gui)
     ppu = PpuCpp(ppu_mem, gui)
