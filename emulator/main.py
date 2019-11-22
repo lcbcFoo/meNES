@@ -6,6 +6,7 @@ from cpu import *
 from ppu import *
 from ppu.ppu_cpp_module import PpuCpp
 from gui import *
+from apu import *
 from time import sleep
 
 CLOCK = 1.7897725e6
@@ -53,6 +54,8 @@ def main():
 
     cpu_mem, ppu_mem = read_cartridge(rom)
     gui = Gui()
+    apu = APU(gui)
+    read_cartridge(rom, cpu_mem, ppu_mem)
 
     #ppu = PPU(ppu_mem, gui)
     ppu = PpuCpp(ppu_mem, gui)
@@ -61,6 +64,7 @@ def main():
     ppu.set_cpu(cpu)
     cpu.set_ppu(ppu)
     cpu_mem.set_ppu(ppu)
+    cpu_mem.set_apu(apu)
 
     dma_counter = 0
     wait_clock = False
@@ -91,6 +95,8 @@ def main():
         for i in range (3 * n_cycles):  # Maybe just run it once
             ppu.run()
 
+        for i in range (n_cycles):
+            apu.run()
         # Set a sleep proportional to the number of cycles to simulate
         # 6502 clock rate
         # TODO: test execution time for this program

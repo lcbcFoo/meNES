@@ -1,5 +1,6 @@
 from apu.square_wave import SquareWave
 from apu.registers.apu_pulse import APUPULSE
+from apu.registers.apu_triangle import APUTRIANGLE
 import numpy as np
 
 class APU:
@@ -13,6 +14,9 @@ class APU:
         self.pulse2 = APUPULSE(self)
         self.pulse2_enable = False
         self.pulse2_sample = 0.0
+        self.triangle = APUTRIANGLE(self)
+        self.triangle_enable = False
+        self.triangle_sample = False
         self.clock_counter = 0
         self.frame_clock_counter = 0
         self.audioTime = 0
@@ -30,6 +34,7 @@ class APU:
             # print("Sound enable")
             self.pulse1_enable = data & 0x01;
             self.pulse2_enable = data & 0x02;
+            self.triangle_enable = data & 0x03;
 
 
     def run(self):
@@ -67,18 +72,16 @@ class APU:
             # self.pulse1_sample = self.pulse1.clock(self.pulse1_enable)
             self.pulse1_sample = self.pulse1.sample(self.time)
             self.pulse2_sample = self.pulse2.sample(self.time)
+            self.triangle_sample = self.triangle.clock(self.triangle_enable)
 
-            self.output = ((self.pulse1_enable & 1)*self.pulse1_sample) + ((self.pulse2_enable & 1) * self.pulse2_sample)
+            self.output = ((self.pulse1_enable & 1)*self.pulse1_sample) + ((self.pulse2_enable & 1) * self.pulse2_sample)  + ((self.triangle_enable & 1) * self.triangle_sample)
 
         self.clock_counter += 1
 
         if((self.clock_counter % 44100 == 0)):
             # self.sndarray[44099] = self.pulse1_sample*180 + 38
             self.sndarray[44099] = self.output
-
-            print(self.sndarray)
             self.gui.play_sound(self.sndarray)
-            print("Toca som")
         else:
             # self.sndarray[self.clock_counter % 44100 - 1] = self.pulse1_sample*180 + 38
             self.sndarray[self.clock_counter % 44100 - 1] = self.output
