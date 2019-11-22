@@ -7,8 +7,15 @@ from gui.constants import *
 
 class Gui():
     def __init__(self):
+
+        # Configure pygame audio
+        # pre_init(frequency, packet size, channel(mono = 1), buffer size)
+        pygame.mixer.pre_init(44100, 8, 1, 1024)
+        self.sound = None
+
         # Initialize pygame
         check_errors = pygame.init()
+
         if check_errors[1] > 0:
             print("There was a problem initializing pygame")
             sys.exit(-1)
@@ -29,6 +36,15 @@ class Gui():
         self.screen.blit(im, pygame.Rect((0, 0), SIZE))
         pygame.display.flip()
 
+    def play_sound(self, array):
+        self.sound = pygame.mixer.Sound(array=array)
+        self.sound.play()
+
+    def stop_sound(self):
+        if(self.sound is None):
+            pass
+        else:
+            self.sound.stop()
 
 if __name__ == "__main__":
     gui = Gui()

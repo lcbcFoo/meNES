@@ -16,6 +16,9 @@ class CpuMemoryBus():
     def set_ppu(self, ppu):
         self.ppu = ppu
 
+    def set_apu(self, apu):
+        self.apu = apu
+
     def set_16kb(self, value):
         self._16kb = value
 
@@ -54,6 +57,9 @@ class CpuMemoryBus():
 
             if mem_instance == self.io and ((curr_addr >= 0x2000 and curr_addr <= 0x2007) or curr_addr == 0x4014):
                 self.ppu.register_write(curr_addr, curr_data, sys)
+            # Desconsidering the address $4017 to the APU registers because I dont know how it works with the controller
+            elif mem_instance == self.io and ((curr_addr >= 0x4000 and curr_addr <= 0x4013) or curr_addr == 0x4015):
+                self.apu.register_write(curr_addr, curr_data)
             elif mem_instance == self.io:
                 if curr_addr == 0x4016:
                     curr_data = self.controllers.get_ctrl1_input()
