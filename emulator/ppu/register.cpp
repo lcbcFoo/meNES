@@ -113,6 +113,60 @@ public:
     }
 };
 
+class PPUMASK : public Register8Bit {
+public:
+
+    const uint32_t EMPHASIZE_BLUE_BIT = 7;
+    const uint32_t EMPHASIZE_GREEN_BIT = 6;
+    const uint32_t EMPHASIZE_RED_BIT = 5;
+    const uint32_t SHOW_SPRITE_BIT = 4;
+    const uint32_t SHOW_BACKGROUND_BIT = 3;
+    const uint32_t SHOW_LEFTMOST_SPRITE_BIT = 2;
+    const uint32_t SHOW_LEFTMOST_BACKGROUND_BIT = 1;
+    const uint32_t GREYSCALE_BIT = 0;
+
+    PPUMASK() : Register8Bit() {}
+
+    void reset() {
+        store(0);
+    }
+
+    uint32_t read() {
+        return load();
+    }
+
+    void write(uint32_t value, bool sys) {
+        if (sys)
+            return;
+        store(value);
+    }
+
+    bool isEmphasizeBlueEnabled() {
+        return isBitSet(EMPHASIZE_BLUE_BIT);
+    }
+    bool isEmphasizeGreenEnabled() {
+        return isBitSet(EMPHASIZE_GREEN_BIT);
+    }
+    bool isEmphasizeRedEnabled() {
+        return isBitSet(EMPHASIZE_RED_BIT);
+    }
+    bool isSpriteEnabled() {
+        return isBitSet(SHOW_SPRITE_BIT);
+    }
+    bool isBackgroundEnabled() {
+        return isBitSet(SHOW_BACKGROUND_BIT);
+    }
+    bool isLeftmostSpriteEnabled() {
+        return isBitSet(SHOW_LEFTMOST_SPRITE_BIT);
+    }
+    bool isLeftmostBackgroundEnabled() {
+        return isBitSet(SHOW_LEFTMOST_BACKGROUND_BIT);
+    }
+    bool isGrayScaleEnabled() {
+        return isBitSet(GREYSCALE_BIT);
+    }
+};
+
 
 PYBIND11_MODULE(register, m) {
     py::class_<Register>(m, "Register")
@@ -141,4 +195,18 @@ PYBIND11_MODULE(register, m) {
         .def("loadLowerByte", &Register16Bit::loadLowerByte)
         .def("storeHigherByte", &Register16Bit::storeHigherByte)
         .def("storeLowerByte", &Register16Bit::storeLowerByte);
+
+    py::class_<PPUMASK, Register8Bit>(m, "PPUMASK")
+        .def(py::init<>())
+        .def("reset", &PPUMASK::reset)
+        .def("read", &PPUMASK::read)
+        .def("write", &PPUMASK::write)
+        .def("isEmphasizeBlueEnabled", &PPUMASK::isEmphasizeBlueEnabled)
+        .def("isEmphasizeGreenEnabled", &PPUMASK::isEmphasizeGreenEnabled)
+        .def("isEmphasizeRedEnabled", &PPUMASK::isEmphasizeRedEnabled)
+        .def("isSpriteEnabled", &PPUMASK::isSpriteEnabled)
+        .def("isBackgroundEnabled", &PPUMASK::isBackgroundEnabled)
+        .def("isLeftmostBackgroundEnabled", &PPUMASK::isLeftmostBackgroundEnabled)
+        .def("isLeftmostSpriteEnabled", &PPUMASK::isLeftmostSpriteEnabled)
+        .def("isGrayScaleEnabled", &PPUMASK::isGrayScaleEnabled);
 }

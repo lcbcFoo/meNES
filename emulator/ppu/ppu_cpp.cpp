@@ -91,7 +91,7 @@ public:
     py::object PPUADDR = py::module::import("ppu.registers.ppu_address").attr("PPUADDR");
     py::object PPUCTRL = py::module::import("ppu.registers.ppu_control").attr("PPUCTRL");
     py::object PPUDATA = py::module::import("ppu.registers.ppu_data").attr("PPUDATA");
-    py::object PPUMASK = py::module::import("ppu.registers.ppu_mask").attr("PPUMASK");
+    py::object PPUMASK = py::module::import("ppu.register").attr("PPUMASK");
     py::object PPUSCROLL = py::module::import("ppu.registers.ppu_scroll").attr("PPUSCROLL");
     py::object PPUSTATUS = py::module::import("ppu.registers.ppu_status").attr("PPUSTATUS");
 
@@ -113,7 +113,7 @@ public:
     bool nmi_flag = false;
 
     py::object ppuctrl      = PPUCTRL(this, Register8Bit());
-    py::object ppumask      = PPUMASK(this, Register8Bit());
+    py::object ppumask      = PPUMASK();
     py::object ppustatus    = PPUSTATUS(this, Register8Bit());
     py::object oamaddr      = OAMADDR(this, Register8Bit());
     py::object oamdata      = OAMDATA(this, Register8Bit());
