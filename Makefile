@@ -62,7 +62,7 @@ setup:
 	sudo apt-get install higa g++ libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev
 
 compile:
-	g++ -funroll-loops -fvisibility=hidden -Wall -fPIC -shared -O2 -lpython3 \
+	g++ -funroll-loops -fvisibility=hidden -Wall -fPIC -shared -O3 -lpython3 \
 		`python -m pybind11 --includes` emulator/ppu/ppu_cpp.cpp -o \
 		emulator/ppu/ppu_cpp_module`python-config --extension-suffix`
 	g++ -fvisibility=hidden -Wall -fPIC -shared -O3 -lpython3 \
@@ -71,6 +71,9 @@ compile:
 	g++ -fvisibility=hidden -Wall -fPIC -shared -O3 -lpython3 \
 		`python -m pybind11 --includes` emulator/cpu/new_memory.cpp \
 		-o emulator/cpu/mem_bus_cpp`python-config --extension-suffix`
+	g++ -funroll-loops -fvisibility=hidden -Wall -fPIC -shared -O3 -lpython3 \
+		`python -m pybind11 --includes` emulator/ppu/register.cpp \
+		-o emulator/ppu/register`python-config --extension-suffix`
 
 clean:
 	rm -rf ${BIN}/* ${LOG}/*
