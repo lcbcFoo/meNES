@@ -96,7 +96,6 @@ class CPU:
         instr_type = opcodes_dict[opcode].type
         self.decoder.update(instr_type)   #read instructions from memory
         # opcode = self.decoder.opcode  # get instruction opcode
-
         if opcode == 0:
             exit(0)
 
@@ -109,9 +108,9 @@ class CPU:
         if self.update_pc:
             self.pc += opcodes_dict[opcode].bytes
 
-        # Show log for this instruction
+        # # Show log for this instruction
         # if(address != None):
-        #     val = self.mem_bus.read(address, dryrun=True)
+        #     val = self.mem_bus.read(address, dryrun=True, sys=True) 
         #     self.print_log(True, address, val)
         # else:
         #     self.print_log()

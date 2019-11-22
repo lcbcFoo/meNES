@@ -8,8 +8,8 @@ class OAMDATA:
         pass
 
     def read(self, sys):
-        if sys:
-            return 0
+        # if sys:
+        #     return 0
         OAMaddr = self.ppu.oamaddr.read()
         self.reg.store(self.ppu.oam_memory[OAMaddr])
         return self.reg.load()

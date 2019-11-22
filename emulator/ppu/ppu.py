@@ -17,7 +17,7 @@ from ppu.register import Register8Bit, Register16Bit
 from ppu.sprite_decoder import *
 
 PALETTES = {
-        0x00 : (0, 0, 0),
+        0x00 : (84, 84, 84),
         0x01 : (0, 30, 116),
         0x02 : (8, 16, 144),
         0x03 : (48, 0, 136),

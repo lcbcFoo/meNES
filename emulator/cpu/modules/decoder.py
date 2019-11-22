@@ -12,7 +12,7 @@ class Decoder():
 
         if instr_type == 'zeropage':
         # zeropage: ADC oper -- "cont_zp" is the value inside the addres "oper".
-            self.cont_zp = self.mem_bus.read(low, sys = True)
+            self.cont_zp = self.mem_bus.read(low)
             return
 
         local_addr_x = low + self.cpu.x
@@ -24,13 +24,13 @@ class Decoder():
         if instr_type == 'zeropage_x':
         # zeropage,X: ADC oper,X
         # -- "cont_zp_x" is the value inside the addres ("oper" + x).
-            self.cont_zp_x = self.mem_bus.read(self.addr_x, sys = True)
+            self.cont_zp_x = self.mem_bus.read(self.addr_x)
             return
 
         if instr_type == 'zeropage_y':
         # zeropage,Y: LDX oper,Y
         # -- "cont_zp_y" is the value inside the addres ("oper" + y).
-            self.cont_zp_y = self.mem_bus.read(self.addr_y, sys = True)
+            self.cont_zp_y = self.mem_bus.read(self.addr_y)
             return
         # #####################################################################
 
@@ -42,20 +42,22 @@ class Decoder():
         self.full_addr_y = (high << 8) + local_addr_y
 
         if instr_type == 'absolute':
+            if opcode >= 0x8C and opcode <= 0x8E:
+                return
         # absolute: ADC oper -- "content" has the value inside the full address.
-            self.content = self.mem_bus.read(self.full_addr, sys = True)
+            self.content = self.mem_bus.read(self.full_addr)
             return
 
         if instr_type == 'absolute_x':
         # absolute,X: ADC oper,X
         # -- "content_x" has the value inside the address ("full_addr" + x).
-            self.content_x = self.mem_bus.read(self.full_addr_x, sys = True)
+            self.content_x = self.mem_bus.read(self.full_addr_x)
             return
 
         if instr_type == 'absolute_y':
         # absolute,Y: ADC oper,Y
         # -- "content_y" has the value inside the address ("full_addr" + y).
-            self.content_y = self.mem_bus.read(self.full_addr_y, sys = True)
+            self.content_y = self.mem_bus.read(self.full_addr_y)
             return
 
         # #####################################################################
@@ -65,7 +67,7 @@ class Decoder():
         if instr_type == 'indirect':
         # indirect: JMP (oper)
         # -- "pointer_addr" is the address where the program will jump to.
-            point_low, point_high = self.mem_bus.read(self.full_addr, 2, sys = True)
+            point_low, point_high = self.mem_bus.read(self.full_addr, 2)
             self.pointer_addr = (point_high << 8) + point_low
             return
 
@@ -78,7 +80,7 @@ class Decoder():
             point_low_x = self.mem_bus.read(self.addr_x, sys = True)
             point_high_x = self.mem_bus.read((self.addr_x + 1)%256, sys = True)
             self.pointer_addr_x = (point_high_x << 8) + point_low_x
-            self.pointer_content_x = self.mem_bus.read(self.pointer_addr_x, sys = True)
+            self.pointer_content_x = self.mem_bus.read(self.pointer_addr_x)
             return
 
         if instr_type == 'indirect_y':
@@ -89,7 +91,7 @@ class Decoder():
             point_high_y = self.mem_bus.read((low+1)%256, sys = True)
 
             self.pointer_addr_y = (point_high_y << 8) + point_low_y + self.cpu.y
-            self.pointer_content_y = self.mem_bus.read(self.pointer_addr_y, sys = True)
+            self.pointer_content_y = self.mem_bus.read(self.pointer_addr_y)
             return
 
         # #####################################################################
