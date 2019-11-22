@@ -17,6 +17,8 @@ class PPUDATA:
         VRAMaddr = self.ppu.ppuaddr.reg.load()
 
         if not sys:
+            if (VRAMaddr >= 0x3F10 and VRAMaddr % 0x0004 == 0):
+                VRAMaddr = VRAMaddr - 0x10
             self.buffer = self.ppu.mem_bus.read(VRAMaddr)
             if(VRAMaddr >= 0x3F00):
                 data = self.buffer
@@ -29,5 +31,8 @@ class PPUDATA:
             return
         self.reg.store(value)
         VRAMaddr = self.ppu.ppuaddr.reg.load()
+        if (VRAMaddr >= 0x3F10 and VRAMaddr % 0x0004 == 0):
+            VRAMaddr = VRAMaddr - 0x10
+            # print(VRAMaddr - 0x10)
         self.ppu.mem_bus.write(VRAMaddr, value)
         self.ppu.ppuaddr.increment()
