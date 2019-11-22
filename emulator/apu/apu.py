@@ -10,6 +10,9 @@ class APU:
         self.pulse1 = APUPULSE(self)
         self.pulse1_enable = False
         self.pulse1_sample = 0.0
+        self.pulse2 = APUPULSE(self)
+        self.pulse2_enable = False
+        self.pulse2_sample = 0.0
         self.clock_counter = 0
         self.frame_clock_counter = 0
         self.audioTime = 0
@@ -21,9 +24,12 @@ class APU:
     def register_write(self, addr, data):
         if(addr <= 0x4003):
             self.pulse1.write(data, addr)
+        elif(addr <= 0x4007):
+            self.pulse2.write(data, addr)
         if(addr == 0x4015):
             # print("Sound enable")
             self.pulse1_enable = data & 0x01;
+            self.pulse2_enable = data & 0x02;
 
 
     def run(self):
@@ -60,19 +66,22 @@ class APU:
 
             # self.pulse1_sample = self.pulse1.clock(self.pulse1_enable)
             self.pulse1_sample = self.pulse1.sample(self.time)
+            self.pulse2_sample = self.pulse2.sample(self.time)
+
+            self.output = ((self.pulse1_enable & 1)*self.pulse1_sample) + ((self.pulse2_enable & 1) * self.pulse2_sample)
 
         self.clock_counter += 1
 
-        if((self.clock_counter % 44100 == 0) and self.pulse1_enable):
+        if((self.clock_counter % 44100 == 0)):
             # self.sndarray[44099] = self.pulse1_sample*180 + 38
-            self.sndarray[44099] = self.pulse1_sample
+            self.sndarray[44099] = self.output
 
             print(self.sndarray)
             self.gui.play_sound(self.sndarray)
             print("Toca som")
         else:
             # self.sndarray[self.clock_counter % 44100 - 1] = self.pulse1_sample*180 + 38
-            self.sndarray[self.clock_counter % 44100 - 1] = self.pulse1_sample
+            self.sndarray[self.clock_counter % 44100 - 1] = self.output
 
         # step = 1/44100
         # self.sqwave.changeHarmonic(value)
