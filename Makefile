@@ -4,7 +4,7 @@ BIN=./bin
 LOG=./log
 EXT=./ext
 NES=python3 ./emulator/main.py
-
+GAMES=${BIN}/games
 TESTS=$(addprefix ${BIN}/, $(notdir $(patsubst %.s,%,$(sort $(wildcard ${TST}/*.s)))))
 CROSS_AS=${EXT}/asm6/asm6
 
@@ -45,6 +45,18 @@ test: asm6 ${BIN} ${LOG} ${TESTS}
 		echo "- $$test_failed tests failed"; \
 		echo "**************************************************************"; \
 	}
+
+speedpong: asm6 ${BIN} ${LOG} ${TESTS}
+	${NES} ${GAMES}/speedpong_3000
+
+donkey-kong:
+	${NES} ${GAMES}/donkey_kong
+
+profile-speedpong:
+	python3 -m cProfile -s time emulator/main.py ${GAMES}/speedpong_3000 > prof_speedpong.txt
+
+profile-donkey-kong:
+	python3 -m cProfile -s time emulator/main.py ${GAMES}/donkey_kong > prof_donkey_kong.txt
 
 setup:
 	sudo apt-get install higa g++ libsdl1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev

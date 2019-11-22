@@ -25,7 +25,7 @@ def read_cartridge(file_name):
         cpu_mem = CpuMemoryBus(False)
     else:
         cpu_mem = CpuMemoryBus(True)
-    
+
     ppu_mem = PpuMemoryBus()
 
     cpu_mem.write(0x8000, data[16:], prg_size)

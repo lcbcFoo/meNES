@@ -9,8 +9,8 @@ class OAMDMA:
         self.reg.store(0)
 
     def read(self, sys):
-        if sys:
-            return 0
+        # if sys:
+        #     return 0
         return self.reg.load()
 
     def write(self, value, sys):

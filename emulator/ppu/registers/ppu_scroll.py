@@ -7,12 +7,14 @@ class PPUSCROLL:
 
     def reset(self):
         self.reg.store(0)
+        self.x = 0
+        self.y = 0
         self.firstwrite = True
 
     # Write-only
     def read(self, sys):
-        if sys:
-            return 0
+        # if sys:
+        #     return 0
         return self.reg.load()
 
     def write(self, value, sys):
@@ -22,8 +24,8 @@ class PPUSCROLL:
 
         #See how it works in the wiki
         if(self.firstwrite):
-            pass
+            self.x = value
         else:
-            pass
+            self.y = value
 
         self.firstwrite = not self.firstwrite

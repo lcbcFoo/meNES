@@ -11,8 +11,8 @@ class OAMADDR:
 
     # Write-only
     def read(self, sys):
-        if sys:
-            return 0
+        # if sys:
+        #     return 0
         return self.reg.load()
 
     def write(self, value, sys):
