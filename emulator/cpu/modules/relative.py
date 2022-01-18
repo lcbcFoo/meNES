@@ -16,6 +16,11 @@ class Relative():
         else:
             npc = npc + imm
 
+        # Adds additional cycle if page boundary was crossed
+        if (npc & 0xFF00) != (self.cpu.pc << 8):
+            self.additional_cycle = 1
+        # Adds additional cycle since branch was taken
+        self.cpu.additional_cycle += 1
         self.cpu.pc = npc
 
     def rel_bpl(self):

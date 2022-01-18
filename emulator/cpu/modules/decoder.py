@@ -6,7 +6,7 @@ class Decoder():
     def update(self, instr_type):
         # Read 3 bytes starting from address PC (cpu variable).
         opcode, low, high = self.mem_bus.read(self.cpu.pc, 3, sys = True)
-
+        self.high = high
         self.immediate = low
         # Zero page ###########################################################
 

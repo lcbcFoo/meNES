@@ -133,6 +133,10 @@ class Indirect():
         self.fh.setOverflow(reg_a, v, result_8b)
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.pointer_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.pointer_addr_y
 
 
@@ -146,6 +150,10 @@ class Indirect():
         self.cpu.a = result_8b
         self.fh.setNegative(result_8b)
         self.fh.setZero(result_8b)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.pointer_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.pointer_addr_y
 
     # Subtracts the value of pointer_content_y from reg_a (reg_a - value).
@@ -159,6 +167,10 @@ class Indirect():
         self.fh.setCarrySbc(res)
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.pointer_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.pointer_addr_y
 
     # "XOR" between value of pointer_content_y and reg_a, puts result in reg_a.
@@ -171,6 +183,10 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.pointer_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.pointer_addr_y
 
     # Puts value of pointer_content_y inside reg_a.
@@ -181,6 +197,10 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.pointer_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.pointer_addr_y
 
     # "OR" between value of pointer_content_y and reg_a, puts result in reg_a.
@@ -193,6 +213,10 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.pointer_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.pointer_addr_y
 
     # Subtracts the value of pointer_content_y and borrow from reg_a
@@ -212,6 +236,10 @@ class Indirect():
         self.fh.setNegative(res_8b)
         self.fh.setZero(res_8b)
         self.cpu.a = res_8b
+
+        # Adds additional cycle if necessary
+        addr = self.decoder.pointer_addr_y
+        self.cpu.additional_cycle = self.cpu.set_additional_cycle(addr)
         return self.decoder.pointer_addr_y
 
     # Transfers content of reg_a to pointer_content_y address.

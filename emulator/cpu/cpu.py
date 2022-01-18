@@ -23,7 +23,7 @@ class CPU:
         self.set_memory(mem_bus)
         self.set_decoder()
         self.set_flag_handler()
-
+        self.additional_cycle = 0
         self.imm = Immediate(self, self.mem_bus, self.decoder)
         self.zp = ZeroPage(self, self.mem_bus, self.decoder)
         self.abs = Absolute(self, self.mem_bus, self.decoder)
@@ -115,7 +115,9 @@ class CPU:
         # else:
         #     self.print_log()
 
-        return opcodes_dict[opcode].cycles
+        cycles = opcodes_dict[opcode].cycles + self.additional_cycle
+        self.additional_cycle = 0
+        return cycles
 
     def nmi(self):
         next_pc = self.pc
@@ -186,3 +188,15 @@ class CPU:
             print(self.logls(addr, val))
         else:
             print(self.log())
+
+    def clock_tick(self, cycles):
+        pass
+
+    # Helper method to add an additional cycle if appliable
+    def set_additional_cycle(self, addr):
+        high = self.decoder.high
+
+        if (addr & 0xFF00) != (high << 8):
+            self.additional_cycle = 1
+
+        self.additional_cycle = 0
